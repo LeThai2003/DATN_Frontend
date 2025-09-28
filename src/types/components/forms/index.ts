@@ -1,7 +1,7 @@
 import React from 'react';
 import { Control, FieldError } from 'react-hook-form';
 
-export type FieldType = 'input' | 'select' | 'datepicker';
+export type FieldType = 'input' | 'select' | 'datepicker' | 'text' | 'textarea';
 
 export type FormFieldProps<T extends Record<string, any> = any> = {
     name: keyof T;
@@ -15,5 +15,7 @@ export type FormFieldProps<T extends Record<string, any> = any> = {
     suffix?: React.ReactNode;
     disabled?: boolean;
     required?: boolean;
-    options?: { label: string; value: string | number }[];
+    options?: { label: string; value: string | number | boolean }[];
+    rows?: number;
+    maxLength?: number;
 };

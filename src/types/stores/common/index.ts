@@ -21,7 +21,10 @@ export interface ModalState {
     variant?: string;
 }
 
-export enum ModalType {}
+export enum ModalType {
+    DRUG = 'DRUG',
+    UNIT = 'UNIT',
+}
 
 export interface CommonType {
     messageQueue: MessageType[];

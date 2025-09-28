@@ -6,6 +6,8 @@ import ClinicLayout from '@/layouts/ClinicLayout';
 import Error404 from '@/pages/errors/Error404';
 
 const Login = lazy(() => import('../pages/auths/Login'));
+const Drug = lazy(() => import('../pages/drugs/Drug'));
+const DetailEditDrug = lazy(() => import('../pages/drugs/DetailEdit'));
 
 function AppRoutes() {
     const routes = useRoutes([
@@ -13,6 +15,18 @@ function AppRoutes() {
             path: '/',
             element: <ClinicLayout />,
             children: [
+                {
+                    path: '/manager/drugs',
+                    element: (
+                        <TitleRouter title="Quản lý thuốc">
+                            <Drug />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    path: '/manager/drugs/:type/:id',
+                    element: <DetailEditDrug />,
+                },
                 {
                     path: '*',
                     element: <Error404 />,

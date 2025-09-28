@@ -39,7 +39,7 @@ export default {
         "secondary": "#22c55e",
         "accent": "#FEC600",
         "stroke-dark": "#2d3135",
-        "bg-gray": "#faf5f0",
+        "bg-gray": "#f0f8ff70",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

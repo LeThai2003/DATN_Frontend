@@ -1,9 +1,12 @@
 import { Menu } from 'antd';
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { clinicMenu } from './ClinicMenu';
 
 function ClinicSidebar() {
     const role = 'manager';
+    const location = useLocation();
+
+    const currentKey = location.pathname.split('/')[2] || 'dashboard';
 
     const items = (clinicMenu[role] || []).map((item) => ({
         key: item.key,
@@ -11,7 +14,7 @@ function ClinicSidebar() {
         label: <Link to={`/${role}/${item.key}`}>{item.label}</Link>,
     }));
 
-    return <Menu mode="inline" defaultSelectedKeys={['dashboard']} items={items} />;
+    return <Menu mode="inline" defaultSelectedKeys={[currentKey]} items={items} />;
 }
 
 export default ClinicSidebar;

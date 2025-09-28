@@ -35,19 +35,19 @@ const ClinicLayout = () => {
                     >
                         {collapsed ? (
                             <div className="flex flex-col items-center w-[80px]">
-                                <h1 className="text-sm font-bold text-blue-600 text-center leading-tight select-none">
+                                <h1 className="text-sm font-bold text-primary text-center leading-tight select-none">
                                     MediClinic
                                 </h1>
-                                <p className="italic text-[10px] font-semibold select-none text-center leading-tight text-green-600">
+                                <p className="italic text-[10px] font-semibold select-none text-center leading-tight text-secondary">
                                     Y tế thông minh
                                 </p>
                             </div>
                         ) : (
                             <div className="flex flex-col items-start">
-                                <h1 className="text-2xl font-bold text-blue-600 select-none">
+                                <h1 className="text-2xl font-bold text-primary select-none">
                                     MediClinic
                                 </h1>
-                                <p className="italic text-xs font-semibold select-none text-green-600">
+                                <p className="italic text-xs font-semibold select-none text-secondary">
                                     Y tế thông minh · Smart Healthcare
                                 </p>
                             </div>
@@ -99,7 +99,7 @@ const ClinicLayout = () => {
                         <ClinicSidebar />
                     </Sider>
                     <Content
-                        className="p-5 transition-all duration-200 ease-in-out bg-bg-gray"
+                        className="py-2 px-4 transition-all duration-200 ease-in-out bg-bg-gray"
                         style={{
                             marginLeft: !isMobile ? (collapsed ? '80px' : '230px') : '80px',
                             minHeight: 'calc(100vh - 65px)',

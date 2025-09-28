@@ -1,6 +1,7 @@
 import { ErrorBoundary } from '@sentry/react';
 import AppRoutes from './routes';
 import FallbackError from './sentry/FallBackError';
+import ModalRender from './components/modals/ModalRender';
 
 function App() {
     return (
@@ -8,7 +9,7 @@ function App() {
             <ErrorBoundary fallback={({ resetError }) => <FallbackError resetError={resetError} />}>
                 {/* {loadingPage && <LoadingPage />} */}
                 <AppRoutes />
-                {/* <ModalRenderer /> */}
+                <ModalRender />
             </ErrorBoundary>
         </>
     );

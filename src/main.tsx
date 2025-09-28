@@ -6,6 +6,7 @@ import { BrowserRouter } from 'react-router';
 import { Provider } from 'react-redux';
 import { store } from './stores/configs';
 import MessagePopup from './components/popups/MessagePopup';
+import ModalBase from '@/components/modals/ModalBase';
 
 createRoot(document.getElementById('root')!).render(
     <Provider store={store}>
