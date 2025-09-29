@@ -33,7 +33,7 @@ const ModalBase = ({ children, type, size = 'md' }: ModalBaseProps) => {
         <div className="fixed inset-0 z-50 bg-black bg-opacity-65 flex items-center justify-center">
             <div className="container flex items-center justify-center">
                 <div
-                    className={`bg-white rounded-lg p-6 relative overflow-y-auto 
+                    className={`bg-white rounded-lg p-6 relative 
                     ${sizeClasses[size]} max-h-[90vh]`}
                 >
                     <button

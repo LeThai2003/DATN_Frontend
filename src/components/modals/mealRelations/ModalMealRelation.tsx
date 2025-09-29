@@ -4,10 +4,10 @@ import ModalBase from '../ModalBase';
 import { Button } from 'antd';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { unitSchema } from '@/validations/unit.validation';
 import FormField from '@/components/forms/FormField';
+import { mealRelationSchema } from '@/validations/mealRelation.validation';
 
-const ModalUnitDrug: React.FC<ModalState> = ({ data, type, variant }) => {
+const ModalMealRelation: React.FC<ModalState> = ({ data, type, variant }) => {
     const {
         control,
         handleSubmit,
@@ -17,9 +17,9 @@ const ModalUnitDrug: React.FC<ModalState> = ({ data, type, variant }) => {
     } = useForm({
         defaultValues: {
             name: data?.name || '',
-            descriptions: data?.descriptions || '',
+            description: data?.description || '',
         },
-        resolver: yupResolver(unitSchema),
+        resolver: yupResolver(mealRelationSchema),
     });
 
     const onSubmit = (data) => {
@@ -29,14 +29,16 @@ const ModalUnitDrug: React.FC<ModalState> = ({ data, type, variant }) => {
 
     if (variant == 'delete') {
         return (
-            <ModalBase type={type} size="sm">
+            <ModalBase type={type} size="md">
                 <div>
-                    <h2 className="font-semibold mb-3 text-center">Xóa đơn vị thuốc</h2>
+                    <h2 className="font-semibold mb-3 text-center">
+                        Xóa thời điểm uống thuốc so với bữa ăn
+                    </h2>
                 </div>
                 <div className="">
                     <p className="text-center">
                         <>
-                            Bạn có chắc muốn xóa đơn vị <b>"{data.name}"</b> không?
+                            Bạn có chắc muốn xóa thời điểm <b>"{data.name}"</b> không?
                         </>
                     </p>
                     <div className="flex justify-end space-x-3 mt-4">
@@ -52,10 +54,12 @@ const ModalUnitDrug: React.FC<ModalState> = ({ data, type, variant }) => {
 
     if (variant == 'view' || variant == 'edit') {
         return (
-            <ModalBase type={type} size="sm">
+            <ModalBase type={type} size="md">
                 <div>
                     <h2 className="font-semibold mb-3 text-center">
-                        {variant == 'view' ? 'Thông tin đơn vị' : 'Cập nhật đơn vị'}
+                        {variant == 'view'
+                            ? 'Thời điểm uống thuốc so với bữa ăn'
+                            : 'Cập nhật thời điểm uống thuốc với bữa ăn'}
                     </h2>
                     <form
                         onSubmit={handleSubmit(onSubmit)}
@@ -64,8 +68,8 @@ const ModalUnitDrug: React.FC<ModalState> = ({ data, type, variant }) => {
                         <FormField
                             name="name"
                             control={control}
-                            label="Tên đơn vị thuốc"
-                            placeholder="Nhập tên đơn vị thuốc"
+                            label="Thời điểm"
+                            placeholder="Nhập thời điểm uống thuốc"
                             type={variant === 'edit' ? 'input' : 'text'}
                             inputType="text"
                             required={variant == 'edit'}
@@ -74,15 +78,15 @@ const ModalUnitDrug: React.FC<ModalState> = ({ data, type, variant }) => {
                             helperText={errors.name?.message as string}
                         />
                         <FormField
-                            name="descriptions"
+                            name="description"
                             control={control}
-                            label="Mô tả đơn vị thuốc"
-                            placeholder="Nhập mô tả đơn vị thuốc"
+                            label="Mô tả thời điểm"
+                            placeholder="Nhập mô tả thời điểm uống thuốc"
                             type={variant === 'edit' ? 'textarea' : 'text'}
                             disabled={variant != 'edit'}
                             rows={3}
-                            error={!!errors.descriptions}
-                            helperText={errors.descriptions?.message as string}
+                            error={!!errors.description}
+                            helperText={errors.description?.message as string}
                         />
                         {variant == 'edit' && (
                             <div className="flex justify-end gap-2">
@@ -100,9 +104,11 @@ const ModalUnitDrug: React.FC<ModalState> = ({ data, type, variant }) => {
 
     if (variant == 'add') {
         return (
-            <ModalBase type={type} size="sm">
+            <ModalBase type={type} size="md">
                 <div>
-                    <h2 className="font-semibold mb-3 text-center">Thêm mới đơn vị thuốc</h2>
+                    <h2 className="font-semibold mb-3 text-center">
+                        Thêm mới thời điểm uống thuốc với bữa ăn
+                    </h2>
                     <form
                         onSubmit={handleSubmit(onSubmit)}
                         className="space-y-4 mt-2 pr-1 pt-2 overflow-y-auto h-[92%]"
@@ -110,8 +116,8 @@ const ModalUnitDrug: React.FC<ModalState> = ({ data, type, variant }) => {
                         <FormField
                             name="name"
                             control={control}
-                            label="Tên đơn vị thuốc"
-                            placeholder="Nhập tên đơn vị thuốc"
+                            label="Thời điểm uống thuốc"
+                            placeholder="Trước ăn"
                             type="input"
                             inputType="text"
                             required
@@ -119,14 +125,14 @@ const ModalUnitDrug: React.FC<ModalState> = ({ data, type, variant }) => {
                             helperText={errors.name?.message as string}
                         />
                         <FormField
-                            name="descriptions"
+                            name="description"
                             control={control}
-                            label="Mô tả đơn vị thuốc"
-                            placeholder="Nhập mô tả đơn vị thuốc"
+                            label="Mô tả thời điểm uống thuốc"
+                            placeholder="Uống thuốc sau bữa ăn"
                             type="textarea"
                             rows={3}
-                            error={!!errors.descriptions}
-                            helperText={errors.descriptions?.message as string}
+                            error={!!errors.description}
+                            helperText={errors.description?.message as string}
                         />
                         <div className="flex justify-end gap-2">
                             <Button onClick={() => reset(data)}>Hoàn tác</Button>
@@ -143,4 +149,4 @@ const ModalUnitDrug: React.FC<ModalState> = ({ data, type, variant }) => {
     return <div>ModalDrug</div>;
 };
 
-export default ModalUnitDrug;
+export default ModalMealRelation;

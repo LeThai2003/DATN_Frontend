@@ -7,7 +7,6 @@ import Error404 from '@/pages/errors/Error404';
 
 const Login = lazy(() => import('../pages/auths/Login'));
 const Drug = lazy(() => import('../pages/drugs/Drug'));
-const DetailEditDrug = lazy(() => import('../pages/drugs/DetailEdit'));
 
 function AppRoutes() {
     const routes = useRoutes([
@@ -23,10 +22,7 @@ function AppRoutes() {
                         </TitleRouter>
                     ),
                 },
-                {
-                    path: '/manager/drugs/:type/:id',
-                    element: <DetailEditDrug />,
-                },
+
                 {
                     path: '*',
                     element: <Error404 />,

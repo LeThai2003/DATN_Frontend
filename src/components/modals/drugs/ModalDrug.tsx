@@ -16,28 +16,19 @@ const ModalDrug: React.FC<ModalState> = ({ data, type, variant }) => {
         formState: { errors, isSubmitting },
     } = useForm({
         defaultValues: {
-            name: '',
-            generic_name: '',
-            description: '',
-            dosage_form: '',
-            strength: '',
-            usage_instructions: '',
-            packaging: '',
-            manufacturer: '',
-            distributor: '',
-            side_effects: '',
-            contraindications: '',
-            allergy_info: '',
-            storage_info: '',
-            is_insurance_covered: false,
-            insurance_code: null,
-            insurance_rate: null,
-            insurance_notes: '',
+            name: data?.name || '',
+            generic_name: data?.generic_name || '',
+            description: data?.description || '',
+            packaging: data?.packaging || '',
+            side_effects: data?.side_effects || '',
+            contraindications: data?.contraindications || '',
+            allergy_info: data?.allergy_info || '',
         },
         resolver: yupResolver(drugSchema),
     });
 
     const onSubmit = (data: any) => {
+        console.log(variant);
         console.log(data);
     };
 
@@ -46,241 +37,225 @@ const ModalDrug: React.FC<ModalState> = ({ data, type, variant }) => {
     if (variant == 'add') {
         return (
             <ModalBase type={type} size="lg">
-                <div>
-                    <h2 className="font-semibold mb-3 text-center">Thêm mới thuốc</h2>
-                </div>
-                <form
-                    onSubmit={handleSubmit(onSubmit)}
-                    className="p-6 pb-2 bg-white rounded-2xl space-y-6"
-                >
-                    {/* Thông tin cơ bản */}
-                    <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                            name="name"
-                            control={control}
-                            label="Tên thuốc"
-                            placeholder="Nhập tên thuốc"
-                            type="input"
-                            inputType="text"
-                            required
-                            error={!!errors.name}
-                            helperText={errors.name?.message}
-                        />
+                <div className="flex flex-col max-h-[85vh]">
+                    <h2 className="font-semibold mb-3 pb-2 shrink-0 text-center border-b border-gray-200">
+                        Thêm mới thuốc
+                    </h2>
+                    <div className="overflow-y-auto">
+                        <form
+                            onSubmit={handleSubmit(onSubmit)}
+                            className="px-6 pt-4 pb-2 bg-white rounded-2xl space-y-4 h-[92%] overflow-y-auto"
+                        >
+                            <FormField
+                                name="name"
+                                control={control}
+                                label="Tên thuốc"
+                                placeholder="Nhập tên thuốc"
+                                type="input"
+                                inputType="text"
+                                required
+                                error={!!errors.name}
+                                helperText={errors.name?.message as string}
+                            />
 
-                        <FormField
-                            name="generic_name"
-                            control={control}
-                            label="Tên hoạt chất"
-                            placeholder="Nhập tên hoạt chất"
-                            type="input"
-                            inputType="text"
-                            required
-                            error={!!errors.generic_name}
-                            helperText={errors.generic_name?.message}
-                        />
+                            <FormField
+                                name="generic_name"
+                                control={control}
+                                label="Tên hoạt chất"
+                                placeholder="Nhập tên hoạt chất"
+                                type="input"
+                                inputType="text"
+                                error={!!errors.generic_name}
+                                helperText={errors.generic_name?.message as string}
+                            />
 
-                        <FormField
-                            name="dosage_form"
-                            control={control}
-                            label="Dạng bào chế"
-                            placeholder="VD: Viên nén, ống tiêm..."
-                            type="input"
-                            inputType="text"
-                            required
-                            error={!!errors.dosage_form}
-                            helperText={errors.dosage_form?.message}
-                        />
+                            <FormField
+                                name="packaging"
+                                control={control}
+                                label="Quy cách đóng gói"
+                                placeholder="VD: Hộp 10 vỉ x 10 viên"
+                                type="input"
+                                inputType="text"
+                                error={!!errors.packaging}
+                                helperText={errors.packaging?.message as string}
+                            />
 
-                        <FormField
-                            name="strength"
-                            control={control}
-                            label="Hàm lượng"
-                            placeholder="VD: 500mg"
-                            type="input"
-                            inputType="text"
-                            required
-                            error={!!errors.strength}
-                            helperText={errors.strength?.message}
-                        />
+                            <FormField
+                                name="description"
+                                control={control}
+                                label="Mô tả"
+                                placeholder="Nhập mô tả"
+                                type="textarea"
+                                error={!!errors.description}
+                                helperText={errors.description?.message as string}
+                            />
 
-                        <FormField
-                            name="packaging"
-                            control={control}
-                            label="Quy cách đóng gói"
-                            placeholder="VD: Hộp 10 vỉ x 10 viên"
-                            type="input"
-                            inputType="text"
-                            required
-                            error={!!errors.packaging}
-                            helperText={errors.packaging?.message}
-                        />
+                            <FormField
+                                name="side_effects"
+                                control={control}
+                                label="Tác dụng phụ"
+                                placeholder="Nhập tác dụng phụ"
+                                type="input"
+                                inputType="text"
+                                error={!!errors.side_effects}
+                                helperText={errors.side_effects?.message as string}
+                            />
 
-                        <FormField
-                            name="manufacturer"
-                            control={control}
-                            label="Nhà sản xuất"
-                            placeholder="Nhập nhà sản xuất"
-                            type="input"
-                            inputType="text"
-                            required
-                            error={!!errors.manufacturer}
-                            helperText={errors.manufacturer?.message}
-                        />
-                    </div>
+                            <FormField
+                                name="contraindications"
+                                control={control}
+                                label="Chống chỉ định"
+                                placeholder="Nhập chống chỉ định"
+                                type="input"
+                                inputType="text"
+                                error={!!errors.contraindications}
+                                helperText={errors.contraindications?.message as string}
+                            />
 
-                    {/* Thông tin BHYT */}
-                    <div className="space-y-4">
-                        <FormField
-                            name="is_insurance_covered"
-                            control={control}
-                            label="Thuốc thuộc BHYT"
-                            type="select"
-                            options={[
-                                { label: 'Có', value: true },
-                                { label: 'Không', value: false },
-                            ]}
-                            required
-                            error={!!errors.is_insurance_covered}
-                            helperText={errors.is_insurance_covered?.message}
-                        />
+                            <FormField
+                                name="allergy_info"
+                                control={control}
+                                label="Thông tin dị ứng"
+                                placeholder="VD: Dị ứng penicillin"
+                                type="input"
+                                inputType="text"
+                                error={!!errors.allergy_info}
+                                helperText={errors.allergy_info?.message as string}
+                            />
 
-                        {watch('is_insurance_covered') && (
-                            <div className="grid grid-cols-2 gap-4">
-                                <FormField
-                                    name="insurance_code"
-                                    control={control}
-                                    label="Mã BHYT"
-                                    placeholder="Nhập mã BHYT"
-                                    type="input"
-                                    inputType="text"
-                                    required
-                                    error={!!errors.insurance_code}
-                                    helperText={errors.insurance_code?.message}
-                                />
-
-                                <FormField
-                                    name="insurance_rate"
-                                    control={control}
-                                    label="Tỷ lệ chi trả (%)"
-                                    placeholder="VD: 80"
-                                    type="input"
-                                    inputType="number"
-                                    required
-                                    error={!!errors.insurance_rate}
-                                    helperText={errors.insurance_rate?.message}
-                                />
+                            <div className="flex justify-end gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => reset()}
+                                    className="px-4 py-2 border rounded-lg"
+                                >
+                                    Làm mới
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    className="px-4 py-2 bg-primary text-white rounded-lg"
+                                >
+                                    {isSubmitting ? 'Đang lưu...' : 'Lưu thuốc'}
+                                </button>
                             </div>
-                        )}
-
-                        <FormField
-                            name="insurance_notes"
-                            control={control}
-                            label="Ghi chú BHYT"
-                            placeholder="Nhập ghi chú (nếu có)"
-                            type="input"
-                            inputType="text"
-                            error={!!errors.insurance_notes}
-                            helperText={errors.insurance_notes?.message}
-                        />
+                        </form>
                     </div>
+                </div>
+            </ModalBase>
+        );
+    }
 
-                    {/* Thông tin bổ sung */}
-                    <div className="space-y-4">
-                        <FormField
-                            name="description"
-                            control={control}
-                            label="Mô tả"
-                            placeholder="Nhập mô tả"
-                            type="input"
-                            inputType="text"
-                            error={!!errors.description}
-                            helperText={errors.description?.message}
-                        />
-
-                        <FormField
-                            name="usage_instructions"
-                            control={control}
-                            label="Hướng dẫn sử dụng"
-                            placeholder="VD: Uống sau khi ăn"
-                            type="input"
-                            inputType="text"
-                            error={!!errors.usage_instructions}
-                            helperText={errors.usage_instructions?.message}
-                        />
-
-                        <FormField
-                            name="distributor"
-                            control={control}
-                            label="Nhà phân phối"
-                            placeholder="Nhập nhà phân phối"
-                            type="input"
-                            inputType="text"
-                            error={!!errors.distributor}
-                            helperText={errors.distributor?.message}
-                        />
-
-                        <FormField
-                            name="side_effects"
-                            control={control}
-                            label="Tác dụng phụ"
-                            placeholder="Nhập tác dụng phụ"
-                            type="input"
-                            inputType="text"
-                            error={!!errors.side_effects}
-                            helperText={errors.side_effects?.message}
-                        />
-
-                        <FormField
-                            name="contraindications"
-                            control={control}
-                            label="Chống chỉ định"
-                            placeholder="Nhập chống chỉ định"
-                            type="input"
-                            inputType="text"
-                            error={!!errors.contraindications}
-                            helperText={errors.contraindications?.message}
-                        />
-
-                        <FormField
-                            name="allergy_info"
-                            control={control}
-                            label="Thông tin dị ứng"
-                            placeholder="VD: Dị ứng penicillin"
-                            type="input"
-                            inputType="text"
-                            error={!!errors.allergy_info}
-                            helperText={errors.allergy_info?.message}
-                        />
-
-                        <FormField
-                            name="storage_info"
-                            control={control}
-                            label="Điều kiện bảo quản"
-                            placeholder="VD: Bảo quản nơi khô ráo, thoáng mát"
-                            type="input"
-                            inputType="text"
-                            error={!!errors.storage_info}
-                            helperText={errors.storage_info?.message}
-                        />
-                    </div>
-
-                    <div className="flex justify-end gap-2">
-                        <button
-                            type="button"
-                            onClick={() => reset()}
-                            className="px-4 py-2 border rounded-lg"
+    if (variant == 'view' || variant == 'edit') {
+        return (
+            <ModalBase type={type} size="lg">
+                <div className="flex flex-col max-h-[85vh]">
+                    <h2 className="font-semibold mb-3 pb-2 shrink-0 text-center border-b border-gray-200">
+                        {variant == 'view' ? 'Thông tin thuốc' : 'Cập nhật thông tin thuốc'}
+                    </h2>
+                    <div className="overflow-y-auto">
+                        <form
+                            onSubmit={handleSubmit(onSubmit)}
+                            className="px-6 pt-4 pb-2 bg-white rounded-2xl space-y-4 h-[92%] overflow-y-auto"
                         >
-                            Làm mới
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="px-4 py-2 bg-primary text-white rounded-lg"
-                        >
-                            {isSubmitting ? 'Đang lưu...' : 'Lưu thuốc'}
-                        </button>
+                            <FormField
+                                name="name"
+                                control={control}
+                                label="Tên thuốc"
+                                placeholder="Nhập tên thuốc"
+                                type={variant == 'edit' ? 'input' : 'text'}
+                                inputType="text"
+                                required
+                                error={!!errors.name}
+                                helperText={errors.name?.message as string}
+                            />
+
+                            <FormField
+                                name="generic_name"
+                                control={control}
+                                label="Tên hoạt chất"
+                                placeholder="Nhập tên hoạt chất"
+                                type={variant == 'edit' ? 'input' : 'text'}
+                                inputType="text"
+                                error={!!errors.generic_name}
+                                helperText={errors.generic_name?.message as string}
+                            />
+
+                            <FormField
+                                name="packaging"
+                                control={control}
+                                label="Quy cách đóng gói"
+                                placeholder="VD: Hộp 10 vỉ x 10 viên"
+                                type={variant == 'edit' ? 'input' : 'text'}
+                                inputType="text"
+                                error={!!errors.packaging}
+                                helperText={errors.packaging?.message as string}
+                            />
+
+                            <FormField
+                                name="description"
+                                control={control}
+                                label="Mô tả"
+                                placeholder="Nhập mô tả"
+                                type={variant == 'edit' ? 'textarea' : 'text'}
+                                error={!!errors.description}
+                                helperText={errors.description?.message as string}
+                            />
+
+                            <FormField
+                                name="side_effects"
+                                control={control}
+                                label="Tác dụng phụ"
+                                placeholder="Nhập tác dụng phụ"
+                                type={variant == 'edit' ? 'input' : 'text'}
+                                inputType="text"
+                                error={!!errors.side_effects}
+                                helperText={errors.side_effects?.message as string}
+                            />
+
+                            <FormField
+                                name="contraindications"
+                                control={control}
+                                label="Chống chỉ định"
+                                placeholder="Nhập chống chỉ định"
+                                type={variant == 'edit' ? 'input' : 'text'}
+                                inputType="text"
+                                error={!!errors.contraindications}
+                                helperText={errors.contraindications?.message as string}
+                            />
+
+                            <FormField
+                                name="allergy_info"
+                                control={control}
+                                label="Thông tin dị ứng"
+                                placeholder="VD: Dị ứng penicillin"
+                                type={variant == 'edit' ? 'input' : 'text'}
+                                inputType="text"
+                                error={!!errors.allergy_info}
+                                helperText={errors.allergy_info?.message as string}
+                            />
+
+                            {variant == 'edit' && (
+                                <div className="flex justify-end gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => reset()}
+                                        className="px-4 py-2 border rounded-lg"
+                                    >
+                                        Hoàn tác
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className="px-4 py-2 bg-primary text-white rounded-lg"
+                                    >
+                                        {isSubmitting ? 'Đang cập nhật...' : 'Cập nhật'}
+                                    </button>
+                                </div>
+                            )}
+                        </form>
                     </div>
-                </form>
+                </div>
             </ModalBase>
         );
     }

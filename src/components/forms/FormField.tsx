@@ -19,7 +19,7 @@ const FormField = ({
     error,
     required = false,
     options = [],
-    rows = 3,
+    rows = 2,
     maxLength = 400,
 }: FormFieldProps) => {
     return (

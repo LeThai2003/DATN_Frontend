@@ -24,6 +24,8 @@ export interface ModalState {
 export enum ModalType {
     DRUG = 'DRUG',
     UNIT = 'UNIT',
+    DOSAGE_TIME = 'DOSAGE_TIME',
+    MEAL_RELATION = 'MEAL_RELATION',
 }
 
 export interface CommonType {
