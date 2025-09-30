@@ -4,10 +4,9 @@ import { selectFilter } from '@/stores/selectors/drugs/drug.selector';
 import { Drug as DrugType } from '@/types/stores/drugs/drug_type';
 import { common, drug } from '@/stores/reducers';
 import { initFilterDrug } from '@/defaultValues/drugs/drug_default';
-import { Button, Pagination, Space } from 'antd';
+import { Button, Pagination, Space, Table } from 'antd';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { ModalType } from '@/types/stores/common';
-import AutoScrollTable from '@/components/tables/AutoScrollTable';
 import FilterForm from '@/components/filters/FilterForm';
 import FilterButton from '@/components/filters/FilterButton';
 
@@ -201,14 +200,12 @@ const TabDrug = () => {
                     onClose={() => setIsOpenDrugFilter(false)}
                 />
             )}
-
-            <AutoScrollTable
+            <Table
                 columns={drugColumns}
-                data={drugs}
+                dataSource={drugs}
                 rowKey="drug_id"
-                scroll={{ x: 'max-content' }}
                 pagination={false}
-                maxHeight={window.innerHeight * 0.82 - 160} // 82vh - 160px
+                scroll={{ y: window.innerHeight * 0.82 - 160 }}
             />
             <div className="flex justify-end">
                 <Pagination

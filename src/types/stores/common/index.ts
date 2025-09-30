@@ -26,6 +26,9 @@ export enum ModalType {
     UNIT = 'UNIT',
     DOSAGE_TIME = 'DOSAGE_TIME',
     MEAL_RELATION = 'MEAL_RELATION',
+    ROLE = 'ROLE',
+    ACCOUNT = 'ACCOUNT',
+    ROOM = 'ROOM',
 }
 
 export interface CommonType {

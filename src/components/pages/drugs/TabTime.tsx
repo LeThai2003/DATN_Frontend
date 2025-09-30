@@ -4,7 +4,7 @@ import { selectFilter as selectFilterMealRealtion } from '@/stores/selectors/mea
 import { ModalType } from '@/types/stores/common';
 import { DosageTime } from '@/types/stores/dosageTimes/dosageTime_type';
 import { MealRelation } from '@/types/stores/mealRelations/mealRelation_type';
-import { Button, Pagination, Space } from 'antd';
+import { Button, Pagination, Space, Table } from 'antd';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
@@ -12,7 +12,6 @@ import FilterButton from '@/components/filters/FilterButton';
 import FilterForm from '@/components/filters/FilterForm';
 import { initFilterDosageTime } from '@/defaultValues/dosageTimes/dosageTime_default';
 import { initFilterMealRelation } from '@/defaultValues/mealRelations/mealRelation_default';
-import AutoScrollTable from '@/components/tables/AutoScrollTable';
 
 export const dosageTimes: DosageTime[] = [
     { time_id: 1, name: 'Sáng', description: 'Uống thuốc vào buổi sáng' },
@@ -315,12 +314,12 @@ const TabTime = () => {
                 )}
 
                 <div className="h-full">
-                    <AutoScrollTable
+                    <Table
                         columns={dosageTimeColumns}
-                        data={dosageTimes}
+                        dataSource={dosageTimes}
                         rowKey="time_id"
                         pagination={false}
-                        maxHeight={window.innerHeight * 0.82 - 160}
+                        scroll={{ y: window.innerHeight * 0.82 - 162 }}
                     />
                     <div className="flex justify-end mt-3">
                         <Pagination
@@ -360,12 +359,12 @@ const TabTime = () => {
                 )}
 
                 <div className="h-full">
-                    <AutoScrollTable
+                    <Table
                         columns={mealRealationColumns}
-                        data={mealRelations}
+                        dataSource={mealRelations}
                         rowKey="relation_id"
                         pagination={false}
-                        maxHeight={window.innerHeight * 0.82 - 160} // 82vh - 160px
+                        scroll={{ y: window.innerHeight * 0.82 - 160 }}
                     />
                     <div className="flex justify-end mt-3">
                         <Pagination

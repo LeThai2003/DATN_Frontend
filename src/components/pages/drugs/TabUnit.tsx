@@ -4,10 +4,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectFilter as selectFilterUnit } from '@/stores/selectors/units/unit.selector';
 import { common, drug, unit } from '@/stores/reducers';
 import { initFilterUnit } from '@/defaultValues/units/unit_default';
-import { Button, Pagination, Space } from 'antd';
+import { Button, Pagination, Space, Table } from 'antd';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { ModalType } from '@/types/stores/common';
-import AutoScrollTable from '@/components/tables/AutoScrollTable';
 import FilterForm from '@/components/filters/FilterForm';
 import FilterButton from '@/components/filters/FilterButton';
 
@@ -169,12 +168,12 @@ const TabUnit = () => {
                     onClose={() => setIsOpenUnitFilter(false)}
                 />
             )}
-            <AutoScrollTable
+            <Table
                 columns={unitColumns}
-                data={units}
+                dataSource={units}
                 rowKey="unit_id"
                 pagination={false}
-                maxHeight={window.innerHeight * 0.82 - 160} // 82vh - 160px
+                scroll={{ y: window.innerHeight * 0.82 - 160 }}
             />
             <div className="flex justify-end">
                 <Pagination

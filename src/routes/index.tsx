@@ -7,6 +7,8 @@ import Error404 from '@/pages/errors/Error404';
 
 const Login = lazy(() => import('../pages/auths/Login'));
 const Drug = lazy(() => import('../pages/drugs/Drug'));
+const Employee = lazy(() => import('../pages/employees/Employee'));
+const Room = lazy(() => import('../pages/rooms/Room'));
 
 function AppRoutes() {
     const routes = useRoutes([
@@ -22,7 +24,22 @@ function AppRoutes() {
                         </TitleRouter>
                     ),
                 },
-
+                {
+                    path: '/manager/employees',
+                    element: (
+                        <TitleRouter title="Quản lý bác sĩ">
+                            <Employee />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    path: '/manager/rooms',
+                    element: (
+                        <TitleRouter title="Quản lý phòng khám">
+                            <Room />
+                        </TitleRouter>
+                    ),
+                },
                 {
                     path: '*',
                     element: <Error404 />,

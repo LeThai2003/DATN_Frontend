@@ -5,6 +5,8 @@ import ModalDrug from './drugs/ModalDrug';
 import ModalUnitDrug from './units/ModalUnitDrug';
 import ModalDosageTime from './dosageTimes/ModalDosageTime';
 import ModalMealRelation from './mealRelations/ModalMealRelation';
+import ModalRole from './roles/ModalRole';
+import ModalRoom from './rooms/ModalRoom';
 
 const ModalRender = () => {
     const modals = useSelector(selectModal);
@@ -19,6 +21,10 @@ const ModalRender = () => {
                 return <ModalDosageTime key={modal.type} {...modal} />;
             case ModalType.MEAL_RELATION:
                 return <ModalMealRelation key={modal.type} {...modal} />;
+            case ModalType.ROLE:
+                return <ModalRole key={modal.type} {...modal} />;
+            case ModalType.ROOM:
+                return <ModalRoom key={modal.type} {...modal} />;
         }
     });
     return <div>{renderModal}</div>;

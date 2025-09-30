@@ -25,7 +25,7 @@ export const clinicMenu = {
         },
         {
             key: 'departments',
-            label: 'Quản lý khoa',
+            label: 'Quản lý chuyên khoa',
             icon: <MdOutlineCategory />,
         },
         {
@@ -40,7 +40,7 @@ export const clinicMenu = {
         },
         {
             key: 'employees',
-            label: 'Quản lý nhân viên',
+            label: 'Quản lý bác sĩ',
             icon: <FaUserNurse />,
         },
         {
@@ -48,11 +48,11 @@ export const clinicMenu = {
             label: 'Quản lý bệnh nhân',
             icon: <FaUserInjured />,
         },
-        {
-            key: 'work_shifts',
-            label: 'Lịch làm / Ca trực',
-            icon: <MdOutlineCalendarToday />,
-        },
+        // {
+        //     key: 'work_shifts',
+        //     label: 'Lịch làm / Ca trực',
+        //     icon: <MdOutlineCalendarToday />,
+        // },
         {
             key: 'accounts',
             label: 'Tài khoản cá nhân',

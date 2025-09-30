@@ -190,3 +190,8 @@ ol {
 .ant-tabs-tab-active {
     font-weight: 600;
 }
+
+/* -----------------table------------------- */
+.ant-table-body {
+    overflow-y: auto !important;
+}
