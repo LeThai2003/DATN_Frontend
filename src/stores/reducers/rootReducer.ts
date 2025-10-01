@@ -1,5 +1,16 @@
 import { combineReducers } from 'redux';
-import { common, dosageTime, drug, mealRelation, role, room, unit } from '.';
+import {
+    appointment_record,
+    common,
+    dosageTime,
+    drug,
+    mealRelation,
+    patient,
+    prescription,
+    role,
+    room,
+    unit,
+} from '.';
 
 const rootReducers = combineReducers({
     [common.name]: common.default.reducer,
@@ -9,6 +20,9 @@ const rootReducers = combineReducers({
     [mealRelation.name]: mealRelation.default.reducer,
     [role.name]: role.default.reducer,
     [room.name]: room.default.reducer,
+    [patient.name]: patient.default.reducer,
+    [appointment_record.name]: appointment_record.default.reducer,
+    [prescription.name]: prescription.default.reducer,
 });
 
 export type RootReducerType = ReturnType<typeof rootReducers>;

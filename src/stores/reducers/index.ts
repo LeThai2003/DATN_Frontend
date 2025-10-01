@@ -5,3 +5,6 @@ export * as dosageTime from './dosageTimes/dosageTime.reducer';
 export * as mealRelation from './mealRelations/mealRelation.reducer';
 export * as role from './roles/role.reducer';
 export * as room from './rooms/room.reducer';
+export * as patient from './patients/patient.reducer';
+export * as appointment_record from './appointmentRecords/appointmentRecord.reducer';
+export * as prescription from './prescriptions/prescription.reducer';

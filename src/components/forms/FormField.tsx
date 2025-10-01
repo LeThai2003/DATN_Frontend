@@ -52,6 +52,8 @@ const FormField = ({
                     {type === 'select' && (
                         <Select
                             {...field}
+                            showSearch
+                            optionFilterProp="label"
                             placeholder={placeholder}
                             disabled={disabled}
                             options={options}

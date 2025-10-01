@@ -4,11 +4,16 @@ import { useRoutes } from 'react-router';
 import TitleRouter from './TitleRouter';
 import ClinicLayout from '@/layouts/ClinicLayout';
 import Error404 from '@/pages/errors/Error404';
+import DoctorClinicLayout from '@/layouts/DoctorClinicLayout';
+
+import Doctor from '@/pages/doctor/Doctor';
 
 const Login = lazy(() => import('../pages/auths/Login'));
-const Drug = lazy(() => import('../pages/drugs/Drug'));
-const Employee = lazy(() => import('../pages/employees/Employee'));
-const Room = lazy(() => import('../pages/rooms/Room'));
+const Drug = lazy(() => import('../pages/manager/drugs/Drug'));
+const Employee = lazy(() => import('../pages/manager/employees/Employee'));
+const Room = lazy(() => import('../pages/manager/rooms/Room'));
+
+const ClinicPage = lazy(() => import('../pages/doctor/ClinicPage'));
 
 function AppRoutes() {
     const routes = useRoutes([
@@ -43,6 +48,20 @@ function AppRoutes() {
                 {
                     path: '*',
                     element: <Error404 />,
+                },
+            ],
+        },
+        {
+            path: '/doctors',
+            element: <DoctorClinicLayout />,
+            children: [
+                {
+                    path: '',
+                    element: (
+                        <TitleRouter title="Khám bệnh">
+                            <Doctor />
+                        </TitleRouter>
+                    ),
                 },
             ],
         },

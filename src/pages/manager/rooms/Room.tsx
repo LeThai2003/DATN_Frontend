@@ -1,6 +1,5 @@
 import FilterButton from '@/components/filters/FilterButton';
 import FilterForm from '@/components/filters/FilterForm';
-import AutoScrollTable from '@/components/tables/AutoScrollTable';
 import { initFilterRoom } from '@/defaultValues/rooms/room_default';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { selectFilter as selectFilterRoom } from '@/stores/selectors/drugs/drug.selector';
