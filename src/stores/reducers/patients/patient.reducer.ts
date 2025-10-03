@@ -16,7 +16,7 @@ const PatientSlice = createSlice({
         setTotalPage(state, { payload }: PayloadAction<any>) {
             state.patients.totalPage = payload;
         },
-        setFilterDrug(state, { payload }: PayloadAction<any>) {
+        setFilterPatient(state, { payload }: PayloadAction<any>) {
             state.filter = payload;
         },
         setLoadingComponent(state, { payload }: PayloadAction<any>) {
