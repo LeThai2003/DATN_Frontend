@@ -143,7 +143,7 @@ const DoctorSidebar = () => {
                                 dispatch(
                                     appointment_record.actions.setSelectedAppointmentRecord(null)
                                 );
-                                // làm mới visists - tránh để active trước khi chọn
+
                                 setSelectedVisitKey([]);
                             },
                         })),

@@ -9,6 +9,7 @@ import ModalRole from './roles/ModalRole';
 import ModalRoom from './rooms/ModalRoom';
 import ModalEmployee from './employees/ModalEmployee';
 import ModalSpecialization from './specializations/ModalSpecialization';
+import ModalService from './services/ModalService';
 
 const ModalRender = () => {
     const modals = useSelector(selectModal);
@@ -31,6 +32,8 @@ const ModalRender = () => {
                 return <ModalEmployee key={modal.type} {...modal} />;
             case ModalType.SPECIALIZATION:
                 return <ModalSpecialization key={modal.type} {...modal} />;
+            case ModalType.SERVICE:
+                return <ModalService key={modal.type} {...modal} />;
         }
     });
     return <div>{renderModal}</div>;

@@ -4,7 +4,7 @@ import { selectFilter } from '@/stores/selectors/drugs/drug.selector';
 import { Drug as DrugType } from '@/types/stores/drugs/drug_type';
 import { common, drug } from '@/stores/reducers';
 import { initFilterDrug } from '@/defaultValues/drugs/drug_default';
-import { Button, Pagination, Space, Table } from 'antd';
+import { Button, Pagination, Space, Table, TableProps } from 'antd';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { ModalType } from '@/types/stores/common';
 import FilterForm from '@/components/filters/FilterForm';
@@ -88,7 +88,7 @@ const TabDrug = () => {
         );
     };
 
-    const drugColumns = [
+    const drugColumns: TableProps<any>['columns'] = [
         { title: 'Tên thuốc', dataIndex: 'name', key: 'name' },
         { title: 'Hoạt chất', dataIndex: 'generic_name', key: 'generic_name' },
         { title: 'Quy cách', dataIndex: 'packaging', key: 'packaging' },
@@ -205,7 +205,7 @@ const TabDrug = () => {
                 dataSource={drugs}
                 rowKey="drug_id"
                 pagination={false}
-                scroll={{ y: window.innerHeight * 0.82 - 160 }}
+                scroll={{ x: 'max-content', y: window.innerHeight * 0.82 - 160 }}
             />
             <div className="flex justify-end">
                 <Pagination

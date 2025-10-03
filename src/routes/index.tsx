@@ -13,6 +13,8 @@ const Drug = lazy(() => import('../pages/manager/drugs/Drug'));
 const Employee = lazy(() => import('../pages/manager/employees/Employee'));
 const Room = lazy(() => import('../pages/manager/rooms/Room'));
 const Specialization = lazy(() => import('../pages/manager/specializations/Specialization'));
+const Service = lazy(() => import('../pages/manager/services/Service'));
+const ServiceEdit = lazy(() => import('../pages/manager/services/ServiceEdit'));
 
 function AppRoutes() {
     const routes = useRoutes([
@@ -49,6 +51,22 @@ function AppRoutes() {
                     element: (
                         <TitleRouter title="Quản lý chuyên khoa">
                             <Specialization />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    path: '/manager/services',
+                    element: (
+                        <TitleRouter title="Quản lý dịch vụ">
+                            <Service />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    path: '/manager/services/edit',
+                    element: (
+                        <TitleRouter title="Cập nhật dịch vụ">
+                            <ServiceEdit />
                         </TitleRouter>
                     ),
                 },

@@ -22,14 +22,6 @@ const ModalRoom: React.FC<ModalState> = ({ data, type, variant }) => {
         resolver: yupResolver(roomSchema),
     });
 
-    //  employee_id: 1,
-    //             account_id: 101,
-    //             fullname: 'Nguyễn Văn A',
-    //             email: 'a.nguyen@clinic.com',
-    //             avatar: 'https://i.pravatar.cc/150?img=1',
-    //             specialization_id: 1,
-    //             specialization_name: 'Nội tổng quát',
-
     const employeesColumns = [
         { title: 'Họ tên', dataIndex: 'fullname', key: 'fullname' },
         {
@@ -131,7 +123,9 @@ const ModalRoom: React.FC<ModalState> = ({ data, type, variant }) => {
 
                     {data?.employees?.length > 0 && (
                         <div className="pt-6 border-t border-dashed border-gray-300 mt-6">
-                            <h3>Bác sĩ thuộc phòng khám</h3>
+                            <p>
+                                Bác sĩ thuộc phòng <b>{data?.name}</b>
+                            </p>
                             <Table
                                 columns={employeesColumns}
                                 dataSource={data.employees}

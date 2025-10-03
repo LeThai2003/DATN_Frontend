@@ -1,10 +1,11 @@
 import React from 'react';
 import { Controller } from 'react-hook-form';
 import LableField from './LableField';
-import { DatePicker, Input, Select } from 'antd';
+import { Button, DatePicker, Image, Input, Select, Upload } from 'antd';
 import { FormFieldProps } from '@/types/components/forms';
 import dayjs from 'dayjs';
 import TextArea from 'antd/es/input/TextArea';
+import { UploadOutlined } from '@ant-design/icons';
 
 const FormField = ({
     name,
@@ -21,6 +22,8 @@ const FormField = ({
     options = [],
     rows = 2,
     maxLength = 400,
+    uploadProps,
+    imageProps,
 }: FormFieldProps) => {
     return (
         <Controller
@@ -85,11 +88,55 @@ const FormField = ({
                         />
                     )}
 
+                    {type === 'upload' && (
+                        <Upload
+                            beforeUpload={() => false}
+                            multiple={!uploadProps?.single}
+                            maxCount={uploadProps?.single ? 1 : undefined}
+                            fileList={(Array.isArray(field.value)
+                                ? field.value
+                                : field.value
+                                ? [field.value]
+                                : []
+                            ).map((url: string, idx: number) => ({
+                                uid: String(idx),
+                                name: `image-${idx}`,
+                                status: 'done',
+                                url,
+                            }))}
+                            onChange={({ fileList }) => {
+                                const urls = fileList
+                                    .map((file) => {
+                                        if (file.url) return file.url;
+                                        if (file.originFileObj)
+                                            return URL.createObjectURL(file.originFileObj);
+                                        return '';
+                                    })
+                                    .filter(Boolean);
+
+                                field.onChange(uploadProps?.single ? urls[0] : urls);
+                            }}
+                            disabled={disabled}
+                            listType="picture-card"
+                            className="group"
+                        >
+                            <span className="group-hover:text-primary">
+                                <UploadOutlined /> Upload
+                            </span>
+                        </Upload>
+                    )}
+
                     {type === 'text' && (
                         <div className="px-[11px] py-[4px] rounded-md border bg-gray-50 text-gray-800">
                             {options.length > 0
                                 ? options.find((o) => o.value === field.value)?.label || '-'
                                 : field.value || '-'}
+                        </div>
+                    )}
+
+                    {type === 'image' && (
+                        <div>
+                            <Image src={imageProps?.src} width={imageProps?.width || 80} />
                         </div>
                     )}
 

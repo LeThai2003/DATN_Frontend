@@ -123,9 +123,9 @@ const ModalSpecialization: React.FC<ModalState> = ({ data, type, variant }) => {
 
                     {data?.employees?.length > 0 && (
                         <div className="pt-6 border-t border-dashed border-gray-300 mt-6">
-                            <h3>
-                                Bác sĩ thuộc <i>{data?.name || ''}</i>
-                            </h3>
+                            <p>
+                                Bác sĩ thuộc <b>{data?.name || ''}</b>
+                            </p>
                             <Table
                                 columns={employeesColumns}
                                 dataSource={data.employees}

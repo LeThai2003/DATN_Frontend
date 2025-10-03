@@ -5,7 +5,7 @@ import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { selectFilter as selectFilterRoom } from '@/stores/selectors/drugs/drug.selector';
 import { common, room } from '@/stores/reducers';
 import { ModalType } from '@/types/stores/common';
-import { Button, Pagination, Space, Table } from 'antd';
+import { Button, Pagination, Space, Table, TableProps } from 'antd';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -178,7 +178,7 @@ const Room = () => {
         );
     };
 
-    const roleColumns = [
+    const roleColumns: TableProps<any>['columns'] = [
         { title: 'Phòng', dataIndex: 'name', key: 'name' },
         {
             title: 'Địa điểm',
@@ -190,6 +190,8 @@ const Room = () => {
             title: 'Số lượng bác sĩ',
             dataIndex: 'employees',
             key: 'employees',
+            width: 150,
+            align: 'center',
             render: (employees) => employees?.length || 0,
         },
         {
@@ -283,7 +285,7 @@ const Room = () => {
                 dataSource={rooms}
                 rowKey="room_id"
                 pagination={false}
-                scroll={{ y: window.innerHeight * 0.82 - 160 }}
+                scroll={{ x: 'max-content', y: window.innerHeight * 0.82 - 160 }}
             />
             <div className="flex justify-end">
                 <Pagination

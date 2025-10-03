@@ -27,25 +27,25 @@ const DrugForm = ({ type }: DrugFormProps) => {
         watch,
         formState: { errors, isSubmitting },
     } = useForm({
-        defaultValues: {
-            name: selectedDrug?.name || '',
-            generic_name: selectedDrug?.generic_name || '',
-            description: selectedDrug?.description || '',
-            dosage_form: selectedDrug?.dosage_form || '',
-            strength: selectedDrug?.strength || '',
-            usage_instructions: selectedDrug?.usage_instructions || '',
-            packaging: selectedDrug?.packaging || '',
-            manufacturer: selectedDrug?.manufacturer || '',
-            distributor: selectedDrug?.distributor || '',
-            side_effects: selectedDrug?.side_effects || '',
-            contraindications: selectedDrug?.contraindications || '',
-            allergy_info: selectedDrug?.allergy_info || '',
-            storage_info: selectedDrug?.storage_info || '',
-            is_insurance_covered: selectedDrug?.is_insurance_covered ?? false,
-            insurance_code: selectedDrug?.insurance_code || null,
-            insurance_rate: selectedDrug?.insurance_rate || null,
-            insurance_notes: selectedDrug?.insurance_notes || '',
-        },
+        // defaultValues: {
+        //     name: selectedDrug?.name || '',
+        //     generic_name: selectedDrug?.generic_name || '',
+        //     description: selectedDrug?.description || '',
+        //     dosage_form: selectedDrug?.dosage_form || '',
+        //     strength: selectedDrug?.strength || '',
+        //     usage_instructions: selectedDrug?.usage_instructions || '',
+        //     packaging: selectedDrug?.packaging || '',
+        //     manufacturer: selectedDrug?.manufacturer || '',
+        //     distributor: selectedDrug?.distributor || '',
+        //     side_effects: selectedDrug?.side_effects || '',
+        //     contraindications: selectedDrug?.contraindications || '',
+        //     allergy_info: selectedDrug?.allergy_info || '',
+        //     storage_info: selectedDrug?.storage_info || '',
+        //     is_insurance_covered: selectedDrug?.is_insurance_covered ?? false,
+        //     insurance_code: selectedDrug?.insurance_code || null,
+        //     insurance_rate: selectedDrug?.insurance_rate || null,
+        //     insurance_notes: selectedDrug?.insurance_notes || '',
+        // },
         resolver: yupResolver(drugSchema),
     });
 
@@ -75,7 +75,7 @@ const DrugForm = ({ type }: DrugFormProps) => {
                     {/* Thông tin thuốc */}
                     <div className="lg:col-span-2 bg-white rounded-md p-4 pt-3 shadow h-[82vh]">
                         <h3>{type == 'edit' ? 'Cập nhật thông tin thuốc' : 'Thông tin thuốc'}</h3>
-                        <form
+                        {/* <form
                             onSubmit={handleSubmit(onSubmit)}
                             className="space-y-4 mt-2 pr-1 pt-2 overflow-y-auto h-[92%] border-t border-gray-100"
                         >
@@ -218,7 +218,6 @@ const DrugForm = ({ type }: DrugFormProps) => {
                                 )}
                             </div>
 
-                            {/* Thông tin bổ sung */}
                             <div className="space-y-4">
                                 <FormField
                                     name="description"
@@ -312,7 +311,7 @@ const DrugForm = ({ type }: DrugFormProps) => {
                                     </Button>
                                 </div>
                             )}
-                        </form>
+                        </form> */}
                     </div>
                     {/* Thông tin đơn vị của thuốc */}
                     <div className=" bg-white rounded-md p-4 pt-3 shadow max-h-[82vh] h-fit">

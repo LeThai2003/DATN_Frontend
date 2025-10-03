@@ -3,7 +3,7 @@ import { selectFilter } from '@/stores/selectors/specializations/specialization.
 import { ModalType } from '@/types/stores/common';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { Specialization as SpecializationType } from '@/types/stores/specializations/specialization_type';
-import { Button, Pagination, Space, Table } from 'antd';
+import { Button, Pagination, Space, Table, TableProps } from 'antd';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { initFilterSpecialization } from '@/defaultValues/specializations/specialization_default';
@@ -136,7 +136,7 @@ const Specialization = () => {
         );
     };
 
-    const columns = [
+    const columns: TableProps<any>['columns'] = [
         { title: 'Chuyên khoa', dataIndex: 'name', key: 'name' },
         {
             title: 'Mô tả',
@@ -148,6 +148,8 @@ const Specialization = () => {
             title: 'Số lượng bác sĩ',
             dataIndex: 'employees',
             key: 'employees',
+            width: 150,
+            align: 'center',
             render: (employees) => employees?.length || 0,
         },
         {
@@ -248,7 +250,7 @@ const Specialization = () => {
                 dataSource={specializations}
                 rowKey="specialization_id"
                 pagination={false}
-                scroll={{ y: window.innerHeight * 0.82 - 160 }}
+                scroll={{ x: 'max-content', y: window.innerHeight * 0.82 - 160 }}
             />
             <div className="flex justify-end">
                 <Pagination

@@ -81,7 +81,14 @@ const TabUnit = () => {
             dataIndex: 'descriptions',
             key: 'descriptions',
             ellipsis: true,
-            // render: (val: string) => <span className="block truncate max-w-[380px]">{val}</span>,
+            onCell: () => ({
+                style: {
+                    maxWidth: 200,
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                },
+            }),
         },
         {
             title: 'Hành động',
@@ -173,7 +180,7 @@ const TabUnit = () => {
                 dataSource={units}
                 rowKey="unit_id"
                 pagination={false}
-                scroll={{ y: window.innerHeight * 0.82 - 160 }}
+                scroll={{ x: 'max-content', y: window.innerHeight * 0.82 - 160 }}
             />
             <div className="flex justify-end">
                 <Pagination
