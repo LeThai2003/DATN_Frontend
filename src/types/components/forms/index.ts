@@ -1,5 +1,5 @@
 import React from 'react';
-import { Control, FieldError } from 'react-hook-form';
+import { Control, FieldError, FieldErrorsImpl, Merge } from 'react-hook-form';
 
 export type FieldType = 'input' | 'select' | 'datepicker' | 'text' | 'textarea';
 
@@ -10,7 +10,7 @@ export type FormFieldProps<T extends Record<string, any> = any> = {
     placeholder?: string;
     type?: FieldType;
     inputType?: 'text' | 'password' | 'email' | 'number';
-    helperText?: string;
+    helperText?: string | FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
     error?: boolean;
     suffix?: React.ReactNode;
     disabled?: boolean;

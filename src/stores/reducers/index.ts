@@ -8,3 +8,4 @@ export * as room from './rooms/room.reducer';
 export * as patient from './patients/patient.reducer';
 export * as appointment_record from './appointmentRecords/appointmentRecord.reducer';
 export * as prescription from './prescriptions/prescription.reducer';
+export * as employee from './employees/employee.reducer';

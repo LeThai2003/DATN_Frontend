@@ -27,7 +27,7 @@ export enum ModalType {
     DOSAGE_TIME = 'DOSAGE_TIME',
     MEAL_RELATION = 'MEAL_RELATION',
     ROLE = 'ROLE',
-    ACCOUNT = 'ACCOUNT',
+    EMPLOYEE = 'EMPLOYEE',
     ROOM = 'ROOM',
 }
 

@@ -57,7 +57,7 @@ const FormField = ({
                             placeholder={placeholder}
                             disabled={disabled}
                             options={options}
-                            value={field.value}
+                            value={field.value ?? undefined}
                             onChange={(val) => field.onChange(val)}
                         />
                     )}
@@ -68,8 +68,10 @@ const FormField = ({
                             format="DD/MM/YYYY"
                             placeholder={placeholder}
                             disabled={disabled}
-                            value={field.value ? dayjs(field.value) : null}
-                            onChange={(date) => field.onChange(date ? date.toISOString() : null)}
+                            value={field.value ? dayjs(field.value, 'YYYY-MM-DD') : null}
+                            onChange={(date) =>
+                                field.onChange(date ? date.format('YYYY-MM-DD') : undefined)
+                            }
                         />
                     )}
 
@@ -91,7 +93,7 @@ const FormField = ({
                         </div>
                     )}
 
-                    {error && <p className="text-error">{helperText}</p>}
+                    {error && <p className="text-error">{helperText as string}</p>}
                 </div>
             )}
         />
