@@ -29,6 +29,7 @@ export enum ModalType {
     ROLE = 'ROLE',
     EMPLOYEE = 'EMPLOYEE',
     ROOM = 'ROOM',
+    SPECIALIZATION = 'SPECIALIZATION',
 }
 
 export interface CommonType {

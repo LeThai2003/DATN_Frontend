@@ -10,6 +10,7 @@ import {
     prescription,
     role,
     room,
+    specialization,
     unit,
 } from '.';
 
@@ -25,6 +26,7 @@ const rootReducers = combineReducers({
     [appointment_record.name]: appointment_record.default.reducer,
     [prescription.name]: prescription.default.reducer,
     [employee.name]: employee.default.reducer,
+    [specialization.name]: specialization.default.reducer,
 });
 
 export type RootReducerType = ReturnType<typeof rootReducers>;

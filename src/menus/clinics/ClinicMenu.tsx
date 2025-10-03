@@ -24,7 +24,7 @@ export const clinicMenu = {
             icon: <FaPills />,
         },
         {
-            key: 'departments',
+            key: 'specializations',
             label: 'Quản lý chuyên khoa',
             icon: <MdOutlineCategory />,
         },
