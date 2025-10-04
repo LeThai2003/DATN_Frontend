@@ -16,7 +16,7 @@ export type FormFieldProps<T extends Record<string, any> = any> = {
     label: string;
     placeholder?: string;
     type?: FieldType;
-    inputType?: 'text' | 'password' | 'email' | 'number';
+    inputType?: 'text' | 'password' | 'email' | 'number' | 'otp';
     helperText?: string | FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
     error?: boolean;
     suffix?: React.ReactNode;
@@ -33,4 +33,5 @@ export type FormFieldProps<T extends Record<string, any> = any> = {
     };
     rows?: number;
     maxLength?: number;
+    lengthNumberOtp?: number;
 };

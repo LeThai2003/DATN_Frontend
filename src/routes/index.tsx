@@ -9,6 +9,10 @@ import DoctorClinicLayout from '@/layouts/DoctorClinicLayout';
 import Doctor from '@/pages/doctor/Doctor';
 
 const Login = lazy(() => import('../pages/auths/Login'));
+const SignUp = lazy(() => import('../pages/auths/SignUp'));
+const PhoneNumberOtp = lazy(() => import('../pages/auths/PhoneNumberOtp'));
+const OtpVerify = lazy(() => import('../pages/auths/OtpVerify'));
+
 const Drug = lazy(() => import('../pages/manager/drugs/Drug'));
 const Employee = lazy(() => import('../pages/manager/employees/Employee'));
 const Room = lazy(() => import('../pages/manager/rooms/Room'));
@@ -116,6 +120,30 @@ function AppRoutes() {
                     element: (
                         <TitleRouter title="Đăng nhập">
                             <Login />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    path: 'signup',
+                    element: (
+                        <TitleRouter title="Đăng ký">
+                            <SignUp />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    path: 'phone-signup',
+                    element: (
+                        <TitleRouter title="Số điện thoại đăng ký">
+                            <PhoneNumberOtp />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    path: 'otp-verify',
+                    element: (
+                        <TitleRouter title="Xác thực số điện thoại">
+                            <OtpVerify />
                         </TitleRouter>
                     ),
                 },

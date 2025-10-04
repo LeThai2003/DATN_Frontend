@@ -75,9 +75,24 @@ const Login = () => {
                 </div>
 
                 {/* Nút login */}
-                <button type="submit" className="btn-primary" disabled={isSubmitting}>
-                    Đăng nhập
-                </button>
+                <div className="flex flex-col gap-2">
+                    <div className="w-full flex items-center justify-center">
+                        <button
+                            type="submit"
+                            className="btn-primary w-[50%]"
+                            disabled={isSubmitting}
+                        >
+                            Đăng nhập
+                        </button>
+                    </div>
+
+                    <div className="flex items-center justify-center gap-2">
+                        <p className="m-0">Bạn chưa có tài khoản ?</p>
+                        <Link className="m-0 mb-[4px]" to={'/auths/signup'}>
+                            Đăng ký
+                        </Link>
+                    </div>
+                </div>
             </form>
         </div>
     );

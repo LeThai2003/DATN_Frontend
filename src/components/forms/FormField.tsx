@@ -24,6 +24,7 @@ const FormField = ({
     maxLength = 400,
     uploadProps,
     imageProps,
+    lengthNumberOtp = 6,
 }: FormFieldProps) => {
     return (
         <Controller
@@ -34,13 +35,22 @@ const FormField = ({
                     <LableField label={label} required={required} />
 
                     {type === 'input' &&
-                        (inputType == 'password' ? (
+                        (inputType === 'password' ? (
                             <Input.Password
                                 {...field}
-                                type={inputType}
                                 placeholder={placeholder}
                                 disabled={disabled}
                                 suffix={suffix}
+                            />
+                        ) : inputType === 'otp' ? (
+                            <Input.OTP
+                                {...field}
+                                size="large"
+                                length={lengthNumberOtp}
+                                value={field.value}
+                                onChange={field.onChange}
+                                formatter={(str) => str.toUpperCase()}
+                                disabled={disabled}
                             />
                         ) : (
                             <Input
