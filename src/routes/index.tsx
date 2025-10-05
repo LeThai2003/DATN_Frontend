@@ -2,11 +2,12 @@ import { lazy, Suspense } from 'react';
 import LoadingPage from '@/pages/loading/LoadingPage';
 import { useRoutes } from 'react-router';
 import TitleRouter from './TitleRouter';
-import ClinicLayout from '@/layouts/ClinicLayout';
 import Error404 from '@/pages/errors/Error404';
+import ClinicLayout from '@/layouts/ClinicLayout';
 import DoctorClinicLayout from '@/layouts/DoctorClinicLayout';
 
 import Doctor from '@/pages/doctor/Doctor';
+import PatientLayout from '@/layouts/PatientLayout';
 
 const Login = lazy(() => import('../pages/auths/Login'));
 const SignUp = lazy(() => import('../pages/auths/SignUp'));
@@ -22,10 +23,14 @@ const ServiceEdit = lazy(() => import('../pages/manager/services/ServiceEdit'));
 const Patient = lazy(() => import('../pages/manager/patients/Patient'));
 const PatientDetail = lazy(() => import('../pages/manager/patients/PatientDetail'));
 
+const Home = lazy(() => import('../pages/patients/Home'));
+const ServicePatient = lazy(() => import('../pages/patients/Service'));
+const Appointment = lazy(() => import('../pages/patients/Appointment'));
+
 function AppRoutes() {
     const routes = useRoutes([
         {
-            path: '/',
+            path: '/manager',
             element: <ClinicLayout />,
             children: [
                 {
@@ -144,6 +149,39 @@ function AppRoutes() {
                     element: (
                         <TitleRouter title="Xác thực số điện thoại">
                             <OtpVerify />
+                        </TitleRouter>
+                    ),
+                },
+            ],
+        },
+        {
+            path: '/',
+            element: <PatientLayout />,
+            children: [
+                {
+                    index: true,
+                    path: '',
+                    element: (
+                        <TitleRouter title="MediClinic">
+                            <Home />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    index: true,
+                    path: '/services',
+                    element: (
+                        <TitleRouter title="Dịch vụ">
+                            <ServicePatient />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    index: true,
+                    path: '/appointment',
+                    element: (
+                        <TitleRouter title="Đặt lịch khám">
+                            <Appointment />
                         </TitleRouter>
                     ),
                 },

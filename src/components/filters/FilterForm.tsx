@@ -3,10 +3,20 @@ import React, { useState } from 'react';
 import { IoCloseOutline } from 'react-icons/io5';
 import FilterField from './FilterField';
 
-const FilterForm = ({ fields, values, onChange, onApply, onReset, onClose }) => {
+const FilterForm = ({
+    fields,
+    values,
+    onChange,
+    onApply,
+    onReset,
+    onClose,
+    className = '',
+    style = {},
+}) => {
     return (
         <div
-            className={`w-full relative bg-slate-50 px-2 pt-4 pb-3 rounded-md transition-all duration-500 ease-linear`}
+            className={`w-full relative bg-slate-50 px-2 pt-4 pb-3 rounded-md transition-all duration-500 ease-linear ${className}`}
+            style={style}
         >
             <div
                 onClick={onClose}
