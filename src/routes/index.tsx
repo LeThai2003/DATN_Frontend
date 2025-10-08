@@ -30,6 +30,8 @@ const Appointment = lazy(() => import('../pages/patients/Appointment'));
 const Checkout = lazy(() => import('../pages/patients/Checkout'));
 const AccountPatient = lazy(() => import('../pages/patients/Account'));
 const AppointmentHistory = lazy(() => import('../pages/patients/AppointmentHistory'));
+const AboutPage = lazy(() => import('../pages/patients/About'));
+const PaymentResult = lazy(() => import('../pages/patients/PaymentResult'));
 
 function AppRoutes() {
     const routes = useRoutes([
@@ -213,6 +215,24 @@ function AppRoutes() {
                     element: (
                         <TitleRouter title="Lịch sử khám bệnh">
                             <AppointmentHistory />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    index: true,
+                    path: '/about',
+                    element: (
+                        <TitleRouter title="Giới thiệu">
+                            <AboutPage />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    index: true,
+                    path: '/payment-result',
+                    element: (
+                        <TitleRouter title="Kết quả thanh toán">
+                            <PaymentResult />
                         </TitleRouter>
                     ),
                 },

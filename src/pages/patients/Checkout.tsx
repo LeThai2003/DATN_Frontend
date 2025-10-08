@@ -156,7 +156,57 @@ const Checkout = () => {
                                 </p>
                             </Card>
 
-                            <Card title="Thanh toán"></Card>
+                            <Card title="Thanh toán">
+                                <div className="flex flex-col items-center justify-center gap-4 py-4">
+                                    <p className="text-gray-700 text-center">
+                                        Tổng phí cần thanh toán:{' '}
+                                        <span className="font-bold text-primary text-lg">
+                                            {selectedService?.price?.toLocaleString('vi-VN')} ₫
+                                        </span>
+                                    </p>
+
+                                    <button
+                                        onClick={async () => {
+                                            if (!selectedService?.price)
+                                                return alert('Chưa có giá dịch vụ!');
+                                            try {
+                                                const response = await fetch(
+                                                    'http://localhost:3000/payment/create/vnpay',
+                                                    {
+                                                        method: 'POST',
+                                                        headers: {
+                                                            'Content-Type': 'application/json',
+                                                        },
+                                                        body: JSON.stringify({
+                                                            amount: selectedService.price,
+                                                            orderId: `ORDER_${Date.now()}`,
+                                                            orderInfo: `Thanh toán dịch vụ khám: ${selectedService.name}`,
+                                                        }),
+                                                    }
+                                                );
+
+                                                const data = await response.json();
+                                                if (data.paymentUrl) {
+                                                    window.location.href = data.paymentUrl; // Chuyển sang trang VNPay
+                                                } else {
+                                                    alert('Không tạo được link thanh toán!');
+                                                }
+                                            } catch (error) {
+                                                console.error(error);
+                                                alert('Lỗi khi gọi API thanh toán!');
+                                            }
+                                        }}
+                                        className="bg-red-500 hover:bg-red-600 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition-all duration-200 flex items-center gap-2"
+                                    >
+                                        <img
+                                            src="https://yt3.googleusercontent.com/JM1m2wng0JQUgSg9ZSEvz7G4Rwo7pYb4QBYip4PAhvGRyf1D_YTbL2DdDjOy0qOXssJPdz2r7Q=s900-c-k-c0x00ffffff-no-rj"
+                                            alt="VNPay"
+                                            className="w-6 h-6"
+                                        />
+                                        Thanh toán qua VNPay
+                                    </button>
+                                </div>
+                            </Card>
                         </div>
                     </div>
                 </section>

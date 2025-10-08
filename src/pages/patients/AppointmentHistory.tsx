@@ -342,41 +342,49 @@ const AppointmentHistory = () => {
                     <WelcomePaytient />
                     <section className="py-2 ">
                         <Card title="Lịch sử khám bệnh">
-                            <div className="mb-3">
-                                {!isOpenAppointmentFilter && (
-                                    <FilterButton
-                                        onClick={() => setIsOpenAppointmentFilter(true)}
-                                    />
-                                )}
+                            {patientAppointments.length ? (
+                                <div>
+                                    <div className="mb-3">
+                                        {!isOpenAppointmentFilter && (
+                                            <FilterButton
+                                                onClick={() => setIsOpenAppointmentFilter(true)}
+                                            />
+                                        )}
 
-                                {isOpenAppointmentFilter && (
-                                    <FilterForm
-                                        fields={FilterAppointmentFields}
-                                        values={filterAppointment}
-                                        onChange={handleFilterAppointmentChange}
-                                        onReset={handleResetAppointmentFilter}
-                                        onApply={handleApplyAppointmentFilter}
-                                        onClose={() => setIsOpenAppointmentFilter(false)}
+                                        {isOpenAppointmentFilter && (
+                                            <FilterForm
+                                                fields={FilterAppointmentFields}
+                                                values={filterAppointment}
+                                                onChange={handleFilterAppointmentChange}
+                                                onReset={handleResetAppointmentFilter}
+                                                onApply={handleApplyAppointmentFilter}
+                                                onClose={() => setIsOpenAppointmentFilter(false)}
+                                            />
+                                        )}
+                                    </div>
+                                    <Table
+                                        dataSource={patientAppointments}
+                                        columns={appointmentColumns}
+                                        rowKey="appointment_id"
+                                        pagination={false}
+                                        scroll={{ x: 'max-content', y: '400px' }}
                                     />
-                                )}
-                            </div>
-                            <Table
-                                dataSource={patientAppointments}
-                                columns={appointmentColumns}
-                                rowKey="appointment_id"
-                                pagination={false}
-                                scroll={{ x: 'max-content', y: '400px' }}
-                            />
-                            <div className="flex justify-end mt-4">
-                                <Pagination
-                                    current={0}
-                                    pageSize={2}
-                                    onChange={(e) => {
-                                        handleChangeAppointmentPage(e);
-                                    }}
-                                    total={5}
-                                />
-                            </div>
+                                    <div className="flex justify-end mt-4">
+                                        <Pagination
+                                            current={0}
+                                            pageSize={2}
+                                            onChange={(e) => {
+                                                handleChangeAppointmentPage(e);
+                                            }}
+                                            total={5}
+                                        />
+                                    </div>
+                                </div>
+                            ) : (
+                                <div>
+                                    <p>Không tìm thấy lịch sử khám bệnh.</p>
+                                </div>
+                            )}
                         </Card>
                     </section>
                 </div>

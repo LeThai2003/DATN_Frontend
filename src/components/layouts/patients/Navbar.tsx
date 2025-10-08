@@ -68,7 +68,7 @@ const Navbar = () => {
                                 !scrolled && location.pathname === '/' ? 'hover:text-blue-100' : ''
                             }`}
                         >
-                            Về chúng tôi
+                            Giới thiệu
                         </Link>
                     </li>
                     <li>
