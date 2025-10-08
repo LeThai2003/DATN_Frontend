@@ -8,7 +8,6 @@ import { patient } from '@/stores/reducers';
 import { initFilterPatient } from '@/defaultValues/patients/patient_default';
 import FilterButton from '@/components/filters/FilterButton';
 import FilterForm from '@/components/filters/FilterForm';
-import { width } from '@mui/system';
 
 const patients = [
     {

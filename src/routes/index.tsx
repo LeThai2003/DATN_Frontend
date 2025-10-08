@@ -8,6 +8,7 @@ import DoctorClinicLayout from '@/layouts/DoctorClinicLayout';
 
 import Doctor from '@/pages/doctor/Doctor';
 import PatientLayout from '@/layouts/PatientLayout';
+import ScrollToTop from './ScrollToTop';
 
 const Login = lazy(() => import('../pages/auths/Login'));
 const SignUp = lazy(() => import('../pages/auths/SignUp'));
@@ -26,6 +27,9 @@ const PatientDetail = lazy(() => import('../pages/manager/patients/PatientDetail
 const Home = lazy(() => import('../pages/patients/Home'));
 const ServicePatient = lazy(() => import('../pages/patients/Service'));
 const Appointment = lazy(() => import('../pages/patients/Appointment'));
+const Checkout = lazy(() => import('../pages/patients/Checkout'));
+const AccountPatient = lazy(() => import('../pages/patients/Account'));
+const AppointmentHistory = lazy(() => import('../pages/patients/AppointmentHistory'));
 
 function AppRoutes() {
     const routes = useRoutes([
@@ -185,6 +189,33 @@ function AppRoutes() {
                         </TitleRouter>
                     ),
                 },
+                {
+                    index: true,
+                    path: '/checkout',
+                    element: (
+                        <TitleRouter title="Thanh toán">
+                            <Checkout />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    index: true,
+                    path: '/account',
+                    element: (
+                        <TitleRouter title="Tài khoản">
+                            <AccountPatient />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    index: true,
+                    path: '/appointment-history',
+                    element: (
+                        <TitleRouter title="Lịch sử khám bệnh">
+                            <AppointmentHistory />
+                        </TitleRouter>
+                    ),
+                },
             ],
         },
         {
@@ -201,6 +232,7 @@ function AppRoutes() {
                 </TitleRouter>
             }
         >
+            <ScrollToTop />
             {routes}
         </Suspense>
     );

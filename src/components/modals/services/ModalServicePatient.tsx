@@ -4,9 +4,15 @@ import ModalBase from '../ModalBase';
 import { Button, Image, Table } from 'antd';
 import type { CollapseProps } from 'antd';
 import { Collapse } from 'antd';
+import { useDispatch } from 'react-redux';
+import { common, service } from '@/stores/reducers';
+import { useNavigate } from 'react-router';
 
 const ModalServicePatient: React.FC<ModalState> = ({ data, type, variant }) => {
     console.log(data);
+
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
     const items: CollapseProps['items'] =
         data?.doctors.map((emp) => ({
@@ -25,19 +31,19 @@ const ModalServicePatient: React.FC<ModalState> = ({ data, type, variant }) => {
                     </div>
                     <div className="flex flex-col gap-1">
                         <p>
-                            <strong>Chuyên khoa:</strong> {emp.specialization_name}
+                            <strong>Chuyên khoa:</strong> {emp?.specialization_name}
                         </p>
                         <p>
-                            <strong>Phòng:</strong> {emp.room_name}
+                            <strong>Phòng:</strong> {emp?.room_name}
                         </p>
                         <p>
-                            <strong>Ngày sinh:</strong> {emp.dob}
+                            <strong>Ngày sinh:</strong> {emp?.dob}
                         </p>
                         <p className="text-gray-700 text-justify">
-                            <strong>Quá trình công tác:</strong> {emp.summary_profile}
+                            <strong>Quá trình công tác:</strong> {emp?.summary_profile}
                         </p>
                         <p>
-                            <strong>Email:</strong> {emp.email}
+                            <strong>Email:</strong> {emp?.email}
                         </p>
                     </div>
                 </div>
@@ -46,6 +52,12 @@ const ModalServicePatient: React.FC<ModalState> = ({ data, type, variant }) => {
 
     const onChange = (key: string | string[]) => {
         console.log(key);
+    };
+
+    const handleBookAppointment = () => {
+        dispatch(service.actions.setSelectService(data));
+        dispatch(common.actions.setHiddenModal(type));
+        navigate(`/appointment`);
     };
 
     return (
@@ -100,7 +112,13 @@ const ModalServicePatient: React.FC<ModalState> = ({ data, type, variant }) => {
                     </div>
 
                     <div className="mt-4 pt-4 border-t border-gray-200 text-right">
-                        <Button type="primary" onClick={() => {}} className="">
+                        <Button
+                            type="primary"
+                            onClick={() => {
+                                handleBookAppointment();
+                            }}
+                            className=""
+                        >
                             Đặt lịch khám
                         </Button>
                     </div>

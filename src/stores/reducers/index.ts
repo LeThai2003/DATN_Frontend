@@ -11,3 +11,4 @@ export * as prescription from './prescriptions/prescription.reducer';
 export * as employee from './employees/employee.reducer';
 export * as specialization from './specializations/specialization.reducer';
 export * as service from './services/service.reducer';
+export * as appointment from './appointments/appointment.reducer';

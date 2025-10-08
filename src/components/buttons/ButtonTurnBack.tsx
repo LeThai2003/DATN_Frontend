@@ -10,8 +10,8 @@ const ButtonTurnBack = ({ link }: { link: string }) => {
             className="flex items-center gap-2 px-4 py-[6px] rounded-md border border-gray-200 bg-white shadow-sm 
                         text-gray-700 hover:bg-gray-100 hover:shadow-md transition-all duration-200"
         >
-            <IoMdArrowBack className="text-lg" />
-            <span className="font-medium">Back</span>
+            <IoMdArrowBack className="text-lg mt-[2px]" />
+            <span className="font-medium">Quay lại</span>
         </button>
     );
 };

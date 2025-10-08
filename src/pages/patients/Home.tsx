@@ -1,7 +1,7 @@
 import ServiceCard from '@/components/cards/services/ServiceCard';
 import HeroSection from '@/components/layouts/patients/HeroSection';
 import { Button } from 'antd';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 
 const employees = [
@@ -16,9 +16,7 @@ const employees = [
         specialization_name: 'Nội tổng quát',
         room_id: 1,
         room_name: 'Phòng Khám Nội Tổng Quát',
-        summary_profile: `Tốt nghiệp Bác sĩ Đa khoa tại Đại học Y Hà Nội (2004). 
-Hơn 18 năm kinh nghiệm trong lĩnh vực Nội tổng quát, đặc biệt trong chẩn đoán và điều trị các bệnh lý mạn tính như tiểu đường, cao huyết áp, viêm gan và bệnh dạ dày. 
-Nguyên bác sĩ tại Bệnh viện Bạch Mai, hiện đang công tác tại Phòng Khám Nội Tổng Quát.`,
+        summary_profile: `Tốt nghiệp Bác sĩ Đa khoa tại Đại học Y Hà Nội (2004). Hơn 18 năm kinh nghiệm trong lĩnh vực Nội tổng quát, đặc biệt trong chẩn đoán và điều trị các bệnh lý mạn tính như tiểu đường, cao huyết áp, viêm gan và bệnh dạ dày. Nguyên bác sĩ tại Bệnh viện Bạch Mai, hiện đang công tác tại Phòng Khám Nội Tổng Quát.`,
     },
     {
         employee_id: 3,
@@ -31,9 +29,7 @@ Nguyên bác sĩ tại Bệnh viện Bạch Mai, hiện đang công tác tại P
         specialization_name: 'Tim mạch',
         room_id: 1,
         room_name: 'Phòng Khám Nội Tổng Quát',
-        summary_profile: `Tốt nghiệp Bác sĩ Chuyên khoa I – Tim mạch tại Đại học Y Dược TP.HCM (2012). 
-Có hơn 12 năm kinh nghiệm trong điều trị các bệnh lý tim mạch như tăng huyết áp, suy tim, rối loạn nhịp tim và bệnh mạch vành. 
-Từng công tác tại Viện Tim TP.HCM trước khi gia nhập đội ngũ của phòng khám.`,
+        summary_profile: `Tốt nghiệp Bác sĩ Chuyên khoa I – Tim mạch tại Đại học Y Dược TP.HCM (2012). Có hơn 12 năm kinh nghiệm trong điều trị các bệnh lý tim mạch như tăng huyết áp, suy tim, rối loạn nhịp tim và bệnh mạch vành. Từng công tác tại Viện Tim TP.HCM trước khi gia nhập đội ngũ của phòng khám.`,
     },
     {
         employee_id: 5,
@@ -46,9 +42,7 @@ Từng công tác tại Viện Tim TP.HCM trước khi gia nhập đội ngũ c�
         specialization_name: 'Nội tổng quát',
         room_id: 1,
         room_name: 'Phòng Khám Nội Tổng Quát',
-        summary_profile: `Bác sĩ trẻ, năng động, tốt nghiệp Đại học Y Dược Thái Nguyên (2015). 
-Có kinh nghiệm trong khám và điều trị bệnh lý nội khoa thường gặp, tư vấn sức khỏe định kỳ và chăm sóc bệnh nhân mạn tính. 
-Luôn đặt lợi ích và sự an toàn của người bệnh lên hàng đầu.`,
+        summary_profile: `Bác sĩ trẻ, năng động, tốt nghiệp Đại học Y Dược Thái Nguyên (2015). Có kinh nghiệm trong khám và điều trị bệnh lý nội khoa thường gặp, tư vấn sức khỏe định kỳ và chăm sóc bệnh nhân mạn tính. Luôn đặt lợi ích và sự an toàn của người bệnh lên hàng đầu.`,
     },
     {
         employee_id: 7,
@@ -61,9 +55,7 @@ Luôn đặt lợi ích và sự an toàn của người bệnh lên hàng đầ
         specialization_name: 'Tim mạch',
         room_id: 2,
         room_name: 'Phòng Khám Nhi',
-        summary_profile: `Tốt nghiệp Đại học Y Dược Cần Thơ (2010), 
-có hơn 10 năm kinh nghiệm trong khám và điều trị bệnh lý tim mạch ở cả người lớn và trẻ em. 
-Từng công tác tại Bệnh viện Nhi Đồng 1, hiện là bác sĩ chuyên khoa Tim mạch tại Phòng Khám Nhi.`,
+        summary_profile: `Tốt nghiệp Đại học Y Dược Cần Thơ (2010), có hơn 10 năm kinh nghiệm trong khám và điều trị bệnh lý tim mạch ở cả người lớn và trẻ em. Từng công tác tại Bệnh viện Nhi Đồng 1, hiện là bác sĩ chuyên khoa Tim mạch tại Phòng Khám Nhi.`,
     },
 ];
 
@@ -80,11 +72,7 @@ const services = [
         id: 2,
         name: 'Khám Ngoại',
         image: 'https://pkdksaigonvungtau.com/wp-content/uploads/2018/01/khoa-noi-280x280.png',
-        description: `Dịch vụ Khám Ngoại tập trung vào chẩn đoán và điều trị các bệnh lý liên quan đến 
-hệ cơ xương khớp, chấn thương, vết thương phần mềm, gãy xương, thoát vị, viêm ruột thừa, trĩ, u bướu dưới da, v.v. 
-Bác sĩ Ngoại sẽ thăm khám, chỉ định cận lâm sàng (siêu âm, X-quang, xét nghiệm…) 
-và tư vấn phương án điều trị nội khoa hoặc phẫu thuật khi cần thiết. 
-
+        description: `Dịch vụ Khám Ngoại tập trung vào chẩn đoán và điều trị các bệnh lý liên quan đến hệ cơ xương khớp, chấn thương, vết thương phần mềm, gãy xương, thoát vị, viêm ruột thừa, trĩ, u bướu dưới da, v.v. Bác sĩ Ngoại sẽ thăm khám, chỉ định cận lâm sàng (siêu âm, X-quang, xét nghiệm…) và tư vấn phương án điều trị nội khoa hoặc phẫu thuật khi cần thiết. 
 `,
         price: 500000,
         doctors: [employees[1], employees[2]],
@@ -106,7 +94,7 @@ const Home = () => {
         <div className="">
             <HeroSection />
 
-            <section className="py-16 bg-gray-50">
+            <section className="py-16">
                 <div className="container mx-auto text-center">
                     <h2 className="text-3xl font-bold mb-10 text-gray-800">
                         Dịch vụ của chúng tôi

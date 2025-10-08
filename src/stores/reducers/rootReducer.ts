@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
 import {
+    appointment,
     appointment_record,
     common,
     dosageTime,
@@ -29,6 +30,7 @@ const rootReducers = combineReducers({
     [employee.name]: employee.default.reducer,
     [specialization.name]: specialization.default.reducer,
     [service.name]: service.default.reducer,
+    [appointment.name]: appointment.default.reducer,
 });
 
 export type RootReducerType = ReturnType<typeof rootReducers>;

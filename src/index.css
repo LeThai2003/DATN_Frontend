@@ -18,7 +18,7 @@ ol {
 
 @layer base {
     body {
-        @apply w-full h-full overflow-x-hidden font-sans bg-bg-gray text-gray-800;
+        @apply w-full h-full overflow-x-hidden font-sans bg-gray-50 text-gray-800;
     }
 
     h1 {

@@ -16,7 +16,7 @@ const Footer = () => {
     };
 
     return (
-        <footer className="bg-gray-800 text-white py-8 px-6">
+        <footer className="bg-gray-800 text-white py-8 px-6 pb-4">
             <div className="container mx-auto space-y-6">
                 <h2 className="text-xl font-bold text-center mb-6 text-slate-100">
                     Góp ý & Liên hệ
@@ -86,7 +86,8 @@ const Footer = () => {
                         title="Google Map"
                         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1959.261208736072!2d106.784712488466!3d10.847813331608172!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x317527131ae8b249%3A0x4d2d3c8fab7d3c2e!2zOTcgTWFuIFRoaeG7h24sIEhp4buHcCBQaMO6LCBUaOG7pyDEkOG7qWMsIEjhu5MgQ2jDrSBNaW5oLCBWaeG7h3QgTmFt!5e0!3m2!1svi!2sus!4v1759638353469!5m2!1svi!2sus"
                         width="100%"
-                        height="485"
+                        // height={`${window.innerWidth < 586 ? '255' : '485'}`}
+                        height="255"
                         style={{ border: 0, borderRadius: '12px' }}
                         allowFullScreen
                         loading="lazy"

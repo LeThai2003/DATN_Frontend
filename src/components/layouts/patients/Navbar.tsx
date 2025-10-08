@@ -1,3 +1,4 @@
+import AccountPatient from '@/components/dropdowns/AccountPatient';
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router';
 
@@ -68,6 +69,16 @@ const Navbar = () => {
                             }`}
                         >
                             Về chúng tôi
+                        </Link>
+                    </li>
+                    <li>
+                        <Link
+                            to="/account"
+                            className={`hover:text-blue-600 transition-colors duration-300 ${
+                                !scrolled && location.pathname === '/' ? 'hover:text-blue-100' : ''
+                            }`}
+                        >
+                            <AccountPatient />
                         </Link>
                     </li>
                 </ul>
