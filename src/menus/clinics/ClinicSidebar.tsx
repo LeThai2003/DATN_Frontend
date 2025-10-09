@@ -11,7 +11,11 @@ function ClinicSidebar() {
     const items = (clinicMenu[role] || []).map((item) => ({
         key: item.key,
         icon: item.icon,
-        label: <Link to={`/${role}/${item.key}`}>{item.label}</Link>,
+        label: (
+            <Link to={item.key == 'dashboard' ? `/${role}` : `/${role}/${item.key}`}>
+                {item.label}
+            </Link>
+        ),
     }));
 
     return <Menu mode="inline" defaultSelectedKeys={[currentKey]} items={items} />;

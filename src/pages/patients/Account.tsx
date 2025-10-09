@@ -1,11 +1,12 @@
+import WelcomeCard from '@/components/cards/WelcomeCard';
 import FormField from '@/components/forms/FormField';
-import WelcomePaytient from '@/components/layouts/patients/WelcomePaytient';
+
 import { patientAppointmentSchema } from '@/validations/appointment.validate';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Button, Card, Descriptions, Form, Input, Tabs, Tooltip } from 'antd';
+import { Button, Card, Form, Input, Tabs, Tooltip } from 'antd';
 import TabPane from 'antd/es/tabs/TabPane';
 import React, { useState } from 'react';
-import { set, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { useDispatch } from 'react-redux';
 
 const Account = () => {
@@ -51,7 +52,7 @@ const Account = () => {
         <div className="relative">
             <div className="container min-h-screen">
                 <div className="pt-[86px]">
-                    <WelcomePaytient />
+                    <WelcomeCard name="Nguyễn Văn Name" />
                     <section className="py-2">
                         <Card title="Tài khoản cá nhân">
                             <Tabs defaultActiveKey="1">

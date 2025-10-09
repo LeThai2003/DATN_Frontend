@@ -49,6 +49,7 @@ const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
             dob: data?.dob || undefined,
             gender: data?.gender || undefined,
             address: data?.address || '',
+            avatar: data?.avatar || '',
         },
         resolver: yupResolver(employeeAccountSchema),
     });
@@ -95,6 +96,29 @@ const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
                             onSubmit={handleSubmit(onSubmit)}
                             className="px-6 pt-4 pb-2 bg-white rounded-2xl space-y-4 h-[92%] overflow-y-auto"
                         >
+                            <div>
+                                {variant == 'edit' ? (
+                                    <FormField
+                                        name="avatar"
+                                        control={control}
+                                        label="Hình ảnh"
+                                        type="upload"
+                                        uploadProps={{ single: true }}
+                                        error={!!errors.avatar}
+                                        helperText={errors.avatar?.message as string}
+                                    />
+                                ) : (
+                                    <FormField
+                                        name="avatar"
+                                        control={control}
+                                        label="Hình ảnh"
+                                        type="image"
+                                        imageProps={{ src: data?.avatar, width: 100 }}
+                                        error={!!errors.avatar}
+                                        helperText={errors.avatar?.message as string}
+                                    />
+                                )}
+                            </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <FormField
                                     name="fullname"
@@ -254,6 +278,17 @@ const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
                             onSubmit={handleSubmit(onSubmit)}
                             className="px-6 pt-4 pb-2 bg-white rounded-2xl space-y-4 h-[92%] overflow-y-auto"
                         >
+                            <div>
+                                <FormField
+                                    name="image"
+                                    control={control}
+                                    label="Hình ảnh"
+                                    type="upload"
+                                    uploadProps={{ single: true }}
+                                    error={!!errors.avatar}
+                                    helperText={errors.avatar?.message as string}
+                                />
+                            </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <FormField
                                     name="fullname"

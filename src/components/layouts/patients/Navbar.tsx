@@ -18,8 +18,8 @@ const Navbar = () => {
         <header
             className={`fixed w-full top-0 z-50 transition-all duration-500 ${
                 scrolled || location.pathname !== '/'
-                    ? 'bg-white shadow-md'
-                    : 'bg-white/35 backdrop-blur-md'
+                    ? 'bg-white shadow-md opacity-100 pointer-events-auto'
+                    : 'bg-opacity-0 pointer-events-none'
             }`}
         >
             <nav className="container mx-auto flex justify-between items-center p-4">
@@ -29,7 +29,7 @@ const Navbar = () => {
                             className={`text-lg font-bold leading-tight text-center ${
                                 scrolled || location.pathname !== '/'
                                     ? 'text-blue-600'
-                                    : 'text-white'
+                                    : 'text-transparent'
                             }`}
                         >
                             MediClinic
@@ -38,7 +38,7 @@ const Navbar = () => {
                             className={`italic text-[12px] font-semibold text-center leading-tight ${
                                 scrolled || location.pathname !== '/'
                                     ? 'text-gray-600'
-                                    : 'text-gray-100'
+                                    : 'text-transparent'
                             }`}
                         >
                             Y tế thông minh
@@ -48,14 +48,16 @@ const Navbar = () => {
 
                 <ul
                     className={`flex space-x-6 font-medium list-none transition-colors duration-500 ${
-                        scrolled || location.pathname !== '/' ? 'text-gray-700' : 'text-white'
+                        scrolled || location.pathname !== '/' ? 'text-gray-700' : 'text-transparent'
                     }`}
                 >
                     <li>
                         <Link
                             to="/services"
                             className={`hover:text-blue-600 transition-colors duration-300 ${
-                                !scrolled && location.pathname === '/' ? 'hover:text-blue-100' : ''
+                                !scrolled && location.pathname === '/'
+                                    ? 'hover:text-blue-100 opacity-0'
+                                    : 'opacity-100'
                             }`}
                         >
                             Dịch vụ
@@ -65,7 +67,9 @@ const Navbar = () => {
                         <Link
                             to="/about"
                             className={`hover:text-blue-600 transition-colors duration-300 ${
-                                !scrolled && location.pathname === '/' ? 'hover:text-blue-100' : ''
+                                !scrolled && location.pathname === '/'
+                                    ? 'hover:text-blue-100 opacity-0'
+                                    : 'opacity-100'
                             }`}
                         >
                             Giới thiệu
@@ -74,7 +78,9 @@ const Navbar = () => {
                     <li>
                         <span
                             className={`hover:text-blue-600 transition-colors duration-300 cursor-pointer ${
-                                !scrolled && location.pathname === '/' ? 'hover:text-blue-100' : ''
+                                !scrolled && location.pathname === '/'
+                                    ? 'hover:text-blue-100 opacity-0'
+                                    : 'opacity-100'
                             }`}
                         >
                             <AccountPatient />

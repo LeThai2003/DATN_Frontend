@@ -19,7 +19,7 @@ const Account = () => {
     const items: MenuProps['items'] = [
         {
             label: (
-                <Link to="#" className="menu-item-link">
+                <Link to="/manager/account" className="menu-item-link">
                     Quản lý
                 </Link>
             ),

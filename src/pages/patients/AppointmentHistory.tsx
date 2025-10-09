@@ -1,4 +1,4 @@
-import WelcomePaytient from '@/components/layouts/patients/WelcomePaytient';
+import WelcomePaytient from '@/components/cards/WelcomeCard';
 import { Button, Card, Pagination, Tag, Tooltip } from 'antd';
 import Table, { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -11,6 +11,7 @@ import { selectFilter } from '@/stores/selectors/appointments/appointment.select
 import { useState } from 'react';
 import FilterButton from '@/components/filters/FilterButton';
 import FilterForm from '@/components/filters/FilterForm';
+import WelcomeCard from '@/components/cards/WelcomeCard';
 
 // 🔹 Bác sĩ khám
 export const employees = [
@@ -339,7 +340,7 @@ const AppointmentHistory = () => {
         <div className="relative">
             <div className="container min-h-screen">
                 <div className="pt-[86px]">
-                    <WelcomePaytient />
+                    <WelcomeCard name="Nguyễn Văn Name" />
                     <section className="py-2 ">
                         <Card title="Lịch sử khám bệnh">
                             {patientAppointments.length ? (

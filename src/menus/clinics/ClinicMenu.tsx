@@ -53,11 +53,11 @@ export const clinicMenu = {
         //     label: 'Lịch làm / Ca trực',
         //     icon: <MdOutlineCalendarToday />,
         // },
-        {
-            key: 'accounts',
-            label: 'Tài khoản cá nhân',
-            icon: <MdOutlineManageAccounts />,
-        },
+        // {
+        //     key: 'accounts',
+        //     label: 'Tài khoản cá nhân',
+        //     icon: <MdOutlineManageAccounts />,
+        // },
     ],
 
     doctor: [

@@ -24,4 +24,5 @@ export const employeeAccountSchema = yup.object().shape({
         .oneOf(['male', 'female', 'other'], 'Giới tính không hợp lệ')
         .required('Vui lòng chọn giới tính'),
     address: yup.string().required('Vui lòng nhập địa chỉ'),
+    avatar: yup.string().nullable(),
 });

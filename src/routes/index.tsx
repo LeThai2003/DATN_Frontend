@@ -23,6 +23,8 @@ const Service = lazy(() => import('../pages/manager/services/Service'));
 const ServiceEdit = lazy(() => import('../pages/manager/services/ServiceEdit'));
 const Patient = lazy(() => import('../pages/manager/patients/Patient'));
 const PatientDetail = lazy(() => import('../pages/manager/patients/PatientDetail'));
+const AccountEmployee = lazy(() => import('../pages/manager/accounts/AccountEmployee'));
+const Dashboard = lazy(() => import('../pages/manager/dashboards/Dashboard'));
 
 const Home = lazy(() => import('../pages/patients/Home'));
 const ServicePatient = lazy(() => import('../pages/patients/Service'));
@@ -40,7 +42,16 @@ function AppRoutes() {
             element: <ClinicLayout />,
             children: [
                 {
-                    path: '/manager/drugs',
+                    path: '',
+                    index: true,
+                    element: (
+                        <TitleRouter title="Tổng quan">
+                            <Dashboard />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    path: 'drugs',
                     element: (
                         <TitleRouter title="Quản lý thuốc">
                             <Drug />
@@ -48,7 +59,7 @@ function AppRoutes() {
                     ),
                 },
                 {
-                    path: '/manager/employees',
+                    path: 'employees',
                     element: (
                         <TitleRouter title="Quản lý bác sĩ">
                             <Employee />
@@ -56,7 +67,7 @@ function AppRoutes() {
                     ),
                 },
                 {
-                    path: '/manager/rooms',
+                    path: 'rooms',
                     element: (
                         <TitleRouter title="Quản lý phòng khám">
                             <Room />
@@ -64,7 +75,7 @@ function AppRoutes() {
                     ),
                 },
                 {
-                    path: '/manager/specializations',
+                    path: 'specializations',
                     element: (
                         <TitleRouter title="Quản lý chuyên khoa">
                             <Specialization />
@@ -72,7 +83,7 @@ function AppRoutes() {
                     ),
                 },
                 {
-                    path: '/manager/services',
+                    path: 'services',
                     element: (
                         <TitleRouter title="Quản lý dịch vụ">
                             <Service />
@@ -80,7 +91,7 @@ function AppRoutes() {
                     ),
                 },
                 {
-                    path: '/manager/services/edit',
+                    path: 'services/edit',
                     element: (
                         <TitleRouter title="Cập nhật dịch vụ">
                             <ServiceEdit />
@@ -88,7 +99,7 @@ function AppRoutes() {
                     ),
                 },
                 {
-                    path: '/manager/patients',
+                    path: 'patients',
                     element: (
                         <TitleRouter title="Quản lý bệnh nhân">
                             <Patient />
@@ -96,10 +107,18 @@ function AppRoutes() {
                     ),
                 },
                 {
-                    path: '/manager/patients/detail',
+                    path: 'patients/detail',
                     element: (
                         <TitleRouter title="Chi tiết bệnh nhân">
                             <PatientDetail />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    path: 'account',
+                    element: (
+                        <TitleRouter title="Tài khoản cá nhân">
+                            <AccountEmployee />
                         </TitleRouter>
                     ),
                 },
