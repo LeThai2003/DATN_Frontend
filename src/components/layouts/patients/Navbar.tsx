@@ -72,14 +72,13 @@ const Navbar = () => {
                         </Link>
                     </li>
                     <li>
-                        <Link
-                            to="/account"
-                            className={`hover:text-blue-600 transition-colors duration-300 ${
+                        <span
+                            className={`hover:text-blue-600 transition-colors duration-300 cursor-pointer ${
                                 !scrolled && location.pathname === '/' ? 'hover:text-blue-100' : ''
                             }`}
                         >
                             <AccountPatient />
-                        </Link>
+                        </span>
                     </li>
                 </ul>
             </nav>
