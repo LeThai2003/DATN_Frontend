@@ -1,12 +1,9 @@
 import FormField from '@/components/forms/FormField';
 import { appointment_record } from '@/stores/reducers';
-import {
-    selectNewAppointmentRecord,
-    selectSelectedAppointmentRecord,
-} from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
+import { selectNewAppointmentRecord } from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
 import { appointmentRecordSchema } from '@/validations/appointmentRecord.validate';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Card, Popconfirm } from 'antd';
+import { Card, Empty, Popconfirm } from 'antd';
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
@@ -18,29 +15,28 @@ const icd10Options = [
     { value: 'J06.9', label: 'J06.9 - Viêm đường hô hấp trên cấp' },
 ];
 
-const SectionAppointmentRecord = () => {
-    const selectedAppointmentRecord = useSelector(selectSelectedAppointmentRecord);
+const SectionAppointmentRecord = ({ record, isHistory }) => {
+    console.log(record);
+
     const newAppointment = useSelector(selectNewAppointmentRecord);
 
     const dispatch = useDispatch();
 
     const defaultAppointmentRecordValues = {
-        record_id: selectedAppointmentRecord?.record_id || 0,
-        appointment_id: selectedAppointmentRecord?.appointment_id || 0,
-        height: selectedAppointmentRecord?.height || 0,
-        weight: selectedAppointmentRecord?.weight || 0,
-        blood_pressure: selectedAppointmentRecord?.blood_pressure || '',
-        temperature: selectedAppointmentRecord?.temperature || 0,
-        heart_rate: selectedAppointmentRecord?.heart_rate || 0,
-        symptoms: selectedAppointmentRecord?.symptoms || '',
-        // initial_diagnosis: selectedAppointmentRecord?.initial_diagnosis || '',
-        icd10: selectedAppointmentRecord?.icd10 || '',
-        icd10_value: selectedAppointmentRecord?.icd10_value || '',
-        notes: selectedAppointmentRecord?.notes || '',
-        date: selectedAppointmentRecord?.date || '',
+        record_id: record?.record_id || 0,
+        appointment_id: record?.appointment_id || 0,
+        height: record?.height || 0,
+        weight: record?.weight || 0,
+        blood_pressure: record?.blood_pressure || '',
+        temperature: record?.temperature || 0,
+        heart_rate: record?.heart_rate || 0,
+        symptoms: record?.symptoms || '',
+        // initial_diagnosis: record?.initial_diagnosis || '',
+        icd10: record?.icd10 || '',
+        icd10_value: record?.icd10_value || '',
+        notes: record?.notes || '',
+        date: record?.date || '',
     };
-
-    // console.log(selectedAppointmentRecord);
 
     const {
         control,
@@ -55,7 +51,7 @@ const SectionAppointmentRecord = () => {
 
     useEffect(() => {
         reset(defaultAppointmentRecordValues);
-    }, [selectedAppointmentRecord, reset]);
+    }, [record, reset]);
 
     console.log(newAppointment);
 
@@ -68,7 +64,10 @@ const SectionAppointmentRecord = () => {
 
     return (
         <div className="">
-            <Card title="Kết quả khám bệnh" bodyStyle={{ padding: '8px 12px' }}>
+            <Card
+                title={isHistory ? 'Kết quả khám' : 'Khám bệnh'}
+                bodyStyle={{ padding: '8px 12px' }}
+            >
                 <form
                     onSubmit={handleSubmit(onSubmit)}
                     className="space-y-4 h-[92%] overflow-y-auto p-3 bg-slate-50 rounded-md"
@@ -79,7 +78,7 @@ const SectionAppointmentRecord = () => {
                             control={control}
                             label="Chiều cao (cm)"
                             placeholder="Nhập chiều cao"
-                            type={selectedAppointmentRecord ? 'text' : 'input'}
+                            type={record ? 'text' : 'input'}
                             inputType="number"
                             error={!!errors.height}
                             helperText={errors.height?.message as string}
@@ -90,7 +89,7 @@ const SectionAppointmentRecord = () => {
                             control={control}
                             label="Cân nặng (kg)"
                             placeholder="Nhập cân nặng"
-                            type={selectedAppointmentRecord ? 'text' : 'input'}
+                            type={record ? 'text' : 'input'}
                             inputType="number"
                             error={!!errors.weight}
                             helperText={errors.weight?.message as string}
@@ -101,7 +100,7 @@ const SectionAppointmentRecord = () => {
                             control={control}
                             label="Huyết áp"
                             placeholder="Ví dụ: 120/80"
-                            type={selectedAppointmentRecord ? 'text' : 'input'}
+                            type={record ? 'text' : 'input'}
                             inputType="text"
                             error={!!errors.blood_pressure}
                             helperText={errors.blood_pressure?.message as string}
@@ -112,7 +111,7 @@ const SectionAppointmentRecord = () => {
                             control={control}
                             label="Nhiệt độ (°C)"
                             placeholder="Nhập nhiệt độ"
-                            type={selectedAppointmentRecord ? 'text' : 'input'}
+                            type={record ? 'text' : 'input'}
                             inputType="number"
                             error={!!errors.temperature}
                             helperText={errors.temperature?.message as string}
@@ -123,7 +122,7 @@ const SectionAppointmentRecord = () => {
                             control={control}
                             label="Nhịp tim (lần/phút)"
                             placeholder="Nhập nhịp tim"
-                            type={selectedAppointmentRecord ? 'text' : 'input'}
+                            type={record ? 'text' : 'input'}
                             inputType="number"
                             error={!!errors.heart_rate}
                             helperText={errors.heart_rate?.message as string}
@@ -135,7 +134,7 @@ const SectionAppointmentRecord = () => {
                         control={control}
                         label="Triệu chứng"
                         placeholder="Nhập triệu chứng"
-                        type={selectedAppointmentRecord ? 'text' : 'textarea'}
+                        type={record ? 'text' : 'textarea'}
                         error={!!errors.symptoms}
                         helperText={errors.symptoms?.message as string}
                     />
@@ -145,7 +144,7 @@ const SectionAppointmentRecord = () => {
                         control={control}
                         label="Chẩn đoán ban đầu"
                         placeholder="Nhập chẩn đoán"
-                        type={selectedAppointmentRecord ? 'text' : 'input'}
+                        type={record ? 'text' : 'input'}
                         inputType="text"
                         error={!!errors.initial_diagnosis}
                         helperText={errors.initial_diagnosis?.message as string}
@@ -156,7 +155,7 @@ const SectionAppointmentRecord = () => {
                         name="icd10"
                         control={control}
                         label="Mã ICD-10"
-                        type={selectedAppointmentRecord ? 'text' : 'select'}
+                        type={record ? 'text' : 'select'}
                         options={icd10Options}
                         placeholder="Chọn mã ICD-10"
                         required
@@ -169,12 +168,12 @@ const SectionAppointmentRecord = () => {
                         control={control}
                         label="Ghi chú"
                         placeholder="Nhập ghi chú"
-                        type={selectedAppointmentRecord ? 'text' : 'textarea'}
+                        type={record ? 'text' : 'textarea'}
                         error={!!errors.notes}
                         helperText={errors.notes?.message as string}
                     />
 
-                    {!selectedAppointmentRecord ? (
+                    {!record ? (
                         !newAppointment ? (
                             <div className="flex justify-end gap-2 mt-2">
                                 <Popconfirm

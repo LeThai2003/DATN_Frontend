@@ -10,26 +10,15 @@ import {
     Checkbox,
     Popconfirm,
     Card,
+    Empty,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { drugs } from '../drugs/TabDrug';
 import { units } from '../drugs/TabUnit';
 import { Prescription } from '@/types/stores/prescriptions/prescription_type';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-    selectNewPrescription,
-    selectPrescriptions,
-} from '@/stores/selectors/prescriptions/prescription.selector';
-import {
-    selectNewAppointmentRecord,
-    selectSelectedAppointmentRecord,
-} from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
+import { selectNewPrescription } from '@/stores/selectors/prescriptions/prescription.selector';
 import { prescription } from '@/stores/reducers';
-
-interface PrescriptionTableProps {
-    drugOptions: { code: string; name: string }[];
-    unitOptions: string[];
-}
 
 const mealTimeOptions = [
     { value: 'before', label: 'Trước ăn' },
@@ -39,23 +28,20 @@ const mealTimeOptions = [
 
 const dosageOptions = ['Sáng', 'Trưa', 'Chiều', 'Tối'];
 
-const SectionPrescription: React.FC<PrescriptionTableProps> = () => {
+const SectionPrescription = ({ record, isHistory }) => {
     const dispatch = useDispatch();
     const newPrescription = useSelector(selectNewPrescription);
-
-    const { data } = useSelector(selectPrescriptions);
-    const selectedAppointmentRecord = useSelector(selectSelectedAppointmentRecord);
 
     const [dataAdd, setDataAdd] = useState<Prescription[]>([]);
     const [editingKey, setEditingKey] = useState<string>('');
 
     const [form] = Form.useForm();
 
-    const isEditing = (record: Prescription) => record.key === editingKey;
+    const isEditing = (recordRow: Prescription) => recordRow.key === editingKey;
 
-    const edit = (record: Prescription) => {
-        form.setFieldsValue({ ...record });
-        setEditingKey(record.key);
+    const edit = (recordRow: Prescription) => {
+        form.setFieldsValue({ ...recordRow });
+        setEditingKey(recordRow.key);
     };
 
     const cancel = () => {
@@ -110,11 +96,7 @@ const SectionPrescription: React.FC<PrescriptionTableProps> = () => {
 
     const baseColumns: ColumnsType<Prescription> = [
         {
-            title: (
-                <span>
-                    Thuốc {!selectedAppointmentRecord && <span className="text-red-500"> * </span>}
-                </span>
-            ),
+            title: <span>Thuốc {!record && <span className="text-red-500"> * </span>}</span>,
             dataIndex: 'drug_id',
             render: (_, record) =>
                 isEditing(record) ? (
@@ -237,7 +219,7 @@ const SectionPrescription: React.FC<PrescriptionTableProps> = () => {
         },
     };
 
-    const columns = selectedAppointmentRecord ? baseColumns : [...baseColumns, actionColumn];
+    const columns = record ? baseColumns : [...baseColumns, actionColumn];
 
     const savePrescription = () => {
         console.log(dataAdd);
@@ -247,7 +229,7 @@ const SectionPrescription: React.FC<PrescriptionTableProps> = () => {
     return (
         <Card title="Kê đơn thuốc" bodyStyle={{ padding: '10px 22px' }}>
             <Form form={form} component={false}>
-                {!selectedAppointmentRecord && (
+                {!record && (
                     <Button
                         variant="dashed"
                         color="primary"
@@ -258,15 +240,19 @@ const SectionPrescription: React.FC<PrescriptionTableProps> = () => {
                     </Button>
                 )}
 
-                <Table
-                    bordered
-                    dataSource={selectedAppointmentRecord ? data : dataAdd}
-                    columns={columns}
-                    pagination={false}
-                    rowClassName="editable-row"
-                />
+                {isHistory && !record?.prescriptions?.length ? (
+                    <Empty description="Không có đơn thuốc được kê" />
+                ) : (
+                    <Table
+                        bordered
+                        dataSource={isHistory ? record?.prescriptions || [] : dataAdd}
+                        columns={columns}
+                        pagination={false}
+                        rowClassName="editable-row"
+                    />
+                )}
             </Form>
-            {!selectedAppointmentRecord ? (
+            {!isHistory ? (
                 newPrescription ? (
                     <div className="flex justify-start">
                         <Button type="primary" onClick={savePrescription} className="mt-3">

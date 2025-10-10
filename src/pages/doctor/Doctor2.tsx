@@ -4,7 +4,14 @@ import SectionPrescription from '@/components/pages/doctors/SectionPrescription'
 import { Button } from 'antd';
 import React from 'react';
 
-const Doctor = ({ patient, record, isNewExam, isHistory }) => {
+interface Doctor2Props {
+    patient: any;
+    record?: any;
+    isHistory?: boolean;
+    isNewExam?: boolean;
+}
+
+const Doctor: React.FC<Doctor2Props> = ({ patient, record, isHistory, isNewExam }) => {
     console.log(patient);
     console.log(record);
 
@@ -24,14 +31,14 @@ const Doctor = ({ patient, record, isNewExam, isHistory }) => {
                         ? `Khám mới - ${patient.fullname}`
                         : `Kết quả khám - ${patient.fullname} - ${record?.date}`}
                 </h2>
-                <Button type="primary">Lưu kết quả khám</Button>
+                {isNewExam && <Button type="primary">Lưu kết quả khám</Button>}
             </div>
 
             <div className="h-[calc(100vh-158px)] overflow-y-auto custom-scrollbar">
                 <div className="flex flex-col gap-5 pb-3">
-                    <SectionInfoPatient />
-                    <SectionAppointmentRecord />
-                    <SectionPrescription drugOptions={[]} unitOptions={[]} />
+                    <SectionInfoPatient patient={patient} />
+                    <SectionAppointmentRecord record={record} isHistory={isHistory} />
+                    <SectionPrescription record={record} isHistory={isHistory} />
                 </div>
             </div>
         </div>

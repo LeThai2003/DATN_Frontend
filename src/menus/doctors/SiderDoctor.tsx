@@ -5,6 +5,7 @@ import { LuAccessibility, LuCalendarClock, LuSearch } from 'react-icons/lu';
 import { appointment_record, patient, prescription } from '@/stores/reducers';
 import { selectSelectedPatient } from '@/stores/selectors/patients/patient.selector';
 import { Prescription } from '@/types/stores/prescriptions/prescription_type';
+import { FaRegUser } from 'react-icons/fa';
 
 // ======== DỮ LIỆU GIẢ =========
 const patientsToday = [
@@ -44,61 +45,6 @@ const patientsToday = [
     { patient_id: 14, fullname: 'Trần Thị B' },
 ];
 
-const appointmentRecords: Record<number, any[]> = {
-    1: [
-        {
-            record_id: 101,
-            appointment_id: 201,
-            height: 170,
-            weight: 65,
-            blood_pressure: '120/80',
-            temperature: 37,
-            heart_rate: 78,
-            symptoms: 'Ho, sốt nhẹ',
-            initial_diagnosis: 'Nghi ngờ viêm họng',
-            final_diagnosis: 'Viêm họng cấp',
-            icd10: 'J02.9',
-            icd10_value: 'Viêm họng cấp, không xác định',
-            notes: 'Khuyên uống nhiều nước',
-            date: '10-09-2025',
-        },
-    ],
-    2: [
-        {
-            record_id: 102,
-            appointment_id: 202,
-            height: 160,
-            weight: 55,
-            blood_pressure: '110/70',
-            temperature: 36.5,
-            heart_rate: 75,
-            symptoms: 'Đau đầu, chóng mặt',
-            initial_diagnosis: 'Khả năng thiếu máu',
-            final_diagnosis: 'Thiếu máu nhẹ',
-            icd10: 'D50.9',
-            icd10_value: 'Thiếu máu do thiếu sắt, không xác định',
-            notes: 'Khuyên bổ sung sắt',
-            date: '01-09-2025',
-        },
-        {
-            record_id: 103,
-            appointment_id: 203,
-            height: 160,
-            weight: 55,
-            blood_pressure: '110/70',
-            temperature: 36.5,
-            heart_rate: 75,
-            symptoms: 'Đau đầu, chóng mặt',
-            initial_diagnosis: 'Khả năng thiếu máu',
-            final_diagnosis: 'Thiếu máu nhẹ',
-            icd10: 'D50.9',
-            icd10_value: 'Không xác định',
-            notes: 'Khuyên bổ sung sắt',
-            date: '01-09-2025',
-        },
-    ],
-};
-
 const samplePrescriptions: Prescription[] = [
     {
         key: '1',
@@ -125,6 +71,64 @@ const samplePrescriptions: Prescription[] = [
         duration: 5,
     },
 ];
+
+const appointmentRecords: Record<number, any[]> = {
+    1: [
+        {
+            record_id: 101,
+            appointment_id: 201,
+            height: 170,
+            weight: 65,
+            blood_pressure: '120/80',
+            temperature: 37,
+            heart_rate: 78,
+            symptoms: 'Ho, sốt nhẹ',
+            initial_diagnosis: 'Nghi ngờ viêm họng',
+            final_diagnosis: 'Viêm họng cấp',
+            icd10: 'J02.9',
+            icd10_value: 'Viêm họng cấp, không xác định',
+            notes: 'Khuyên uống nhiều nước',
+            date: '10-09-2025',
+            prescriptions: samplePrescriptions,
+        },
+    ],
+    2: [
+        {
+            record_id: 102,
+            appointment_id: 202,
+            height: 160,
+            weight: 55,
+            blood_pressure: '110/70',
+            temperature: 36.5,
+            heart_rate: 75,
+            symptoms: 'Đau đầu, chóng mặt',
+            initial_diagnosis: 'Khả năng thiếu máu',
+            final_diagnosis: 'Thiếu máu nhẹ',
+            icd10: 'D50.9',
+            icd10_value: 'Thiếu máu do thiếu sắt, không xác định',
+            notes: 'Khuyên bổ sung sắt',
+            date: '01-09-2025',
+            prescriptions: [samplePrescriptions[0]],
+        },
+        {
+            record_id: 103,
+            appointment_id: 203,
+            height: 160,
+            weight: 55,
+            blood_pressure: '110/70',
+            temperature: 36.5,
+            heart_rate: 75,
+            symptoms: 'Đau đầu, chóng mặt',
+            initial_diagnosis: 'Khả năng thiếu máu',
+            final_diagnosis: 'Thiếu máu nhẹ',
+            icd10: 'D50.9',
+            icd10_value: 'Không xác định',
+            notes: 'Khuyên bổ sung sắt',
+            date: '01-09-2025',
+            prescriptions: [],
+        },
+    ],
+};
 
 // ======== COMPONENT =========
 const SiderDoctor = ({ onOpenTab }) => {
@@ -270,8 +274,11 @@ const SiderDoctor = ({ onOpenTab }) => {
                 </div>
             )}
 
-            <div className="absolute bottom-0 left-0 p-2 border-t border-blue-200 w-full bg-blue-100 cursor-pointer hover:bg-blue-50 transition-all duration-200">
-                <span className="text-blue-600 font-medium">BS. Nguyễn Nam</span>
+            <div className="absolute bottom-0 left-0 p-2 border-t border-blue-200 w-full bg-blue-50 cursor-pointer hover:bg-blue-100 transition-all duration-200">
+                <div className="flex items-center justify-start gap-2 text-blue-600">
+                    <FaRegUser className="size-4" />
+                    <span className="text-xs font-medium">BS. Nguyễn Nam Nguyễn Nam</span>
+                </div>
             </div>
         </div>
     );

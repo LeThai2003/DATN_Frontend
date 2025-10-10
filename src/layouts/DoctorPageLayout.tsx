@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tabs } from 'antd';
+import { Modal, Tabs } from 'antd';
 import SiderDoctor from '@/menus/doctors/SiderDoctor';
 import Doctor2 from '@/pages/doctor/Doctor2';
 
@@ -20,9 +20,54 @@ const DoctorPageLayout = () => {
         },
     ]);
     const [activeKey, setActiveKey] = useState('new-exam');
+    const [currentPatient, setCurrentPatient] = useState(null);
+
+    const resetTabsForNewPatient = (patient) => {
+        const newTab = {
+            key: 'new-exam',
+            label: 'Khám mới',
+            content: <Doctor2 key="new-exam" patient={patient} isNewExam isHistory={false} />,
+            closable: false,
+        };
+
+        setTabs([newTab]);
+        setActiveKey('new-exam');
+        setCurrentPatient(patient);
+    };
+
+    const handleOpenTab = (patient, isHistory, record) => {
+        // Nếu chưa chọn bệnh nhân nào
+        if (!currentPatient) {
+            setCurrentPatient(patient);
+        }
+        // Nếu chọn bệnh nhân khác
+        else if (currentPatient.patient_id !== patient.patient_id) {
+            return Modal.confirm({
+                title: 'Chuyển bệnh nhân?',
+                content:
+                    'Bạn có muốn chuyển sang bệnh nhân khác không? Tất cả tab hiện tại sẽ bị đóng.',
+                okText: 'Đồng ý',
+                cancelText: 'Hủy',
+                onOk: () => {
+                    // Reset tab về mặc định
+                    resetTabsForNewPatient(patient);
+                },
+            }); // không mở thêm tab
+        }
+
+        console.log('////////////////////');
+
+        // Nếu cùng bệnh nhân
+        openTab(patient, isHistory, record);
+    };
 
     // Mở tab mới hoặc cập nhật tab hiện tại
     const openTab = (patient, isHistory = false, record = null) => {
+        if (tabs.length >= 5) {
+            console.log('Chỉ được mở tối đa 5 tab cùng lúc.');
+            return;
+        }
+
         if (!isHistory) {
             // Khám mới
             setTabs((prev) => {
@@ -31,10 +76,11 @@ const DoctorPageLayout = () => {
                     ...newTabs[0],
                     content: (
                         <Doctor2
+                            key={'new-exam'}
                             patient={patient}
-                            isNewExam={true}
-                            record={undefined}
-                            isHistory={undefined}
+                            record={record}
+                            isHistory={isHistory}
+                            isNewExam={!isHistory}
                         />
                     ),
                 };
@@ -43,7 +89,8 @@ const DoctorPageLayout = () => {
             setActiveKey('new-exam');
         } else {
             // Lịch sử khám
-            const newKey = `history-${patient.patient_id}-${Date.now()}`;
+            const newKey = `history-${patient.patient_id}-${record?.date}`;
+            if (tabs?.find((tab) => tab.key == newKey)) return;
             setTabs((prev) => [
                 ...prev,
                 {
@@ -51,10 +98,11 @@ const DoctorPageLayout = () => {
                     label: `KQ khám - ${record?.date}`,
                     content: (
                         <Doctor2
+                            key={newKey}
                             patient={patient}
                             record={record}
-                            isHistory={true}
-                            isNewExam={undefined}
+                            isHistory={isHistory}
+                            isNewExam={!isHistory}
                         />
                     ),
                     closable: true,
@@ -65,8 +113,19 @@ const DoctorPageLayout = () => {
     };
 
     const removeTab = (targetKey) => {
-        setTabs((prev) => prev.filter((t) => t.key !== targetKey));
-        if (activeKey === targetKey) setActiveKey('new-exam');
+        let newActiveKey = activeKey;
+        let lastIndex = -1;
+        tabs.forEach((tab, i) => {
+            if (tab.key === targetKey) {
+                lastIndex = i - 1;
+            }
+        });
+        const newTabs = tabs.filter((tab) => tab.key !== targetKey);
+        if (newTabs.length && newActiveKey === targetKey) {
+            newActiveKey = newTabs[lastIndex >= 0 ? lastIndex : 0].key;
+        }
+        setTabs(newTabs);
+        setActiveKey(newActiveKey);
     };
 
     return (
@@ -79,7 +138,7 @@ const DoctorPageLayout = () => {
                         Y tế thông minh · Smart Healthcare
                     </p>
                 </div>
-                <SiderDoctor onOpenTab={openTab} />
+                <SiderDoctor onOpenTab={handleOpenTab} />
             </div>
 
             {/* ===== MAIN CONTENT ===== */}
