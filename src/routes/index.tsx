@@ -7,8 +7,10 @@ import ClinicLayout from '@/layouts/ClinicLayout';
 import DoctorClinicLayout from '@/layouts/DoctorClinicLayout';
 
 import Doctor from '@/pages/doctor/Doctor';
+import Doctor2 from '@/pages/doctor/Doctor2';
 import PatientLayout from '@/layouts/PatientLayout';
 import ScrollToTop from './ScrollToTop';
+import DoctorPageLayout from '@/layouts/DoctorPageLayout';
 
 const Login = lazy(() => import('../pages/auths/Login'));
 const SignUp = lazy(() => import('../pages/auths/SignUp'));
@@ -137,6 +139,20 @@ function AppRoutes() {
                     element: (
                         <TitleRouter title="Khám bệnh">
                             <Doctor />
+                        </TitleRouter>
+                    ),
+                },
+            ],
+        },
+        {
+            path: '/doctors2',
+            element: <DoctorPageLayout />,
+            children: [
+                {
+                    path: '',
+                    element: (
+                        <TitleRouter title="Khám bệnh">
+                            <Doctor2 />
                         </TitleRouter>
                     ),
                 },
