@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { Modal, Tabs } from 'antd';
 import SiderDoctor from '@/menus/doctors/SiderDoctor';
 import Doctor2 from '@/pages/doctor/Doctor2';
+import { useDispatch } from 'react-redux';
+import { common } from '@/stores/reducers';
+import { ModalType } from '@/types/stores/common';
 
 const DoctorPageLayout = () => {
     const [tabs, setTabs] = useState([
@@ -22,6 +25,18 @@ const DoctorPageLayout = () => {
     const [activeKey, setActiveKey] = useState('new-exam');
     const [currentPatient, setCurrentPatient] = useState(null);
 
+    const dispatch = useDispatch();
+
+    const handleConfirmChangePatient = (data) => {
+        dispatch(
+            common.actions.setShowModal({
+                type: ModalType.APPOINTMENT_RECORD_CONFIRM,
+                variant: 'view',
+                data: data,
+            })
+        );
+    };
+
     const resetTabsForNewPatient = (patient) => {
         const newTab = {
             key: 'new-exam',
@@ -35,29 +50,33 @@ const DoctorPageLayout = () => {
         setCurrentPatient(patient);
     };
 
-    const handleOpenTab = (patient, isHistory, record) => {
+    const handleOpenTab = (
+        patient: any,
+        isHistory?: boolean,
+        record?: any,
+        callbacks: { onConfirm?: () => void } = {}
+    ) => {
         // Nếu chưa chọn bệnh nhân nào
         if (!currentPatient) {
+            callbacks.onConfirm?.(); // thực hiện cập nhật bên sidebar
             setCurrentPatient(patient);
         }
         // Nếu chọn bệnh nhân khác
         else if (currentPatient.patient_id !== patient.patient_id) {
-            return Modal.confirm({
+            handleConfirmChangePatient({
                 title: 'Chuyển bệnh nhân?',
                 content:
                     'Bạn có muốn chuyển sang bệnh nhân khác không? Tất cả tab hiện tại sẽ bị đóng.',
-                okText: 'Đồng ý',
-                cancelText: 'Hủy',
-                onOk: () => {
-                    // Reset tab về mặc định
+                onConfirm: () => {
                     resetTabsForNewPatient(patient);
+                    callbacks.onConfirm?.();
                 },
-            }); // không mở thêm tab
+            });
+            return;
         }
 
-        console.log('////////////////////');
-
         // Nếu cùng bệnh nhân
+        callbacks.onConfirm?.();
         openTab(patient, isHistory, record);
     };
 

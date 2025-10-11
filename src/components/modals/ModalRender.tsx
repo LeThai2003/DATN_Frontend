@@ -13,6 +13,7 @@ import ModalService from './services/ModalService';
 import ModalServicePatient from './services/ModalServicePatient';
 import ModalDoctorClient from './employees/ModalDoctorClient';
 import ModalAppointmentPatient from './appointments/ModalAppointmentPatient';
+import ModalAppointmentRecordConfirm from './appointmentRecords/ModalAppointmentRecordConfirm';
 
 const ModalRender = () => {
     const modals = useSelector(selectModal);
@@ -43,6 +44,8 @@ const ModalRender = () => {
                 return <ModalServicePatient key={modal.type} {...modal} />;
             case ModalType.APPOINTMENT_PATIENT:
                 return <ModalAppointmentPatient key={modal.type} {...modal} />;
+            case ModalType.APPOINTMENT_RECORD_CONFIRM:
+                return <ModalAppointmentRecordConfirm key={modal.type} {...modal} />;
         }
     });
     return <div>{renderModal}</div>;

@@ -124,7 +124,7 @@ const appointmentRecords: Record<number, any[]> = {
             icd10: 'D50.9',
             icd10_value: 'Không xác định',
             notes: 'Khuyên bổ sung sắt',
-            date: '01-09-2025',
+            date: '01-10-2025',
             prescriptions: [],
         },
     ],
@@ -190,15 +190,21 @@ const SiderDoctor = ({ onOpenTab }) => {
                             <div
                                 key={p.patient_id}
                                 onClick={() => {
-                                    setSelectedPatientId(p.patient_id);
-                                    setSelectedHistoryIdx(null);
-                                    dispatch(patient.actions.setSelectPatient(p));
-                                    dispatch(
-                                        appointment_record.actions.setSelectedAppointmentRecord(
-                                            null
-                                        )
-                                    );
-                                    onOpenTab && onOpenTab(p, false);
+                                    onOpenTab &&
+                                        onOpenTab(p, false, null, {
+                                            onConfirm: () => {
+                                                console.log('Chạy vào đây 1');
+                                                setSelectedPatientId(p.patient_id);
+                                                setSelectedHistoryIdx(null);
+                                                dispatch(patient.actions.setSelectPatient(p));
+                                                dispatch(
+                                                    appointment_record.actions.setSelectedAppointmentRecord(
+                                                        null
+                                                    )
+                                                );
+                                                console.log('Chạy vào đây 1.2');
+                                            },
+                                        });
                                 }}
                                 className={`px-3 py-2 min-h-[35px] flex items-center justify-start rounded-lg cursor-pointer text-sm transition line-clamp-1
                                     ${
@@ -245,18 +251,14 @@ const SiderDoctor = ({ onOpenTab }) => {
                                 <Tooltip key={i} title={`${v.date} - ${v.icd10_value}`}>
                                     <div
                                         onClick={() => {
-                                            setSelectedHistoryIdx(i);
-                                            dispatch(
-                                                appointment_record.actions.setSelectedAppointmentRecord(
-                                                    v
-                                                )
-                                            );
-                                            dispatch(
-                                                prescription.actions.setPrescriptionss(
-                                                    samplePrescriptions
-                                                )
-                                            );
-                                            onOpenTab && onOpenTab(selectedPatient, true, v);
+                                            onOpenTab &&
+                                                onOpenTab(selectedPatient, true, v, {
+                                                    onConfirm: () => {
+                                                        console.log('Chạy vào đây 2');
+                                                        setSelectedHistoryIdx(i);
+                                                        console.log('Chạy vào đây 2.1');
+                                                    },
+                                                });
                                         }}
                                         className={`px-3 py-1 min-h-[50px] flex items-center justify-start rounded-lg cursor-pointer text-sm transition line-clamp-2
                                             ${
