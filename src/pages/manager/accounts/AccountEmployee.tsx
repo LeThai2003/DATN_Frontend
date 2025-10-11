@@ -1,10 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useForm } from 'react-hook-form';
-import { Avatar, Button, Card, Descriptions, Form, Image, Input, Tabs, Tooltip } from 'antd';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { patientAppointmentSchema } from '@/validations/appointment.validate';
-import FormField from '@/components/forms/FormField';
+import { Button, Card, Descriptions, Form, Image, Input, Tabs, Tooltip } from 'antd';
 import TabPane from 'antd/es/tabs/TabPane';
 import WelcomeCard from '@/components/cards/WelcomeCard';
 
@@ -29,18 +25,12 @@ const AccountEmployee = () => {
 
     const [form] = Form.useForm();
 
-    const [isEdit, setIsEdit] = useState(false);
-
     const handleChangePassword = (values) => {
         console.log(values);
     };
 
     const onReset = () => {
         form.resetFields();
-    };
-
-    const onSubmitInfo = (data) => {
-        console.log(data);
     };
 
     return (

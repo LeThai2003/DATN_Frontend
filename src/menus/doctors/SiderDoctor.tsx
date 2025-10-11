@@ -2,10 +2,10 @@ import React, { useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Tooltip } from 'antd';
 import { LuAccessibility, LuCalendarClock, LuSearch } from 'react-icons/lu';
-import { appointment_record, patient, prescription } from '@/stores/reducers';
+import { patient } from '@/stores/reducers';
 import { selectSelectedPatient } from '@/stores/selectors/patients/patient.selector';
 import { Prescription } from '@/types/stores/prescriptions/prescription_type';
-import { FaRegUser } from 'react-icons/fa';
+import AccountDoctor from '@/components/dropdowns/AccountDoctor';
 
 // ======== DỮ LIỆU GIẢ =========
 const patientsToday = [
@@ -193,16 +193,9 @@ const SiderDoctor = ({ onOpenTab }) => {
                                     onOpenTab &&
                                         onOpenTab(p, false, null, {
                                             onConfirm: () => {
-                                                console.log('Chạy vào đây 1');
                                                 setSelectedPatientId(p.patient_id);
                                                 setSelectedHistoryIdx(null);
                                                 dispatch(patient.actions.setSelectPatient(p));
-                                                dispatch(
-                                                    appointment_record.actions.setSelectedAppointmentRecord(
-                                                        null
-                                                    )
-                                                );
-                                                console.log('Chạy vào đây 1.2');
                                             },
                                         });
                                 }}
@@ -254,9 +247,7 @@ const SiderDoctor = ({ onOpenTab }) => {
                                             onOpenTab &&
                                                 onOpenTab(selectedPatient, true, v, {
                                                     onConfirm: () => {
-                                                        console.log('Chạy vào đây 2');
                                                         setSelectedHistoryIdx(i);
-                                                        console.log('Chạy vào đây 2.1');
                                                     },
                                                 });
                                         }}
@@ -276,11 +267,8 @@ const SiderDoctor = ({ onOpenTab }) => {
                 </div>
             )}
 
-            <div className="absolute bottom-0 left-0 p-2 border-t border-blue-200 w-full bg-blue-50 cursor-pointer hover:bg-blue-100 transition-all duration-200">
-                <div className="flex items-center justify-start gap-2 text-blue-600">
-                    <FaRegUser className="size-4" />
-                    <span className="text-xs font-medium">BS. Nguyễn Nam Nguyễn Nam</span>
-                </div>
+            <div className="absolute bottom-0 left-0 w-full border-t border-blue-200 bg-blue-50 cursor-pointer hover:bg-blue-100 transition-all duration-200">
+                <AccountDoctor fullname="Nguyễn Nam Nguyễn Nam" />
             </div>
         </div>
     );

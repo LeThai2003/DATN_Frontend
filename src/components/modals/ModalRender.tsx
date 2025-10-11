@@ -13,11 +13,13 @@ import ModalService from './services/ModalService';
 import ModalServicePatient from './services/ModalServicePatient';
 import ModalDoctorClient from './employees/ModalDoctorClient';
 import ModalAppointmentPatient from './appointments/ModalAppointmentPatient';
-import ModalAppointmentRecordConfirm from './appointmentRecords/ModalAppointmentRecordConfirm';
+import ModalAppointmentRecordConfirm from './confirms/ModalAppointmentRecordConfirm';
+import ModalLogoutConfirm from './confirms/ModalLogoutConfirm';
+import ModalDoctorByThem from './employees/ModalDoctorByThem';
 
 const ModalRender = () => {
     const modals = useSelector(selectModal);
-    console.log(modals);
+    // console.log(modals);
     const renderModal = modals.map((modal) => {
         switch (modal.type) {
             case ModalType.DRUG:
@@ -46,6 +48,10 @@ const ModalRender = () => {
                 return <ModalAppointmentPatient key={modal.type} {...modal} />;
             case ModalType.APPOINTMENT_RECORD_CONFIRM:
                 return <ModalAppointmentRecordConfirm key={modal.type} {...modal} />;
+            case ModalType.LOGOUT_CONFIRM:
+                return <ModalLogoutConfirm key={modal.type} {...modal} />;
+            case ModalType.DOCTOR_VIEW_BY_THEM:
+                return <ModalDoctorByThem key={modal.type} {...modal} />;
         }
     });
     return <div>{renderModal}</div>;

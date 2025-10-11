@@ -16,7 +16,7 @@ const icd10Options = [
 ];
 
 const SectionAppointmentRecord = ({ record, isHistory }) => {
-    console.log(record);
+    // console.log(record);
 
     const newAppointment = useSelector(selectNewAppointmentRecord);
 
@@ -56,7 +56,7 @@ const SectionAppointmentRecord = ({ record, isHistory }) => {
     console.log(newAppointment);
 
     const onSubmit = (data) => {
-        console.log(data);
+        // console.log(data);
         data.icd10_value = icd10Options.find((icd) => icd.value == data.icd10)?.label || '';
         data.date = '01-10-2025';
         dispatch(appointment_record.actions.setAddNewAppointmentRecord(data));

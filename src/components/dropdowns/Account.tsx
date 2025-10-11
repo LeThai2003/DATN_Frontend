@@ -11,7 +11,6 @@ const Account = () => {
 
     // event handling
     const handleLogout = () => {
-        console.log('logout');
         navigate('/auths/login');
     };
 

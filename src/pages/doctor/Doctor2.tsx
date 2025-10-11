@@ -12,8 +12,8 @@ interface Doctor2Props {
 }
 
 const Doctor: React.FC<Doctor2Props> = ({ patient, record, isHistory, isNewExam }) => {
-    console.log(patient);
-    console.log(record);
+    // console.log(patient);
+    // console.log(record);
 
     if (!patient) {
         return (
