@@ -29,6 +29,7 @@ const handleErrorNavigation = (status: number, currentPath: string) => {
 class HttpService {
     protected entity: string;
     protected instance: AxiosInstance;
+    protected token: string;
 
     constructor(entity: string) {
         this.entity = entity;
@@ -36,6 +37,7 @@ class HttpService {
             baseURL: import.meta.env.VITE_BACKEND_URL,
         });
         this.instance.interceptors.response.use((response) => response, this.handleError);
+        this.token = getCookies('access_token');
     }
 
     private async handleError(error: any) {
@@ -132,15 +134,14 @@ class HttpService {
 
     get = <T = any>(
         endpoint: string,
-        token?: string,
         params: Record<string, any> = {},
         responseType: AxiosResponseType = 'json'
     ) => {
-        return this.instance.get<T>(endpoint, {
+        return this.instance.get<T>(`/${this.entity}/${endpoint}`, {
             params,
             responseType,
             headers: {
-                Authorization: token ? `Bearer ${token}` : undefined,
+                Authorization: this.token ? `Bearer ${this.token}` : undefined,
                 'Content-Type': 'application/json',
             },
         });
@@ -151,18 +152,18 @@ class HttpService {
     getList = <T = any>(params?: Record<string, any>) =>
         this.instance.get<T>(`/${this.entity}`, { params });
 
-    post = <T = any>(data: any, endpoint = '', token?: string) =>
+    post = <T = any>(data: any, endpoint = '') =>
         this.instance.post<T>(`/${this.entity}/${endpoint}`, data, {
             headers: {
-                Authorization: token ? `Bearer ${token}` : undefined,
+                Authorization: this.token ? `Bearer ${this.token}` : undefined,
                 'Content-Type': 'application/json',
             },
         });
 
-    put = <T = any>(id: string | number, data: any, path: string, token?: string) =>
+    put = <T = any>(id: string | number, data: any, path: string) =>
         this.instance.put<T>(`/${this.entity}/${path}/${id}`, data, {
             headers: {
-                Authorization: token ? `Bearer ${token}` : undefined,
+                Authorization: this.token ? `Bearer ${this.token}` : undefined,
                 'Content-Type': 'application/json',
             },
         });
@@ -170,12 +171,18 @@ class HttpService {
     patch = <T = any>(id: string | number, data: any) =>
         this.instance.patch<T>(`/${this.entity}/${id}`, data);
 
-    delete = <T = any>(id: string | number) => this.instance.delete<T>(`/${this.entity}/${id}`);
+    delete = <T = any>(id: string | number, endpoint?: string) =>
+        this.instance.delete<T>(`/${this.entity}/${endpoint}/${id}`, {
+            headers: {
+                Authorization: this.token ? `Bearer ${this.token}` : undefined,
+                'Content-Type': 'application/json',
+            },
+        });
 
-    upload = <T = any>(data: FormData, token: string, endpoint = 'upload') =>
+    upload = <T = any>(data: FormData, endpoint = 'upload') =>
         this.instance.post<T>(`/${this.entity}/${endpoint}`, data, {
             headers: {
-                Authorization: token ? `Bearer ${token}` : undefined,
+                Authorization: this.token ? `Bearer ${this.token}` : undefined,
                 'Content-Type': 'multipart/form-data',
             },
         });

@@ -1,13 +1,29 @@
-import { ModalState } from '@/types/stores/common';
+import { ModalState, ModalType } from '@/types/stores/common';
 import React from 'react';
 import ModalBase from '../ModalBase';
-import { Button, Image, Table } from 'antd';
+import { Button, Image, Spin, Table } from 'antd';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import FormField from '@/components/forms/FormField';
 import { specializationSchema } from '@/validations/specialization.validate';
+import {
+    selectLoadingComponent,
+    selectSelectedSpecialization,
+} from '@/stores/selectors/specializations/specialization.selector';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+    createSpecialization,
+    deleteSpecialization,
+    updateSpecialization,
+} from '@/stores/actions/managers/specializations/specialization.action';
+import { common } from '@/stores/reducers';
 
 const ModalSpecialization: React.FC<ModalState> = ({ data, type, variant }) => {
+    const dispatch = useDispatch();
+
+    const loadingComponent = useSelector(selectLoadingComponent);
+    const selectedSpecialization = useSelector(selectSelectedSpecialization);
+
     const {
         control,
         handleSubmit,
@@ -16,8 +32,8 @@ const ModalSpecialization: React.FC<ModalState> = ({ data, type, variant }) => {
         formState: { errors, isSubmitting },
     } = useForm({
         defaultValues: {
-            name: data?.name || '',
-            description: data?.description || '',
+            name: selectedSpecialization?.name || '',
+            description: selectedSpecialization?.description || '',
         },
         resolver: yupResolver(specializationSchema),
     });
@@ -48,13 +64,26 @@ const ModalSpecialization: React.FC<ModalState> = ({ data, type, variant }) => {
     ];
 
     const onSubmit = (data) => {
-        console.log(variant);
-        console.log(data);
+        if (variant == 'add') {
+            dispatch(createSpecialization(data));
+        } else {
+            dispatch(
+                updateSpecialization({
+                    id: selectedSpecialization?.specializationId,
+                    ...data,
+                })
+            );
+        }
     };
 
     if (variant == 'delete') {
         return (
             <ModalBase type={type} size="md">
+                {loadingComponent && (
+                    <div className="absolute inset-0 bg-white/40 backdrop-blur-[0px] flex items-center justify-center rounded-2xl z-20">
+                        <Spin />
+                    </div>
+                )}
                 <div>
                     <h2 className="font-semibold mb-3 text-center">Xóa chuyên khoa</h2>
                 </div>
@@ -65,8 +94,24 @@ const ModalSpecialization: React.FC<ModalState> = ({ data, type, variant }) => {
                         </>
                     </p>
                     <div className="flex justify-end space-x-3 mt-4">
-                        <Button onClick={() => {}}>Hủy</Button>
-                        <Button type="primary" danger onClick={() => {}}>
+                        <Button
+                            onClick={() => {
+                                dispatch(common.actions.setHiddenModal(ModalType.SPECIALIZATION));
+                            }}
+                        >
+                            Hủy
+                        </Button>
+                        <Button
+                            type="primary"
+                            danger
+                            onClick={() => {
+                                dispatch(
+                                    deleteSpecialization({
+                                        id: selectedSpecialization?.specializationId,
+                                    })
+                                );
+                            }}
+                        >
                             Xóa
                         </Button>
                     </div>
@@ -84,8 +129,13 @@ const ModalSpecialization: React.FC<ModalState> = ({ data, type, variant }) => {
                     </h2>
                     <form
                         onSubmit={handleSubmit(onSubmit)}
-                        className="space-y-4 mt-2 p-2 bg-slate-50 rounded-md"
+                        className="relative space-y-4 mt-2 p-2 bg-slate-50 rounded-md"
                     >
+                        {loadingComponent && (
+                            <div className="absolute inset-0 bg-white/40 backdrop-blur-[0px] flex items-center justify-center rounded-2xl z-20">
+                                <Spin />
+                            </div>
+                        )}
                         <div className="grid md:grid-cols-2 grid-cols-1 gap-3">
                             <FormField
                                 name="name"
@@ -147,8 +197,13 @@ const ModalSpecialization: React.FC<ModalState> = ({ data, type, variant }) => {
                     <h2 className="font-semibold mb-3 text-center">Thêm mới chuyên khoa</h2>
                     <form
                         onSubmit={handleSubmit(onSubmit)}
-                        className="space-y-4 mt-2 pr-1 pt-2 overflow-y-auto h-[92%]"
+                        className="relative space-y-4 mt-2 pr-1 pt-2 overflow-y-auto h-[92%]"
                     >
+                        {loadingComponent && (
+                            <div className="absolute inset-0 bg-white/40 backdrop-blur-[0px] flex items-center justify-center rounded-2xl z-20">
+                                <Spin />
+                            </div>
+                        )}
                         <FormField
                             name="name"
                             control={control}

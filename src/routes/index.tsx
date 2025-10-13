@@ -12,6 +12,9 @@ import PatientLayout from '@/layouts/PatientLayout';
 import ScrollToTop from './ScrollToTop';
 import DoctorPageLayout from '@/layouts/DoctorPageLayout';
 
+const PrivateRoute = lazy(() => import('../routes/PrivateRoute'));
+const Error500 = lazy(() => import('../pages/errors/Error500'));
+
 const Login = lazy(() => import('../pages/auths/Login'));
 const SignUp = lazy(() => import('../pages/auths/SignUp'));
 const PhoneNumberOtp = lazy(() => import('../pages/auths/PhoneNumberOtp'));
@@ -37,8 +40,11 @@ const AppointmentHistory = lazy(() => import('../pages/patients/AppointmentHisto
 const AboutPage = lazy(() => import('../pages/patients/About'));
 const PaymentResult = lazy(() => import('../pages/patients/PaymentResult'));
 
+const Unauthorized = lazy(() => import('../pages/errors/Unauthenticated403'));
+
 function AppRoutes() {
     const routes = useRoutes([
+        // Manager
         {
             path: '/manager',
             element: <ClinicLayout />,
@@ -130,6 +136,7 @@ function AppRoutes() {
                 },
             ],
         },
+        // Doctor
         {
             path: '/doctors',
             element: <DoctorClinicLayout />,
@@ -152,12 +159,13 @@ function AppRoutes() {
                     path: '',
                     element: (
                         <TitleRouter title="Khám bệnh">
-                            <Doctor2 />
+                            <Doctor2 patient={undefined} />
                         </TitleRouter>
                     ),
                 },
             ],
         },
+        // Auth
         {
             path: 'auths/',
             children: [
@@ -170,7 +178,7 @@ function AppRoutes() {
                     ),
                 },
                 {
-                    path: 'signup',
+                    path: 'signup/:phone_number',
                     element: (
                         <TitleRouter title="Đăng ký">
                             <SignUp />
@@ -186,7 +194,7 @@ function AppRoutes() {
                     ),
                 },
                 {
-                    path: 'otp-verify',
+                    path: 'otp-verify/:phone_number',
                     element: (
                         <TitleRouter title="Xác thực số điện thoại">
                             <OtpVerify />
@@ -195,6 +203,7 @@ function AppRoutes() {
                 },
             ],
         },
+        // Patient
         {
             path: '/',
             element: <PatientLayout />,
@@ -221,36 +230,44 @@ function AppRoutes() {
                     index: true,
                     path: '/appointment',
                     element: (
-                        <TitleRouter title="Đặt lịch khám">
-                            <Appointment />
-                        </TitleRouter>
+                        <PrivateRoute roles={[]}>
+                            <TitleRouter title="Đặt lịch khám">
+                                <Appointment />
+                            </TitleRouter>
+                        </PrivateRoute>
                     ),
                 },
                 {
                     index: true,
                     path: '/checkout',
                     element: (
-                        <TitleRouter title="Thanh toán">
-                            <Checkout />
-                        </TitleRouter>
+                        <PrivateRoute roles={[]}>
+                            <TitleRouter title="Thanh toán">
+                                <Checkout />
+                            </TitleRouter>
+                        </PrivateRoute>
                     ),
                 },
                 {
                     index: true,
                     path: '/account',
                     element: (
-                        <TitleRouter title="Tài khoản">
-                            <AccountPatient />
-                        </TitleRouter>
+                        <PrivateRoute roles={[]}>
+                            <TitleRouter title="Tài khoản">
+                                <AccountPatient />
+                            </TitleRouter>
+                        </PrivateRoute>
                     ),
                 },
                 {
                     index: true,
                     path: '/appointment-history',
                     element: (
-                        <TitleRouter title="Lịch sử khám bệnh">
-                            <AppointmentHistory />
-                        </TitleRouter>
+                        <PrivateRoute roles={[]}>
+                            <TitleRouter title="Lịch sử khám bệnh">
+                                <AppointmentHistory />
+                            </TitleRouter>
+                        </PrivateRoute>
                     ),
                 },
                 {
@@ -266,16 +283,38 @@ function AppRoutes() {
                     index: true,
                     path: '/payment-result',
                     element: (
-                        <TitleRouter title="Kết quả thanh toán">
-                            <PaymentResult />
-                        </TitleRouter>
+                        <PrivateRoute roles={[]}>
+                            <TitleRouter title="Kết quả thanh toán">
+                                <PaymentResult />
+                            </TitleRouter>
+                        </PrivateRoute>
                     ),
                 },
             ],
         },
         {
+            path: '/unauthorized',
+            element: (
+                <TitleRouter title="403">
+                    <Unauthorized />
+                </TitleRouter>
+            ),
+        },
+        {
+            path: '/500',
+            element: (
+                <TitleRouter title="500">
+                    <Error500 />
+                </TitleRouter>
+            ),
+        },
+        {
             path: '*',
-            element: <Error404 />,
+            element: (
+                <TitleRouter title="404">
+                    <Error404 />
+                </TitleRouter>
+            ),
         },
     ]);
 

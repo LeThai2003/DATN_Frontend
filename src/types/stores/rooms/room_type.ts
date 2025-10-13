@@ -3,10 +3,10 @@ import { Filter, PageObject } from '../common';
 export interface FilterRoom extends Filter {}
 
 export interface Room {
-    room_id: number;
+    roomId: number;
     name: string;
     location?: string;
-    employees?: any[];
+    employeeDtos?: any[];
 }
 
 export interface RoomSlice {

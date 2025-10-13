@@ -1,21 +1,29 @@
 import { common, specialization } from '@/stores/reducers';
-import { selectFilter } from '@/stores/selectors/specializations/specialization.selector';
+import {
+    selectFilter,
+    selectLoadingPage,
+    selectSpecializations,
+} from '@/stores/selectors/specializations/specialization.selector';
 import { ModalType } from '@/types/stores/common';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { Specialization as SpecializationType } from '@/types/stores/specializations/specialization_type';
-import { Button, Pagination, Space, Table, TableProps } from 'antd';
-import { useState } from 'react';
+import { Button, Pagination, Space, Spin, Table, TableProps } from 'antd';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { initFilterSpecialization } from '@/defaultValues/specializations/specialization_default';
 import FilterForm from '@/components/filters/FilterForm';
 import FilterButton from '@/components/filters/FilterButton';
+import {
+    fetchFirst,
+    loadPage,
+} from '@/stores/actions/managers/specializations/specialization.action';
 
 export const specializations: SpecializationType[] = [
     {
-        specialization_id: 1,
+        specializationId: 1,
         name: 'Chuyên khoa nội',
         description: 'Chuyên khoa nội',
-        employees: [
+        employeeDtos: [
             {
                 employee_id: 1,
                 account_id: 101,
@@ -59,10 +67,10 @@ export const specializations: SpecializationType[] = [
         ],
     },
     {
-        specialization_id: 2,
+        specializationId: 2,
         name: 'Chuyên khoa ngoại',
         description: 'Chuyên khoa ngoại',
-        employees: [
+        employeeDtos: [
             {
                 employee_id: 1,
                 account_id: 101,
@@ -89,11 +97,19 @@ const Specialization = () => {
     const dispatch = useDispatch();
 
     const filterSpecialization = useSelector(selectFilter);
+    const specializationsList = useSelector(selectSpecializations);
+    const loadingPage = useSelector(selectLoadingPage);
+
+    console.log(specializationsList);
 
     const [isOpenSpecializationFilter, setIsOpenSpecializationFilter] = useState(false);
 
+    useEffect(() => {
+        dispatch(fetchFirst());
+    }, []);
+
     const handleOpenEditSpecialization = (data) => {
-        dispatch(specialization.actions.setFilterSpecialization(data));
+        dispatch(specialization.actions.setSelectSpecialization(data));
         dispatch(
             common.actions.setShowModal({
                 type: ModalType.SPECIALIZATION,
@@ -104,7 +120,7 @@ const Specialization = () => {
     };
 
     const handlDeleteSpecialization = (data) => {
-        dispatch(specialization.actions.setFilterSpecialization(data));
+        dispatch(specialization.actions.setSelectSpecialization(data));
         dispatch(
             common.actions.setShowModal({
                 type: ModalType.SPECIALIZATION,
@@ -115,7 +131,7 @@ const Specialization = () => {
     };
 
     const handleOpenAddSpecializationModal = () => {
-        dispatch(specialization.actions.setFilterSpecialization(null));
+        dispatch(specialization.actions.setSelectSpecialization(null));
         dispatch(
             common.actions.setShowModal({
                 type: ModalType.SPECIALIZATION,
@@ -126,7 +142,7 @@ const Specialization = () => {
     };
 
     const handleOpenViewSpecialization = (data) => {
-        dispatch(specialization.actions.setFilterSpecialization(data));
+        dispatch(specialization.actions.setSelectSpecialization(data));
         dispatch(
             common.actions.setShowModal({
                 type: ModalType.SPECIALIZATION,
@@ -146,11 +162,11 @@ const Specialization = () => {
         },
         {
             title: 'Số lượng bác sĩ',
-            dataIndex: 'employees',
-            key: 'employees',
+            dataIndex: 'employeeDtos',
+            key: 'employeeDtos',
             width: 150,
             align: 'center',
-            render: (employees) => employees?.length || 0,
+            render: (employeeDtos) => employeeDtos?.length || 0,
         },
         {
             title: 'Hành động',
@@ -201,28 +217,35 @@ const Specialization = () => {
                 [key]: value,
             })
         );
-        console.log(filterSpecialization);
+        dispatch(loadPage());
     };
 
-    const handleResetSpecializationFilter = () =>
-        dispatch(specialization.actions.setFilterSpecialization({ initFilterSpecialization }));
+    const handleResetSpecializationFilter = () => {
+        dispatch(specialization.actions.setFilterSpecialization({ ...initFilterSpecialization }));
+        dispatch(loadPage());
+    };
 
     const handleApplySpecializationFilter = () => {
-        console.log(filterSpecialization);
+        dispatch(loadPage());
     };
 
     const handleChangeSpecializationPage = (e) => {
-        console.log(e);
         dispatch(
             specialization.actions.setFilterSpecialization({
                 ...filterSpecialization,
                 pageNo: e - 1,
             })
         );
+        dispatch(loadPage());
     };
 
     return (
-        <div className="p-2 bg-white rounded-lg flex flex-col gap-3">
+        <div className="relative p-2 bg-white rounded-lg flex flex-col gap-3">
+            {loadingPage && (
+                <div className="absolute inset-0 bg-white/40 flex items-center justify-center z-20">
+                    <Spin />
+                </div>
+            )}
             <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Danh sách chuyên khoa</h3>
                 <div className="flex gap-2">
@@ -245,21 +268,26 @@ const Specialization = () => {
                     onClose={() => setIsOpenSpecializationFilter(false)}
                 />
             )}
-            <Table
-                columns={columns}
-                dataSource={specializations}
-                rowKey="specialization_id"
-                pagination={false}
-                scroll={{ x: 'max-content', y: window.innerHeight * 0.82 - 160 }}
-            />
+            {loadingPage ? (
+                <Spin />
+            ) : (
+                <Table
+                    columns={columns}
+                    dataSource={specializationsList?.data}
+                    rowKey="specializationId"
+                    pagination={false}
+                    scroll={{ x: 'max-content', y: window.innerHeight * 0.82 - 120 }}
+                />
+            )}
+
             <div className="flex justify-end">
                 <Pagination
-                    current={0}
-                    pageSize={2}
+                    current={filterSpecialization?.pageNo + 1 || 0}
+                    pageSize={10}
                     onChange={(e) => {
                         handleChangeSpecializationPage(e);
                     }}
-                    total={5}
+                    total={specializationsList?.totalPage * 10 || 1}
                 />
             </div>
         </div>

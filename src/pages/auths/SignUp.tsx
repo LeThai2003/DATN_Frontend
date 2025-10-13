@@ -1,13 +1,28 @@
 import FormField from '@/components/forms/FormField';
+import { registerAction } from '@/stores/actions/auth/auth.action';
+import { selectLoading } from '@/stores/selectors/auth/auth.selector';
+import { getCookies } from '@/utils/cookies/cookies';
 import { signupSchema } from '@/validations/auth.validation';
 import { yupResolver } from '@hookform/resolvers/yup';
+import { Spin } from 'antd';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useParams } from 'react-router';
 
 const SignUp = () => {
+    const params = useParams();
+
+    const dispatch = useDispatch();
+
+    const loading = useSelector(selectLoading);
+
     const onSubmit = (data) => {
         console.log(data);
+        const code = getCookies('code');
+        data.code = code;
+        data.phoneNumber = 84 + params?.phone_number;
+        dispatch(registerAction(data));
     };
 
     const {
@@ -17,16 +32,16 @@ const SignUp = () => {
     } = useForm({
         resolver: yupResolver(signupSchema),
         defaultValues: {
-            fullname: '',
-            phone_number: '0123456789',
+            fullName: '',
+            phoneNumber: `0${params?.phone_number}` || '',
             password: '',
-            citizen_id: '',
-            insurance_code: '',
+            citizenId: '',
+            insuranceCode: '',
             job: '',
             dob: null,
-            gender: 'male',
+            gender: true,
             address: '',
-            emergency_contact: '',
+            emergencyContact: '',
         },
     });
 
@@ -42,8 +57,13 @@ const SignUp = () => {
 
             <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="w-full max-w-2xl bg-white rounded-2xl px-8 py-4 space-y-3 z-10 shadow-2xl max-h-[93vh] flex flex-col"
+                className="relative w-full max-w-2xl bg-white rounded-2xl px-8 py-4 space-y-3 z-10 shadow-2xl max-h-[93vh] flex flex-col"
             >
+                {loading && (
+                    <div className="absolute inset-0 bg-white/40 backdrop-blur-[0px] flex items-center justify-center rounded-2xl z-20">
+                        <Spin />
+                    </div>
+                )}
                 {/* Tiêu đề */}
                 <div className="text-center">
                     <h2 className="text-2xl font-semibold text-gray-800">Đăng ký</h2>
@@ -63,8 +83,8 @@ const SignUp = () => {
                                 placeholder="Nhập số điện thoại"
                                 inputType="text"
                                 type="text"
-                                error={!!errors.phone_number}
-                                helperText={errors.phone_number?.message}
+                                error={!!errors.phoneNumber}
+                                helperText={errors.phoneNumber?.message}
                                 required
                             />
 
@@ -94,8 +114,8 @@ const SignUp = () => {
                                 placeholder="Nhập họ và tên"
                                 inputType="text"
                                 type="input"
-                                error={!!errors.fullname}
-                                helperText={errors.fullname?.message}
+                                error={!!errors.fullName}
+                                helperText={errors.fullName?.message}
                                 required
                             />
 
@@ -117,9 +137,8 @@ const SignUp = () => {
                                 placeholder="Chọn giới tính"
                                 type="select"
                                 options={[
-                                    { label: 'Nam', value: 'male' },
-                                    { label: 'Nữ', value: 'female' },
-                                    { label: 'Khác', value: 'other' },
+                                    { label: 'Nam', value: true },
+                                    { label: 'Nữ', value: false },
                                 ]}
                                 error={!!errors.gender}
                                 helperText={errors.gender?.message}
@@ -132,8 +151,8 @@ const SignUp = () => {
                                 placeholder="Nhập số CCCD/CMND"
                                 inputType="text"
                                 type="input"
-                                error={!!errors.citizen_id}
-                                helperText={errors.citizen_id?.message}
+                                error={!!errors.citizenId}
+                                helperText={errors.citizenId?.message}
                                 required
                             />
 
@@ -144,8 +163,8 @@ const SignUp = () => {
                                 placeholder="Nhập mã BHYT"
                                 inputType="text"
                                 type="input"
-                                error={!!errors.insurance_code}
-                                helperText={errors.insurance_code?.message}
+                                error={!!errors.insuranceCode}
+                                helperText={errors.insuranceCode?.message}
                                 required
                             />
 
@@ -176,8 +195,8 @@ const SignUp = () => {
                                     placeholder="Nhập số điện thoại khẩn cấp"
                                     inputType="text"
                                     type="input"
-                                    error={!!errors.emergency_contact}
-                                    helperText={errors.emergency_contact?.message}
+                                    error={!!errors.emergencyContact}
+                                    helperText={errors.emergencyContact?.message}
                                     required
                                 />
                             </div>

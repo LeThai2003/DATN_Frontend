@@ -2,6 +2,7 @@ import { combineReducers } from 'redux';
 import {
     appointment,
     appointment_record,
+    auth,
     common,
     dosageTime,
     drug,
@@ -18,6 +19,7 @@ import {
 
 const rootReducers = combineReducers({
     [common.name]: common.default.reducer,
+    [auth.name]: auth.default.reducer,
     [drug.name]: drug.default.reducer,
     [unit.name]: unit.default.reducer,
     [dosageTime.name]: dosageTime.default.reducer,

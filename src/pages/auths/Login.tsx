@@ -1,12 +1,29 @@
 import { useForm } from 'react-hook-form';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { loginSchema } from '@/validations/auth.validation';
 import FormField from '@/components/forms/FormField';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginAction } from '@/stores/actions/auth/auth.action';
+import { selectLoading } from '@/stores/selectors/auth/auth.selector';
+import { Spin } from 'antd';
 
 const Login = () => {
+    const dispatch = useDispatch();
+
+    const navigate = useNavigate();
+
+    const loading = useSelector(selectLoading);
+
     const handleSubmitLogin = (data) => {
         console.log(data);
+        dispatch(
+            loginAction({
+                username: data.username,
+                password: data.password,
+                action: (e) => navigate(e),
+            })
+        );
     };
 
     const {
@@ -16,8 +33,8 @@ const Login = () => {
     } = useForm({
         resolver: yupResolver(loginSchema),
         defaultValues: {
-            phone_number: '0989345678',
-            password: 'StrongP@ssw0rd',
+            username: '',
+            password: '',
         },
     });
 
@@ -33,25 +50,30 @@ const Login = () => {
 
             <form
                 onSubmit={handleSubmit(handleSubmitLogin)}
-                className="w-full max-w-md bg-white rounded-2xl p-8 space-y-6 z-10 shadow-2xl"
+                className="relative w-[330px] sm:w-[420px] max-w-md bg-white rounded-2xl p-8 space-y-6 z-10 shadow-2xl"
             >
+                {loading && (
+                    <div className="absolute inset-0 bg-white/40 backdrop-blur-[0px] flex items-center justify-center rounded-2xl z-20">
+                        <Spin />
+                    </div>
+                )}
                 {/* Tiêu đề */}
                 <div className="text-center">
                     <h2 className="text-2xl font-semibold text-gray-800">Đăng nhập</h2>
-                    <p className="text-gray-500 text-sm mt-1">Chào mừng bạn quay lại 👋</p>
+                    {/* <p className="text-gray-500 text-sm mt-1">Chào mừng bạn quay lại 👋</p> */}
                 </div>
 
                 {/* Username + Password */}
                 <div className="space-y-4">
                     <FormField
-                        name="phone_number"
+                        name="username"
                         control={control}
                         label="Số điện thoại"
                         placeholder="Nhập số điện thoại"
                         inputType="text"
                         type="input"
-                        error={!!errors.phone_number}
-                        helperText={errors.phone_number?.message}
+                        error={!!errors.username}
+                        helperText={errors.username?.message}
                         required={true}
                     />
 
@@ -88,7 +110,7 @@ const Login = () => {
 
                     <div className="flex items-center justify-center gap-2">
                         <p className="m-0">Bạn chưa có tài khoản ?</p>
-                        <Link className="m-0 mb-[4px]" to={'/auths/signup'}>
+                        <Link className="m-0 mb-[4px]" to={'/auths/phone-signup'}>
                             Đăng ký
                         </Link>
                     </div>

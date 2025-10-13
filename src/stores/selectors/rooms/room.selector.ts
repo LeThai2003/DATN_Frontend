@@ -11,4 +11,9 @@ export const selectFilter = createSelector(selectState, (state) => state.filter)
 
 export const selectSelectedRoom = createSelector(selectState, (state) => state.selectedRoom);
 
-export const selectLoading = createSelector(selectState, (state) => state.loadingComponent);
+export const selectLoadingComponent = createSelector(
+    selectState,
+    (state) => state.loadingComponent
+);
+
+export const selectLoadingPage = createSelector(selectState, (state) => state.rooms.loadingPage);

@@ -3,6 +3,7 @@ import { initFilterValue } from '../common/common';
 
 export const initFilterRoom: FilterRoom = {
     ...initFilterValue,
+    sort: 'roomId',
 };
 
 export const initRoomSlice: RoomSlice = {

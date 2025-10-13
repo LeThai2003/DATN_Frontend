@@ -2,19 +2,21 @@ import FilterButton from '@/components/filters/FilterButton';
 import FilterForm from '@/components/filters/FilterForm';
 import { initFilterRoom } from '@/defaultValues/rooms/room_default';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
-import { selectFilter as selectFilterRoom } from '@/stores/selectors/drugs/drug.selector';
+import { selectFilter as selectFilterRoom } from '@/stores/selectors/rooms/room.selector';
 import { common, room } from '@/stores/reducers';
 import { ModalType } from '@/types/stores/common';
-import { Button, Pagination, Space, Table, TableProps } from 'antd';
-import React, { useState } from 'react';
+import { Button, Pagination, Space, Spin, Table, TableProps } from 'antd';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { selectLoadingPage, selectRooms } from '@/stores/selectors/rooms/room.selector';
+import { fetchFirst, loadPage } from '@/stores/actions/managers/rooms/room.action';
 
 const rooms = [
     {
-        room_id: 1,
+        roomId: 1,
         name: 'Phòng Khám Nội Tổng Quát',
         location: 'Tầng 1 - Phòng 101',
-        employees: [
+        employeeDtos: [
             {
                 employee_id: 1,
                 account_id: 101,
@@ -54,10 +56,10 @@ const rooms = [
         ],
     },
     {
-        room_id: 2,
+        roomId: 2,
         name: 'Phòng Khám Nhi',
         location: 'Tầng 1 - Phòng 102',
-        employees: [
+        employeeDtos: [
             {
                 employee_id: 1,
                 account_id: 101,
@@ -79,16 +81,16 @@ const rooms = [
         ],
     },
     {
-        room_id: 3,
+        roomId: 3,
         name: 'Phòng Khám Tai Mũi Họng',
         location: 'Tầng 2 - Phòng 201',
-        employees: [],
+        employeeDtos: [],
     },
     {
-        room_id: 4,
+        roomId: 4,
         name: 'Phòng Khám Răng Hàm Mặt',
         location: 'Tầng 2 - Phòng 202',
-        employees: [
+        employeeDtos: [
             {
                 employee_id: 1,
                 account_id: 101,
@@ -110,10 +112,10 @@ const rooms = [
         ],
     },
     {
-        room_id: 5,
+        roomId: 5,
         name: 'Phòng Khám Sản Phụ Khoa',
         location: 'Tầng 3 - Phòng 301',
-        employees: [
+        employeeDtos: [
             {
                 employee_id: 1,
                 account_id: 101,
@@ -131,8 +133,16 @@ const Room = () => {
     const dispatch = useDispatch();
 
     const filterRoom = useSelector(selectFilterRoom);
+    const roomsList = useSelector(selectRooms);
+    const loadingPage = useSelector(selectLoadingPage);
 
     const [isOpenRoomFilter, setIsOpenRoomFilter] = useState(false);
+
+    // console.log(roomsList);
+
+    useEffect(() => {
+        dispatch(fetchFirst());
+    }, []);
 
     const handleOpenEditRole = (data) => {
         dispatch(room.actions.setSelectRoom(data));
@@ -178,7 +188,7 @@ const Room = () => {
         );
     };
 
-    const roleColumns: TableProps<any>['columns'] = [
+    const roomColumns: TableProps<any>['columns'] = [
         { title: 'Phòng', dataIndex: 'name', key: 'name' },
         {
             title: 'Địa điểm',
@@ -188,11 +198,11 @@ const Room = () => {
         },
         {
             title: 'Số lượng bác sĩ',
-            dataIndex: 'employees',
-            key: 'employees',
+            dataIndex: 'employeeDtos',
+            key: 'employeeDtos',
             width: 150,
             align: 'center',
-            render: (employees) => employees?.length || 0,
+            render: (employeeDtos) => employeeDtos?.length || 0,
         },
         {
             title: 'Hành động',
@@ -232,32 +242,40 @@ const Room = () => {
         },
     ];
 
-    const roomFilterroleFields = [
-        { key: 'search', type: 'text', placeholder: 'Tìm kiếm phòng khám' },
-    ];
+    const FilterRoomFields = [{ key: 'search', type: 'text', placeholder: 'Tìm kiếm phòng khám' }];
 
     const handleFilterRoomChange = (key, value) => {
         dispatch(room.actions.setFilterRoom({ ...filterRoom, [key]: value }));
-        console.log(filterRoom);
+        dispatch(loadPage());
     };
 
-    const handleResetRoomFilter = () => dispatch(room.actions.setFilterRoom({ initFilterRoom }));
+    const handleResetRoomFilter = () => {
+        dispatch(room.actions.setFilterRoom({ ...initFilterRoom }));
+        dispatch(loadPage());
+    };
 
     const handleApplyRoomFilter = () => {
-        console.log(filterRoom);
+        dispatch(loadPage());
     };
 
     const handleChangeRoomPage = (e) => {
-        console.log(e);
         dispatch(
             room.actions.setFilterRoom({
                 ...filterRoom,
                 pageNo: e - 1,
             })
         );
+        dispatch(loadPage());
     };
+
     return (
-        <div className="p-2 bg-white rounded-lg flex flex-col gap-3">
+        <div className="relative p-2 bg-white rounded-lg flex flex-col gap-3">
+            {loadingPage && (
+                <div className="absolute inset-0 bg-white/40 flex items-center justify-center z-20">
+                    <Spin />
+                </div>
+            )}
+
             <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Danh sách phòng khám</h3>
                 <div className="flex gap-2">
@@ -272,7 +290,7 @@ const Room = () => {
 
             {isOpenRoomFilter && (
                 <FilterForm
-                    fields={roomFilterroleFields}
+                    fields={FilterRoomFields}
                     values={filterRoom}
                     onChange={handleFilterRoomChange}
                     onReset={handleResetRoomFilter}
@@ -280,21 +298,23 @@ const Room = () => {
                     onClose={() => setIsOpenRoomFilter(false)}
                 />
             )}
+
             <Table
-                columns={roleColumns}
-                dataSource={rooms}
-                rowKey="room_id"
+                columns={roomColumns}
+                dataSource={roomsList?.data || []}
+                rowKey="roomId"
                 pagination={false}
-                scroll={{ x: 'max-content', y: window.innerHeight * 0.82 - 160 }}
+                scroll={{ x: 'max-content', y: window.innerHeight * 0.82 - 120 }}
             />
+
             <div className="flex justify-end">
                 <Pagination
-                    current={0}
-                    pageSize={2}
+                    current={filterRoom?.pageNo + 1 || 0}
+                    pageSize={10}
                     onChange={(e) => {
                         handleChangeRoomPage(e);
                     }}
-                    total={5}
+                    total={roomsList?.totalPage * 10 || 1}
                 />
             </div>
         </div>

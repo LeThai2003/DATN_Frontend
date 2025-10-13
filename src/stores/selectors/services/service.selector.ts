@@ -11,4 +11,9 @@ export const selectFilter = createSelector(selectState, (state) => state.filter)
 
 export const selectSelectedService = createSelector(selectState, (state) => state.selectedService);
 
-export const selectLoading = createSelector(selectState, (state) => state.loadingComponent);
+export const selectLoadingComponent = createSelector(
+    selectState,
+    (state) => state.loadingComponent
+);
+
+export const selectLoadingPage = createSelector(selectState, (state) => state.services.loadingPage);

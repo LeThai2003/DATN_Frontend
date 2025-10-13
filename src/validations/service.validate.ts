@@ -12,8 +12,5 @@ export const serviceSchema = yup.object().shape({
 
     price: yup.number().positive('Giá phải lớn hơn 0').required('Giá dịch vụ là bắt buộc'),
 
-    image: yup.string().nullable(),
-    // image: yup.string().url('Hình ảnh phải là URL hợp lệ').nullable(),
-
-    doctors: yup.array().nullable(),
+    employeeDtos: yup.array().nullable(),
 });

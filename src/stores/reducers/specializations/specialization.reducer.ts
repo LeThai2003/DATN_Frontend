@@ -11,7 +11,7 @@ const SpecializationSlice = createSlice({
             state.specializations.loadingPage = payload;
         },
         setSpecializations(state, { payload }: PayloadAction<any>) {
-            state.specializations.data = payload;
+            state.specializations = payload;
         },
         setTotalPage(state, { payload }: PayloadAction<any>) {
             state.specializations.totalPage = payload;

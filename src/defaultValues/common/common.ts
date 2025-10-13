@@ -10,8 +10,8 @@ export const initFilterValue: Filter = {
     pageNo: 0,
     pageSize: 10,
     search: '',
-    sort: 'asc',
-    order: 'id',
+    sort: '',
+    order: 'asc',
     startDate: null,
     endDate: null,
 };

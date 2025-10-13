@@ -1,13 +1,38 @@
-import { ModalState } from '@/types/stores/common';
-import React from 'react';
+import { ModalState, ModalType } from '@/types/stores/common';
+import React, { useState } from 'react';
 import ModalBase from '../ModalBase';
-import { Button, Image, Table } from 'antd';
+import { Button, GetProp, Image, Spin, Table, Upload, UploadProps } from 'antd';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import FormField from '@/components/forms/FormField';
 import { serviceSchema } from '@/validations/service.validate';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+    selectLoadingComponent,
+    selectSelectedService,
+} from '@/stores/selectors/services/service.selector';
+import {
+    createService,
+    deleteService,
+    updateService,
+} from '@/stores/actions/managers/services/service.action';
+import { common } from '@/stores/reducers';
+import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
+import LableField from '@/components/forms/LableField';
+
+type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
 const ModalService: React.FC<ModalState> = ({ data, type, variant }) => {
+    const dispatch = useDispatch();
+
+    const loadingComponent = useSelector(selectLoadingComponent);
+    const selectedService = useSelector(selectSelectedService);
+
+    const [image, setImage] = useState<string>(selectedService?.image || '');
+    const [loading, setLoading] = useState<boolean>(false);
+
+    // console.log(selectedService);
+
     const {
         control,
         handleSubmit,
@@ -16,14 +41,45 @@ const ModalService: React.FC<ModalState> = ({ data, type, variant }) => {
         formState: { errors, isSubmitting },
     } = useForm({
         defaultValues: {
-            name: data?.name || '',
-            description: data?.description || '',
-            price: data?.price || 0,
-            image: data?.image || '',
-            doctors: data?.doctors || [],
+            name: selectedService?.name || '',
+            description: selectedService?.description || '',
+            price: selectedService?.price || 0,
+            employeeDtos: selectedService?.employeeDtos || [],
         },
         resolver: yupResolver(serviceSchema),
     });
+
+    const uploadButton = (
+        <button style={{ border: 0, background: 'none' }} type="button">
+            {loading ? <LoadingOutlined /> : <PlusOutlined />}
+            <div style={{ marginTop: 8 }}>Upload</div>
+        </button>
+    );
+
+    // event handling
+    const handleChangeImage: UploadProps['onChange'] = (info) => {
+        if (info.file.status === 'uploading') {
+            setLoading(true);
+            setImage('');
+            return;
+        }
+        if (info.file.status === 'done') {
+            setLoading(false);
+            setImage(info?.file?.response?.data);
+        }
+    };
+
+    const beforeUpload = (file: FileType) => {
+        const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+        if (!isJpgOrPng) {
+            dispatch(common.actions.setErrorMessage('Bạn chỉ có thể up ảnh JPG/PNG!'));
+        }
+        const isLt2M = file.size / 1024 / 1024 < 2;
+        if (!isLt2M) {
+            dispatch(common.actions.setErrorMessage('Ảnh phải có kích cỡ bé hơn 2MB!'));
+        }
+        return isJpgOrPng && isLt2M;
+    };
 
     const employeesColumns = [
         { title: 'Họ tên', dataIndex: 'fullname', key: 'fullname' },
@@ -56,25 +112,51 @@ const ModalService: React.FC<ModalState> = ({ data, type, variant }) => {
     ];
 
     const onSubmit = (data) => {
-        console.log(variant);
-        console.log(data);
+        data.image = image;
+        if (variant == 'add') {
+            dispatch(createService(data));
+        } else {
+            dispatch(
+                updateService({
+                    id: selectedService?.serviceId,
+                    ...data,
+                })
+            );
+        }
     };
 
     if (variant == 'delete') {
         return (
             <ModalBase type={type} size="md">
+                {loadingComponent && (
+                    <div className="absolute inset-0 bg-white/40 backdrop-blur-[0px] flex items-center justify-center rounded-2xl z-20">
+                        <Spin />
+                    </div>
+                )}
                 <div>
                     <h2 className="font-semibold mb-3 text-center">Xóa dịch vụ</h2>
                 </div>
                 <div className="">
                     <p className="text-center">
                         <>
-                            Bạn có chắc muốn xóa dịch vụ <b>"{data.name}"</b> không?
+                            Bạn có chắc muốn xóa dịch vụ <b>"{selectedService?.name}"</b> không?
                         </>
                     </p>
                     <div className="flex justify-end space-x-3 mt-4">
-                        <Button onClick={() => {}}>Hủy</Button>
-                        <Button type="primary" danger onClick={() => {}}>
+                        <Button
+                            onClick={() => {
+                                dispatch(common.actions.setHiddenModal(ModalType.SERVICE));
+                            }}
+                        >
+                            Hủy
+                        </Button>
+                        <Button
+                            type="primary"
+                            danger
+                            onClick={() => {
+                                dispatch(deleteService({ id: selectedService?.serviceId }));
+                            }}
+                        >
                             Xóa
                         </Button>
                     </div>
@@ -85,48 +167,90 @@ const ModalService: React.FC<ModalState> = ({ data, type, variant }) => {
 
     if (variant == 'edit') {
         return (
-            <ModalBase type={type} size="xl">
-                <div>
-                    <h2 className="font-semibold mb-3 text-center">
-                        {/* {variant == 'view' ? 'Thông tin dịch vụ' : 'Cập nhật dịch vụ'} */}
+            <ModalBase type={type} size={'lg'}>
+                <div className="flex flex-col max-h-[85vh]">
+                    <h2 className="font-semibold mb-3 pb-2 shrink-0 text-center border-b border-gray-200">
+                        Cập nhật thông tin dịch vụ
                     </h2>
-                    <form
-                        onSubmit={handleSubmit(onSubmit)}
-                        className="space-y-4 mt-2 p-2 bg-slate-50 rounded-md"
-                    >
-                        <div className="grid md:grid-cols-2 grid-cols-1 gap-3">
-                            <FormField
-                                name="name"
-                                control={control}
-                                label="Tên dịch vụ"
-                                placeholder="Nhập tên dịch vụ"
-                                type={variant === 'edit' ? 'input' : 'text'}
-                                inputType="text"
-                                required={variant == 'edit'}
-                                disabled={variant != 'edit'}
-                                error={!!errors.name}
-                                helperText={errors.name?.message as string}
-                            />
+                    <div className="overflow-y-auto">
+                        <form
+                            onSubmit={handleSubmit(onSubmit)}
+                            className="relative space-y-4 mt-2 pr-1 pt-2 overflow-y-auto h-[92%]"
+                        >
+                            {loadingComponent && (
+                                <div className="absolute inset-0 bg-white/40 backdrop-blur-[0px] flex items-center justify-center rounded-2xl z-20">
+                                    <Spin />
+                                </div>
+                            )}
+                            <div className="grid grid-cols-2 gap-3">
+                                <FormField
+                                    name="name"
+                                    control={control}
+                                    label="Tên dịch vụ"
+                                    placeholder="Khám Tổng Quát"
+                                    type="input"
+                                    inputType="text"
+                                    required
+                                    error={!!errors.name}
+                                    helperText={errors.name?.message as string}
+                                />
+
+                                <FormField
+                                    name="price"
+                                    control={control}
+                                    label="Giá tiền (VNĐ)"
+                                    placeholder="500000"
+                                    type="input"
+                                    inputType="number"
+                                    required
+                                    suffix={<span className="font-medium">VNĐ</span>}
+                                    error={!!errors.price}
+                                    helperText={errors.price?.message as string}
+                                />
+                            </div>
+
                             <FormField
                                 name="description"
                                 control={control}
-                                label="Mô tả"
-                                placeholder="Nhập mô tả dịch vụ"
-                                type={variant === 'edit' ? 'textarea' : 'text'}
-                                disabled={variant != 'edit'}
+                                label="Mô tả dịch vụ"
+                                placeholder="Khám tổng quát"
+                                type="textarea"
+                                rows={3}
                                 error={!!errors.description}
                                 helperText={errors.description?.message as string}
                             />
-                        </div>
-                        {variant == 'edit' && (
+
+                            <div>
+                                <LableField label={'Hình ảnh'} />
+                                <Upload
+                                    name="image"
+                                    listType="picture-card"
+                                    className="avatar-uploader overflow-hidden"
+                                    showUploadList={false}
+                                    action={`${import.meta.env.VITE_BACKEND_URL}/upload/image`}
+                                    beforeUpload={beforeUpload}
+                                    onChange={handleChangeImage}
+                                >
+                                    {image ? (
+                                        <img
+                                            src={image}
+                                            alt="ảnh dịch vụ"
+                                            style={{ width: '100%' }}
+                                        />
+                                    ) : (
+                                        uploadButton
+                                    )}
+                                </Upload>
+                            </div>
+
                             <div className="flex justify-end gap-2">
                                 <Button onClick={() => reset(data)}>Hoàn tác</Button>
                                 <Button type="primary" htmlType="submit" loading={isSubmitting}>
                                     Cập nhật
                                 </Button>
                             </div>
-                        )}
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </ModalBase>
         );
@@ -142,8 +266,13 @@ const ModalService: React.FC<ModalState> = ({ data, type, variant }) => {
                     <div className="overflow-y-auto">
                         <form
                             onSubmit={handleSubmit(onSubmit)}
-                            className="space-y-4 mt-2 pr-1 pt-2 overflow-y-auto h-[92%]"
+                            className="relative space-y-4 mt-2 pr-1 pt-2 overflow-y-auto h-[92%]"
                         >
+                            {loadingComponent && (
+                                <div className="absolute inset-0 bg-white/40 flex items-center justify-center rounded-2xl z-20">
+                                    <Spin />
+                                </div>
+                            )}
                             <div className="grid grid-cols-2 gap-3">
                                 <FormField
                                     name="name"
@@ -165,6 +294,7 @@ const ModalService: React.FC<ModalState> = ({ data, type, variant }) => {
                                     type={variant == 'add' ? 'input' : 'text'}
                                     inputType="number"
                                     required
+                                    suffix={<span className="font-medium">VNĐ</span>}
                                     error={!!errors.price}
                                     helperText={errors.price?.message as string}
                                 />
@@ -182,25 +312,39 @@ const ModalService: React.FC<ModalState> = ({ data, type, variant }) => {
                             />
 
                             {variant == 'add' ? (
-                                <FormField
-                                    name="image"
-                                    control={control}
-                                    label="Hình ảnh"
-                                    type="upload"
-                                    uploadProps={{ single: true }}
-                                    error={!!errors.image}
-                                    helperText={errors.image?.message as string}
-                                />
+                                <div>
+                                    <LableField label={'Hình ảnh'} />
+                                    <Upload
+                                        name="image"
+                                        listType="picture-card"
+                                        className="avatar-uploader overflow-hidden"
+                                        showUploadList={false}
+                                        action={`${import.meta.env.VITE_BACKEND_URL}/upload/image`}
+                                        beforeUpload={beforeUpload}
+                                        onChange={handleChangeImage}
+                                    >
+                                        {image.length > 0 ? (
+                                            <img
+                                                src={image}
+                                                alt="ảnh dịch vụ"
+                                                style={{ width: '100%' }}
+                                            />
+                                        ) : (
+                                            uploadButton
+                                        )}
+                                    </Upload>
+                                </div>
                             ) : (
-                                <FormField
-                                    name="image"
-                                    control={control}
-                                    label="Hình ảnh"
-                                    type="image"
-                                    imageProps={{ src: data?.image, width: 100 }}
-                                    error={!!errors.image}
-                                    helperText={errors.image?.message as string}
-                                />
+                                <div>
+                                    <LableField label={'Hình ảnh'} />
+                                    <div className="p-3 mt-3 border border-gray-200 rounded-md overflow-hidden w-fit">
+                                        <Image
+                                            src={selectedService?.image}
+                                            alt="Ảnh dịch vụ"
+                                            width={'80px'}
+                                        />
+                                    </div>
+                                </div>
                             )}
 
                             {variant == 'view' && (

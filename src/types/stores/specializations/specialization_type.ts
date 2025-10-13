@@ -3,10 +3,10 @@ import { Filter, PageObject } from '../common';
 export interface FilterSpecialization extends Filter {}
 
 export type Specialization = {
-    specialization_id: number;
+    specializationId: number;
     name: string;
     description?: string;
-    employees?: any[];
+    employeeDtos?: any[];
 };
 
 export interface SpecializationSlice {

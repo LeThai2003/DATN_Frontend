@@ -4,6 +4,7 @@ import { Control, FieldError, FieldErrorsImpl, Merge } from 'react-hook-form';
 export type FieldType =
     | 'input'
     | 'select'
+    | 'multiSelect'
     | 'datepicker'
     | 'text'
     | 'textarea'
@@ -20,6 +21,7 @@ export type FormFieldProps<T extends Record<string, any> = any> = {
     helperText?: string | FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
     error?: boolean;
     suffix?: React.ReactNode;
+    prefix?: React.ReactNode;
     disabled?: boolean;
     required?: boolean;
     options?: { label: string; value: string | number | boolean }[];

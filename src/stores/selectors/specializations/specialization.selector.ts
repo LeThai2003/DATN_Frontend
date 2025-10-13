@@ -17,4 +17,12 @@ export const selectSelectedSpecialization = createSelector(
     (state) => state.selectedSpecialization
 );
 
-export const selectLoading = createSelector(selectState, (state) => state.loadingComponent);
+export const selectLoadingComponent = createSelector(
+    selectState,
+    (state) => state.loadingComponent
+);
+
+export const selectLoadingPage = createSelector(
+    selectState,
+    (state) => state.specializations.loadingPage
+);

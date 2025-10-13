@@ -12,7 +12,7 @@ const RoomSlice = createSlice({
             state.rooms.loadingPage = payload;
         },
         setRooms(state, { payload }: PayloadAction<any>) {
-            state.rooms.data = payload;
+            state.rooms = payload;
         },
         setTotalPage(state, { payload }: PayloadAction<any>) {
             state.rooms.totalPage = payload;

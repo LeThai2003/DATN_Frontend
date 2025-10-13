@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Controller } from 'react-hook-form';
 import LableField from './LableField';
-import { Button, DatePicker, Image, Input, Select, Upload } from 'antd';
+import { Button, DatePicker, GetProp, Image, Input, Select, Upload, UploadProps } from 'antd';
 import { FormFieldProps } from '@/types/components/forms';
 import dayjs from 'dayjs';
 import TextArea from 'antd/es/input/TextArea';
-import { UploadOutlined } from '@ant-design/icons';
+import { LoadingOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
+import { useDispatch } from 'react-redux';
+import { common } from '@/stores/reducers';
+import { UploadFileStatus } from 'antd/es/upload/interface';
+type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
 const FormField = ({
     name,
@@ -15,6 +19,7 @@ const FormField = ({
     type = 'input',
     inputType = 'text',
     suffix = '',
+    prefix = '',
     disabled = false,
     helperText,
     error,
@@ -59,6 +64,7 @@ const FormField = ({
                                 placeholder={placeholder}
                                 disabled={disabled}
                                 suffix={suffix}
+                                prefix={prefix}
                             />
                         ))}
 
@@ -72,6 +78,22 @@ const FormField = ({
                             options={options}
                             value={field.value ?? undefined}
                             onChange={(val) => field.onChange(val)}
+                        />
+                    )}
+
+                    {type === 'multiSelect' && (
+                        <Select
+                            {...field}
+                            showSearch
+                            optionFilterProp="label"
+                            placeholder={placeholder}
+                            disabled={disabled}
+                            options={options}
+                            value={field.value ?? undefined}
+                            onChange={(val) => field.onChange(val)}
+                            style={{ minWidth: 180, maxWidth: 230 }}
+                            allowClear
+                            mode="multiple"
                         />
                     )}
 
@@ -96,44 +118,6 @@ const FormField = ({
                             maxLength={maxLength}
                             disabled={disabled}
                         />
-                    )}
-
-                    {type === 'upload' && (
-                        <Upload
-                            beforeUpload={() => false}
-                            multiple={!uploadProps?.single}
-                            maxCount={uploadProps?.single ? 1 : undefined}
-                            fileList={(Array.isArray(field.value)
-                                ? field.value
-                                : field.value
-                                ? [field.value]
-                                : []
-                            ).map((url: string, idx: number) => ({
-                                uid: String(idx),
-                                name: `image-${idx}`,
-                                status: 'done',
-                                url,
-                            }))}
-                            onChange={({ fileList }) => {
-                                const urls = fileList
-                                    .map((file) => {
-                                        if (file.url) return file.url;
-                                        if (file.originFileObj)
-                                            return URL.createObjectURL(file.originFileObj);
-                                        return '';
-                                    })
-                                    .filter(Boolean);
-
-                                field.onChange(uploadProps?.single ? urls[0] : urls);
-                            }}
-                            disabled={disabled}
-                            listType="picture-card"
-                            className="group"
-                        >
-                            <span className="group-hover:text-primary">
-                                <UploadOutlined /> Upload
-                            </span>
-                        </Upload>
                     )}
 
                     {type === 'text' && (

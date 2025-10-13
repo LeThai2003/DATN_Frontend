@@ -4,6 +4,7 @@ import { EmployeeSlice, FilterEmployee } from '@/types/stores/employees/employee
 
 export const initFilterEmployee: FilterEmployee = {
     ...initFilterValue,
+    sort: 'employeeId',
 };
 
 export const initEmployeeSlice: EmployeeSlice = {

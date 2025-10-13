@@ -12,7 +12,7 @@ const ServiceSlice = createSlice({
             state.services.loadingPage = payload;
         },
         setServices(state, { payload }: PayloadAction<any>) {
-            state.services.data = payload;
+            state.services = payload;
         },
         setTotalPage(state, { payload }: PayloadAction<any>) {
             state.services.totalPage = payload;

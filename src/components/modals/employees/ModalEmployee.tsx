@@ -1,5 +1,5 @@
 import { ModalState } from '@/types/stores/common';
-import React from 'react';
+import React, { useState } from 'react';
 import ModalBase from '../ModalBase';
 import { Button } from 'antd';
 import { useForm } from 'react-hook-form';
@@ -9,19 +9,21 @@ import { employeeAccountSchema } from '@/validations/employee.validate';
 import { Role } from '@/types/stores/roles/role_type';
 import { Room } from '@/types/stores/rooms/room_type';
 import { Specialization } from '@/types/stores/specializations/specialization_type';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectSelectedEmployee } from '@/stores/selectors/employees/employee.selector';
 
-export const roles: Role[] = [
+export const roles = [
     { role_id: 1, name: 'Admin', description: 'Quản trị hệ thống' },
     { role_id: 2, name: 'Manager', description: 'Quản lý nhân sự' },
     { role_id: 3, name: 'Employee', description: 'Nhân viên' },
 ];
 
-export const rooms: Room[] = [
+export const rooms = [
     { room_id: 1, name: 'Phòng khám nội', location: 'Tầng 3' },
     { room_id: 2, name: 'Phòng khám da liễu', location: 'Tầng 2' },
 ];
 
-export const specializations: Specialization[] = [
+export const specializations = [
     {
         specialization_id: 1,
         name: 'Chuyên khoa nội',
@@ -31,6 +33,14 @@ export const specializations: Specialization[] = [
 ];
 
 const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
+    const dispatch = useDispatch();
+
+    // const loadingComponent = useSelector(selectLoadingComponent);
+    const selectedEmployee = useSelector(selectSelectedEmployee);
+
+    const [image, setImage] = useState<string>(selectedEmployee?.avatar || '');
+    const [loading, setLoading] = useState<boolean>(false);
+
     const {
         control,
         handleSubmit,
@@ -49,7 +59,7 @@ const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
             dob: data?.dob || undefined,
             gender: data?.gender || undefined,
             address: data?.address || '',
-            avatar: data?.avatar || '',
+            // avatar: data?.avatar || '',
         },
         resolver: yupResolver(employeeAccountSchema),
     });

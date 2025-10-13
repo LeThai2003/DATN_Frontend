@@ -6,6 +6,7 @@ import { initFilterValue } from '../common/common';
 
 export const initFilterSpecialization: FilterSpecialization = {
     ...initFilterValue,
+    sort: 'specializationId',
 };
 
 export const initSpecializationSlice: SpecializationSlice = {

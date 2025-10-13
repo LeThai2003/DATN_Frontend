@@ -12,7 +12,7 @@ const EmployeeSlice = createSlice({
             state.employees.loadingPage = payload;
         },
         setEmployees(state, { payload }: PayloadAction<any>) {
-            state.employees.data = payload;
+            state.employees = payload;
         },
         setTotalPage(state, { payload }: PayloadAction<any>) {
             state.employees.totalPage = payload;

@@ -1,19 +1,38 @@
 import FormField from '@/components/forms/FormField';
+import { signUpPhoneNumber, verifyOtp } from '@/stores/actions/auth/auth.action';
+import { selectLoading } from '@/stores/selectors/auth/auth.selector';
 import { otpSchema, signupSchema } from '@/validations/auth.validation';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Button, Input } from 'antd';
+import { Button, Input, Spin } from 'antd';
 import { OTPProps } from 'antd/es/input/OTP';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate, useParams } from 'react-router';
 
 const OtpVerify = () => {
+    let params = useParams();
+
+    const navigate = useNavigate();
+
+    const dispatch = useDispatch();
+
+    const loading = useSelector(selectLoading);
+
+    const [timeLeft, setTimeLeft] = useState(90);
+    const [expired, setExpired] = useState(false);
+
     const onSubmit = (data) => {
         console.log('data: ');
         console.log(data);
+        dispatch(
+            verifyOtp({
+                otp_code: data?.otp,
+                phone_number: params?.phone_number,
+                action: (e) => navigate(e, { replace: true }),
+            })
+        );
     };
-
-    const [timeLeft, setTimeLeft] = useState(70);
-    const [expired, setExpired] = useState(false);
 
     useEffect(() => {
         if (timeLeft > 0) {
@@ -31,9 +50,11 @@ const OtpVerify = () => {
     };
 
     const handleResendOTP = () => {
-        setTimeLeft(70);
+        setTimeLeft(90);
         setExpired(false);
-        console.log('Resend OTP...');
+        dispatch(
+            signUpPhoneNumber({ phone_number: params?.phone_number, action: (e) => navigate(e) })
+        );
     };
 
     const {
@@ -72,14 +93,19 @@ const OtpVerify = () => {
 
             <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="w-full max-w-xl bg-white rounded-2xl px-8 py-6 space-y-5 z-10 shadow-2xl max-h-[93vh] flex flex-col"
+                className="relative w-full max-w-xl bg-white rounded-2xl px-8 py-6 space-y-5 z-10 shadow-2xl max-h-[93vh] flex flex-col"
             >
+                {loading && (
+                    <div className="absolute inset-0 bg-white/40 backdrop-blur-[0px] flex items-center justify-center rounded-2xl z-20">
+                        <Spin />
+                    </div>
+                )}
                 {/* Tiêu đề */}
                 <div className="text-center">
                     <h2 className="text-2xl font-bold text-gray-800">Xác thực số điện thoại</h2>
                     <p className="text-gray-600 text-sm mt-2">
                         Nhập mã OTP đã được gửi đến số điện thoại{' '}
-                        <b className="text-gray-900">0123456789</b>.
+                        <b className="text-gray-900">0{params?.phone_number}</b>.
                     </p>
                 </div>
 
@@ -91,6 +117,7 @@ const OtpVerify = () => {
                         label=""
                         type="input"
                         inputType="otp"
+                        lengthNumberOtp={4}
                         // required
                         helperText={errors.otp?.message}
                         error={!!errors.otp}
@@ -120,15 +147,13 @@ const OtpVerify = () => {
                         Xác thực
                     </Button>
 
-                    {expired && (
-                        <button
-                            type="button"
-                            onClick={handleResendOTP}
-                            className="text-blue-600 hover:underline text-sm"
-                        >
-                            Gửi lại mã OTP
-                        </button>
-                    )}
+                    <button
+                        type="button"
+                        onClick={handleResendOTP}
+                        className="text-blue-600 hover:underline text-sm"
+                    >
+                        Gửi lại mã OTP
+                    </button>
                 </div>
             </form>
         </div>

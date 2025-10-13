@@ -1,16 +1,21 @@
 import { common, service } from '@/stores/reducers';
-import { selectFilter } from '@/stores/selectors/services/service.selector';
+import {
+    selectFilter,
+    selectLoadingPage,
+    selectServices,
+} from '@/stores/selectors/services/service.selector';
 import { ModalType } from '@/types/stores/common';
 import { Service as ServiceType } from '@/types/stores/services/service_type';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
-import { Button, Image, Pagination, Space, Table } from 'antd';
+import { Button, Image, Pagination, Space, Spin, Table } from 'antd';
 import FilterForm from '@/components/filters/FilterForm';
 import FilterButton from '@/components/filters/FilterButton';
 import { initFilterService } from '@/defaultValues/services/service_default';
 import { useNavigate } from 'react-router';
 import type { TableProps } from 'antd';
+import { fetchFirst, loadPage } from '@/stores/actions/managers/services/service.action';
 
 // rooms
 const rooms = [
@@ -70,43 +75,53 @@ const employees = [
 // services
 const services: ServiceType[] = [
     {
-        service_id: 1,
+        serviceId: 1,
         name: 'Khám da liễu',
         description: 'Khám và điều trị các bệnh về da',
         image: 'https://benhviendalieuhanoi.com/wp-content/uploads/2023/11/FBSE-Graphic.jpg.webp',
         price: 300000,
-        doctors: [employees[0], employees[1]],
+        employeeDtos: [employees[0], employees[1]],
     },
     {
-        service_id: 2,
+        serviceId: 2,
         name: 'Khám nội tổng quát',
         description: 'Khám sức khỏe tổng quát, nội khoa',
         image: 'https://medlatec.vn/media/2403/content/20230222_kham-tong-quat-bao-nhieu-tien-1.jpg',
         price: 500000,
-        doctors: [employees[1], employees[2]],
+        employeeDtos: [employees[1], employees[2]],
     },
     {
-        service_id: 3,
+        serviceId: 3,
         name: 'Khám tai mũi họng',
         description: 'Khám và điều trị tai mũi họng',
         image: 'https://img.ykhoadiamond.com/Uploads/Content/09092024/2c69db84-a343-49dc-8d4a-723691cf45e9.jpg',
         price: 250000,
-        doctors: [employees[2]],
+        employeeDtos: [employees[2]],
     },
 ];
 
 const Service = () => {
     const dispatch = useDispatch();
 
+    const servicesList = useSelector(selectServices);
+    const loadingPage = useSelector(selectLoadingPage);
     const filterService = useSelector(selectFilter);
 
     const [isOpenServiceFilter, setIsOpenServiceFilter] = useState(false);
 
-    const navigate = useNavigate();
+    useEffect(() => {
+        dispatch(fetchFirst());
+    }, []);
 
     const handleOpenEditService = (data) => {
         dispatch(service.actions.setSelectService(data));
-        navigate('/manager/services/edit');
+        dispatch(
+            common.actions.setShowModal({
+                type: ModalType.SERVICE,
+                variant: 'edit',
+                data: data,
+            })
+        );
     };
 
     const handlDeleteService = (data) => {
@@ -175,16 +190,17 @@ const Service = () => {
         {
             title: 'Giá (VNĐ)',
             dataIndex: 'price',
+            width: 100,
             key: 'price',
             render: (price: number) => price.toLocaleString(),
         },
         {
             title: 'Số lượng bác sĩ',
-            dataIndex: 'doctors',
-            key: 'doctors',
+            dataIndex: 'employeeDtos',
+            key: 'employeeDtos',
             width: 150,
             align: 'center',
-            render: (doctors) => doctors?.length || 0,
+            render: (employeeDtos) => employeeDtos?.length || 0,
         },
         {
             title: 'Hành động',
@@ -228,28 +244,35 @@ const Service = () => {
 
     const handleFilterServiceChange = (key, value) => {
         dispatch(service.actions.setFilterService({ ...filterService, [key]: value }));
-        console.log(filterService);
+        dispatch(loadPage());
     };
 
-    const handleResetServiceFilter = () =>
-        dispatch(service.actions.setFilterService({ initFilterService }));
+    const handleResetServiceFilter = () => {
+        dispatch(service.actions.setFilterService({ ...initFilterService }));
+        dispatch(loadPage());
+    };
 
     const handleApplyServiceFilter = () => {
-        console.log(filterService);
+        dispatch(loadPage());
     };
 
     const handleChangeRoomPage = (e) => {
-        console.log(e);
         dispatch(
             service.actions.setFilterService({
                 ...filterService,
                 pageNo: e - 1,
             })
         );
+        dispatch(loadPage());
     };
 
     return (
-        <div className="p-2 bg-white rounded-lg flex flex-col gap-3">
+        <div className="relative p-2 bg-white rounded-lg flex flex-col gap-3">
+            {loadingPage && (
+                <div className="absolute inset-0 bg-white/40 flex items-center justify-center z-20">
+                    <Spin />
+                </div>
+            )}
             <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Danh sách dịch vụ</h3>
                 <div className="flex gap-2">
@@ -272,21 +295,23 @@ const Service = () => {
                     onClose={() => setIsOpenServiceFilter(false)}
                 />
             )}
+
             <Table
                 columns={columns}
-                dataSource={services}
-                rowKey="service_id"
+                dataSource={servicesList?.data || []}
+                rowKey="serviceId"
                 pagination={false}
-                scroll={{ x: 'max-content', y: window.innerHeight * 0.82 - 160 }}
+                scroll={{ x: 'max-content', y: window.innerHeight * 0.82 - 120 }}
             />
+
             <div className="flex justify-end">
                 <Pagination
-                    current={0}
-                    pageSize={2}
+                    current={filterService?.pageNo + 1 || 0}
+                    pageSize={10}
                     onChange={(e) => {
                         handleChangeRoomPage(e);
                     }}
-                    total={5}
+                    total={servicesList?.totalPage * 10 || 1}
                 />
             </div>
         </div>

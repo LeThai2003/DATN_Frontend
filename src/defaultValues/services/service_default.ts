@@ -3,6 +3,7 @@ import { initFilterValue } from '../common/common';
 
 export const initFilterService: FilterService = {
     ...initFilterValue,
+    sort: 'serviceId',
 };
 
 export const initServiceSlice: ServiceSlice = {

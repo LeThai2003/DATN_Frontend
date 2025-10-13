@@ -5,6 +5,7 @@ import Doctor2 from '@/pages/doctor/Doctor2';
 import { useDispatch } from 'react-redux';
 import { common } from '@/stores/reducers';
 import { ModalType } from '@/types/stores/common';
+import TitleRouter from '@/routes/TitleRouter';
 
 const DoctorPageLayout = () => {
     const [tabs, setTabs] = useState([
@@ -12,12 +13,14 @@ const DoctorPageLayout = () => {
             key: 'new-exam',
             label: 'Khám mới',
             content: (
-                <Doctor2
-                    isNewExam={true}
-                    patient={undefined}
-                    record={undefined}
-                    isHistory={undefined}
-                />
+                <TitleRouter title="Khám bệnh">
+                    <Doctor2
+                        isNewExam={true}
+                        patient={undefined}
+                        record={undefined}
+                        isHistory={undefined}
+                    />
+                </TitleRouter>
             ),
             closable: false,
         },

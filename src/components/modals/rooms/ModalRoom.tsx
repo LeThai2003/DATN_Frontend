@@ -1,13 +1,29 @@
-import { ModalState } from '@/types/stores/common';
+import { ModalState, ModalType } from '@/types/stores/common';
 import React from 'react';
 import ModalBase from '../ModalBase';
-import { Button, Image, Table } from 'antd';
+import { Button, Image, Spin, Table } from 'antd';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import FormField from '@/components/forms/FormField';
 import { roomSchema } from '@/validations/roomSchema';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectLoadingComponent, selectSelectedRoom } from '@/stores/selectors/rooms/room.selector';
+import {
+    createRoom,
+    deleteRoom,
+    loadingPage,
+    updateRoom,
+} from '@/stores/actions/managers/rooms/room.action';
+import { common } from '@/stores/reducers';
 
 const ModalRoom: React.FC<ModalState> = ({ data, type, variant }) => {
+    const dispatch = useDispatch();
+
+    const loadingComponent = useSelector(selectLoadingComponent);
+    const selectedRoom = useSelector(selectSelectedRoom);
+
+    // console.log(selectedRoom);
+
     const {
         control,
         handleSubmit,
@@ -48,25 +64,50 @@ const ModalRoom: React.FC<ModalState> = ({ data, type, variant }) => {
     ];
 
     const onSubmit = (data) => {
-        console.log(variant);
-        console.log(data);
+        if (variant == 'add') {
+            dispatch(createRoom(data));
+        } else {
+            dispatch(
+                updateRoom({
+                    id: selectedRoom?.roomId,
+                    ...data,
+                })
+            );
+        }
     };
 
     if (variant == 'delete') {
         return (
             <ModalBase type={type} size="md">
+                {loadingComponent && (
+                    <div className="absolute inset-0 bg-white/40 backdrop-blur-[0px] flex items-center justify-center rounded-2xl z-20">
+                        <Spin />
+                    </div>
+                )}
                 <div>
                     <h2 className="font-semibold mb-3 text-center">Xóa phòng khám</h2>
                 </div>
                 <div className="">
                     <p className="text-center">
                         <>
-                            Bạn có chắc muốn xóa phòng khám <b>"{data.name}"</b> không?
+                            Bạn có chắc muốn xóa phòng khám <b>"{selectedRoom?.name}"</b> không?
                         </>
                     </p>
                     <div className="flex justify-end space-x-3 mt-4">
-                        <Button onClick={() => {}}>Hủy</Button>
-                        <Button type="primary" danger onClick={() => {}}>
+                        <Button
+                            onClick={() => {
+                                dispatch(common.actions.setHiddenModal(ModalType.ROOM));
+                            }}
+                        >
+                            Hủy
+                        </Button>
+                        <Button
+                            type="primary"
+                            danger
+                            onClick={() => {
+                                dispatch(deleteRoom({ id: selectedRoom?.roomId }));
+                            }}
+                        >
                             Xóa
                         </Button>
                     </div>
@@ -84,8 +125,13 @@ const ModalRoom: React.FC<ModalState> = ({ data, type, variant }) => {
                     </h2>
                     <form
                         onSubmit={handleSubmit(onSubmit)}
-                        className="space-y-4 mt-2 p-2 bg-slate-50 rounded-md"
+                        className="relative space-y-4 mt-2 p-2 bg-slate-50 rounded-md"
                     >
+                        {loadingComponent && (
+                            <div className="absolute inset-0 bg-white/40 backdrop-blur-[0px] flex items-center justify-center rounded-2xl z-20">
+                                <Spin />
+                            </div>
+                        )}
                         <div className="grid md:grid-cols-2 grid-cols-1 gap-3">
                             <FormField
                                 name="name"
@@ -121,14 +167,14 @@ const ModalRoom: React.FC<ModalState> = ({ data, type, variant }) => {
                         )}
                     </form>
 
-                    {data?.employees?.length > 0 && (
+                    {data?.employeeDtos?.length > 0 && (
                         <div className="pt-6 border-t border-dashed border-gray-300 mt-6">
                             <p>
                                 Bác sĩ thuộc phòng <b>{data?.name}</b>
                             </p>
                             <Table
                                 columns={employeesColumns}
-                                dataSource={data.employees}
+                                dataSource={data.employeeDtos}
                                 rowKey="account_id"
                                 pagination={false}
                                 scroll={{ y: window.innerHeight * 0.58 - 180 }}
@@ -147,8 +193,13 @@ const ModalRoom: React.FC<ModalState> = ({ data, type, variant }) => {
                     <h2 className="font-semibold mb-3 text-center">Thêm mới phòng khám</h2>
                     <form
                         onSubmit={handleSubmit(onSubmit)}
-                        className="space-y-4 mt-2 pr-1 pt-2 overflow-y-auto h-[92%]"
+                        className="space-y-4 mt-2 pr-1 pt-2 overflow-y-auto h-[92%] relative"
                     >
+                        {loadingComponent && (
+                            <div className="absolute inset-0 bg-white/40 backdrop-blur-[0px] flex items-center justify-center rounded-2xl z-20">
+                                <Spin />
+                            </div>
+                        )}
                         <FormField
                             name="name"
                             control={control}

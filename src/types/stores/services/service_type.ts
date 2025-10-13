@@ -3,12 +3,12 @@ import { Filter, PageObject } from '../common';
 export interface FilterService extends Filter {}
 
 export interface Service {
-    service_id: number;
+    serviceId: number;
     name: string;
     description?: string;
     price: number;
     image?: string;
-    doctors?: any[]; // Employee
+    employeeDtos?: any[]; // Employee
 }
 
 export interface ServiceSlice {

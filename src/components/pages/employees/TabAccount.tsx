@@ -1,8 +1,14 @@
 import FilterButton from '@/components/filters/FilterButton';
 import FilterForm from '@/components/filters/FilterForm';
 import { initFilterEmployee } from '@/defaultValues/employees/employee_default';
+import { fetchFirst, loadPage } from '@/stores/actions/managers/employees/employee.action';
 import { common, employee } from '@/stores/reducers';
-import { selectFilter } from '@/stores/selectors/employees/employee.selector';
+import {
+    selectEmployees,
+    selectFilter,
+    selectLoadingComponent,
+    selectLoadingPage,
+} from '@/stores/selectors/employees/employee.selector';
 import { Account } from '@/types/stores/accounts/account_type';
 import { ModalType } from '@/types/stores/common';
 import { Employee } from '@/types/stores/employees/employee_type';
@@ -10,8 +16,8 @@ import { Role } from '@/types/stores/roles/role_type';
 import { Room } from '@/types/stores/rooms/room_type';
 import { Specialization } from '@/types/stores/specializations/specialization_type';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
-import { Button, Pagination, Popconfirm, Space, Table, Tag } from 'antd';
-import { useState } from 'react';
+import { Button, Pagination, Popconfirm, Space, Spin, Table, TableProps, Tag } from 'antd';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 export const roles: Role[] = [
@@ -20,12 +26,12 @@ export const roles: Role[] = [
     { role_id: 3, name: 'Employee', description: 'Nhân viên' },
 ];
 
-export const rooms: Room[] = [
+export const rooms = [
     { room_id: 1, name: 'Phòng khám nội', location: 'Tầng 3' },
     { room_id: 2, name: 'Phòng khám da liễu', location: 'Tầng 2' },
 ];
 
-export const specializations: Specialization[] = [
+export const specializations = [
     {
         specialization_id: 1,
         name: 'Chuyên khoa nội',
@@ -34,7 +40,7 @@ export const specializations: Specialization[] = [
     { specialization_id: 2, name: 'Chuyên khoa ngoại', description: 'Chuyên khoa ngoại' },
 ];
 
-export const accounts: Account[] = [
+export const accounts = [
     {
         account_id: 1,
         role_id: 1,
@@ -64,7 +70,7 @@ export const accounts: Account[] = [
     },
 ];
 
-export const employees: Employee[] = [
+export const employees = [
     {
         employee_id: 1,
         account_id: 1,
@@ -128,6 +134,15 @@ const TabAccount = () => {
 
     const filterEmployee = useSelector(selectFilter);
 
+    const employeesList = useSelector(selectEmployees);
+    const loadingPage = useSelector(selectLoadingPage);
+
+    console.log(employeesList);
+
+    useEffect(() => {
+        dispatch(fetchFirst());
+    }, []);
+
     const handleOpenEditEmployee = (data) => {
         dispatch(employee.actions.setSelectEmployee(data));
         dispatch(
@@ -172,17 +187,18 @@ const TabAccount = () => {
         );
     };
 
-    const columns = [
-        {
-            title: 'ID',
-            dataIndex: 'employee_id',
-            key: 'employee_id',
-            width: 80,
-        },
+    const columns: TableProps<any>['columns'] = [
+        // {
+        //     title: 'ID',
+        //     dataIndex: 'employeeId',
+        //     key: 'employeeId',
+        //     width: 60,
+        //     ellipsis: true,
+        // },
         {
             title: 'Họ tên',
-            dataIndex: 'fullname',
-            key: 'fullname',
+            dataIndex: 'fullName',
+            key: 'fullName',
             render: (_, record) => (
                 <div className="flex items-center gap-2">
                     <img
@@ -195,23 +211,27 @@ const TabAccount = () => {
                             objectFit: 'cover',
                         }}
                     />
-                    <span>{record.fullname}</span>
+                    <span>{record.fullName}</span>
                 </div>
             ),
         },
         {
             title: 'Số điện thoại',
-            dataIndex: ['account', 'phone_number'],
-            key: 'phone_number',
+            dataIndex: 'phoneNumber',
+            key: 'phoneNumber',
+            width: 120,
         },
         {
             title: 'Vai trò',
-            dataIndex: ['role', 'name'],
-            key: 'role',
+            dataIndex: 'nameRole',
+            key: 'nameRole',
+            render: (nameRole) => {
+                return nameRole == 'ROLE_DOCTOR' ? 'Bác sĩ' : 'Quản lý';
+            },
         },
         {
-            title: 'Phòng ban',
-            dataIndex: ['room', 'name'],
+            title: 'Phòng khám',
+            dataIndex: ['roomDto', 'name'],
             key: 'room',
         },
         {
@@ -220,16 +240,27 @@ const TabAccount = () => {
             key: 'specialization',
         },
         {
+            title: 'Dịch vụ',
+            dataIndex: 'serviceDto',
+            key: 'serviceDto',
+            width: 100,
+            render: (serviceDto) => serviceDto?.length || 0,
+            align: 'center',
+        },
+        {
             title: 'Trạng thái',
             key: 'status',
+            width: 100,
             render: (_, record) => {
-                const status = record.account?.status;
+                const status = record?.status;
                 let color = 'default';
-                if (status === 'active') color = 'green';
-                else if (status === 'inactive') color = 'orange';
-                else if (status === 'banned') color = 'red';
+                if (status === 'ACTIVE') color = 'green';
+                else if (status === 'INACTIVE') color = 'orange';
+                // else if (status === 'banned') color = 'red';
 
-                return <Tag color={color}>{status?.toUpperCase()}</Tag>;
+                return (
+                    <Tag color={color}>{status == 'ACTIVE' ? 'Hoạt động' : 'Dừng hoạt động'}</Tag>
+                );
             },
         },
         {
@@ -290,28 +321,35 @@ const TabAccount = () => {
 
     const handleFilterEmployeeChange = (key, value) => {
         dispatch(employee.actions.setFilterEmployee({ ...filterEmployee, [key]: value }));
-        console.log(filterEmployee);
+        dispatch(loadPage());
     };
 
-    const handleResetEmployeeFilter = () =>
-        dispatch(employee.actions.setFilterEmployee({ initFilterEmployee }));
+    const handleResetEmployeeFilter = () => {
+        dispatch(employee.actions.setFilterEmployee({ ...initFilterEmployee }));
+        dispatch(loadPage());
+    };
 
     const handleApplyEmployeeFilter = () => {
-        console.log(filterEmployee);
+        dispatch(loadPage());
     };
 
     const handleChangeEmployeePage = (e) => {
-        console.log(e);
         dispatch(
             employee.actions.setFilterEmployee({
                 ...filterEmployee,
                 pageNo: e - 1,
             })
         );
+        dispatch(loadPage());
     };
 
     return (
-        <div className="p-2 bg-white rounded-lg flex flex-col gap-3">
+        <div className="relative p-2 bg-white rounded-lg flex flex-col gap-3">
+            {loadingPage && (
+                <div className="absolute inset-0 bg-white/40 flex items-center justify-center z-20">
+                    <Spin />
+                </div>
+            )}
             <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Danh sách bác sĩ</h3>
                 <div className="flex gap-2">
@@ -340,14 +378,21 @@ const TabAccount = () => {
                 />
             )}
             <Table
-                rowKey="employee_id"
+                rowKey="employeeId"
                 columns={columns}
-                dataSource={employees}
+                dataSource={employeesList?.data}
                 pagination={false}
                 scroll={{ x: 'max-content', y: window.innerHeight * 0.82 - 160 }}
             />
             <div className="flex justify-end">
-                <Pagination current={0} pageSize={2} onChange={(e) => {}} total={5} />
+                <Pagination
+                    current={filterEmployee?.pageNo + 1 || 0}
+                    pageSize={10}
+                    onChange={(e) => {
+                        handleChangeEmployeePage(e);
+                    }}
+                    total={employeesList?.totalPage * 10 || 1}
+                />
             </div>
         </div>
     );
