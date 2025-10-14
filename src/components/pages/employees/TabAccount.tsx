@@ -2,19 +2,17 @@ import FilterButton from '@/components/filters/FilterButton';
 import FilterForm from '@/components/filters/FilterForm';
 import { initFilterEmployee } from '@/defaultValues/employees/employee_default';
 import { fetchFirst, loadPage } from '@/stores/actions/managers/employees/employee.action';
+import { fetchFirst as fetchSpecializations } from '@/stores/actions/managers/specializations/specialization.action';
+import { fetchFirst as fetchRooms } from '@/stores/actions/managers/rooms/room.action';
+import { fetchFirst as fetchServices } from '@/stores/actions/managers/services/service.action';
 import { common, employee } from '@/stores/reducers';
 import {
     selectEmployees,
     selectFilter,
-    selectLoadingComponent,
     selectLoadingPage,
 } from '@/stores/selectors/employees/employee.selector';
-import { Account } from '@/types/stores/accounts/account_type';
 import { ModalType } from '@/types/stores/common';
-import { Employee } from '@/types/stores/employees/employee_type';
 import { Role } from '@/types/stores/roles/role_type';
-import { Room } from '@/types/stores/rooms/room_type';
-import { Specialization } from '@/types/stores/specializations/specialization_type';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { Button, Pagination, Popconfirm, Space, Spin, Table, TableProps, Tag } from 'antd';
 import { useEffect, useState } from 'react';
@@ -141,6 +139,10 @@ const TabAccount = () => {
 
     useEffect(() => {
         dispatch(fetchFirst());
+
+        dispatch(fetchSpecializations());
+        dispatch(fetchRooms());
+        dispatch(fetchServices());
     }, []);
 
     const handleOpenEditEmployee = (data) => {
@@ -301,7 +303,7 @@ const TabAccount = () => {
                         description={
                             <>
                                 Bạn có chắc đặt lại mật khẩu cho tài khoản bác sĩ{' '}
-                                <b>"{record.fullname}"</b> ?
+                                <b>"{record.fullName}"</b> ?
                             </>
                         }
                         onConfirm={() => {}}

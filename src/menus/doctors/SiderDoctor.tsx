@@ -214,7 +214,7 @@ const SiderDoctor = ({ onOpenTab }) => {
             </div>
 
             {/* --- LỊCH SỬ TÁI KHÁM --- */}
-            {selectedPatient && (
+            {selectedPatient ? (
                 <div className="bg-white rounded-0 border-y border-gray-200 shadow-sm p-3">
                     <div className="flex items-center gap-2 font-semibold text-gray-700 mb-2">
                         <LuCalendarClock className="text-blue-600" />
@@ -265,6 +265,8 @@ const SiderDoctor = ({ onOpenTab }) => {
                         )}
                     </div>
                 </div>
+            ) : (
+                <div className="bg-white h-24"></div>
             )}
 
             <div className="absolute bottom-0 left-0 w-full border-t border-blue-200 bg-blue-50 cursor-pointer hover:bg-blue-100 transition-all duration-200">

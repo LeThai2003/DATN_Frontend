@@ -1,14 +1,17 @@
+import { getCookies } from '@/utils/cookies/cookies';
 import React from 'react';
 import { Navigate } from 'react-router';
 
 const privateRoute = ({ children, roles = [] }) => {
-    const user = JSON.parse(localStorage.getItem('user'));
+    const user = JSON.parse(getCookies('user'));
 
-    // if (!user) {
-    //     return <Navigate to="/auths/login" replace />;
-    // }
+    console.log(user);
 
-    if (roles.length > 0 && !roles.includes('user.role')) {
+    if (!user) {
+        return <Navigate to="/auths/login" replace />;
+    }
+
+    if (roles.length > 0 && !roles.includes(user?.authorities[0]?.authority)) {
         return <Navigate to="/unauthorized" replace />;
         // return <Navigate to="/auths/login" replace />;
     }

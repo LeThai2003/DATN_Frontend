@@ -47,7 +47,11 @@ function AppRoutes() {
         // Manager
         {
             path: '/manager',
-            element: <ClinicLayout />,
+            element: (
+                <PrivateRoute roles={['ROLE_ADMIN']}>
+                    <ClinicLayout />
+                </PrivateRoute>
+            ),
             children: [
                 {
                     path: '',
@@ -153,7 +157,12 @@ function AppRoutes() {
         },
         {
             path: '/doctors2',
-            element: <DoctorPageLayout />,
+            element: (
+                <PrivateRoute roles={['ROLE_DOCTOR']}>
+                    {' '}
+                    <DoctorPageLayout />{' '}
+                </PrivateRoute>
+            ),
             children: [
                 {
                     path: '',

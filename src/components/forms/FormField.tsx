@@ -91,7 +91,6 @@ const FormField = ({
                             options={options}
                             value={field.value ?? undefined}
                             onChange={(val) => field.onChange(val)}
-                            style={{ minWidth: 180, maxWidth: 230 }}
                             allowClear
                             mode="multiple"
                         />

@@ -1,16 +1,29 @@
-import { ModalState } from '@/types/stores/common';
+import { ModalState, ModalType } from '@/types/stores/common';
 import React, { useState } from 'react';
 import ModalBase from '../ModalBase';
-import { Button } from 'antd';
+import { Button, Descriptions, GetProp, Image, Spin, Tag, Upload, UploadProps } from 'antd';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import FormField from '@/components/forms/FormField';
 import { employeeAccountSchema } from '@/validations/employee.validate';
-import { Role } from '@/types/stores/roles/role_type';
-import { Room } from '@/types/stores/rooms/room_type';
-import { Specialization } from '@/types/stores/specializations/specialization_type';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectSelectedEmployee } from '@/stores/selectors/employees/employee.selector';
+import {
+    selectLoadingComponent,
+    selectSelectedEmployee,
+} from '@/stores/selectors/employees/employee.selector';
+import { selectRooms } from '@/stores/selectors/rooms/room.selector';
+import { selectServices } from '@/stores/selectors/services/service.selector';
+import { selectSpecializations } from '@/stores/selectors/specializations/specialization.selector';
+import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
+import LableField from '@/components/forms/LableField';
+import { common } from '@/stores/reducers';
+import {
+    createEmployee,
+    updateEmployee,
+} from '@/stores/actions/managers/employees/employee.action';
+import dayjs from 'dayjs';
+
+type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
 export const roles = [
     { role_id: 1, name: 'Admin', description: 'Quản trị hệ thống' },
@@ -37,9 +50,19 @@ const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
 
     // const loadingComponent = useSelector(selectLoadingComponent);
     const selectedEmployee = useSelector(selectSelectedEmployee);
+    const roomsList = useSelector(selectRooms);
+    const servicesList = useSelector(selectServices);
+    const specializationsList = useSelector(selectSpecializations);
 
     const [image, setImage] = useState<string>(selectedEmployee?.avatar || '');
     const [loading, setLoading] = useState<boolean>(false);
+
+    const loadingComponent = useSelector(selectLoadingComponent);
+
+    console.log(selectedEmployee);
+    // console.log(roomsList?.data);
+    // console.log(servicesList?.data);
+    // console.log(specializationsList?.data);
 
     const {
         control,
@@ -49,24 +72,69 @@ const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
         formState: { errors, isSubmitting },
     } = useForm({
         defaultValues: {
-            fullname: data?.fullname || '',
-            email: data?.email || '',
-            phone_number: data?.account?.phone_number || '',
-            password: data?.password || 'Default@123',
-            role_id: data?.role?.role_id || undefined,
-            room_id: data?.room?.room_id || undefined,
-            specialization_id: data?.specialization?.specialization_id || undefined,
-            dob: data?.dob || undefined,
-            gender: data?.gender || undefined,
-            address: data?.address || '',
-            // avatar: data?.avatar || '',
+            fullName: selectedEmployee?.fullName || '',
+            email: selectedEmployee?.email || '',
+            citizenId: selectedEmployee?.citizenId || '',
+            phoneNumber: selectedEmployee?.phoneNumber || '',
+            password: '@Hoai10032003',
+            profile: selectedEmployee?.profile || '',
+            specialization: selectedEmployee?.specialization?.specializationId || null,
+            room: selectedEmployee?.roomDto?.roomId || null,
+            services: selectedEmployee?.serviceDto?.map((s) => s.serviceId) || [],
+            dob: selectedEmployee?.dob || null,
+            hiredDate: selectedEmployee?.hiredDate || new Date().toISOString().split('T')[0],
+            gender: selectedEmployee?.gender || true,
+            address: selectedEmployee?.address || '',
+            status: selectedEmployee?.status || 'ACTIVE',
         },
-        resolver: yupResolver(employeeAccountSchema),
+        resolver: yupResolver(employeeAccountSchema) as any,
     });
 
     const onSubmit = (data) => {
-        console.log(variant);
-        console.log(data);
+        data.avatar = image;
+        data.roleId = '4d5a0317-f194-4f36-a4d0-0fb018f6eb23';
+        if (variant == 'add') {
+            dispatch(createEmployee(data));
+        } else {
+            dispatch(
+                updateEmployee({
+                    id: selectedEmployee?.employeeId,
+                    ...data,
+                })
+            );
+        }
+    };
+
+    const uploadButton = (
+        <button style={{ border: 0, background: 'none' }} type="button">
+            {loading ? <LoadingOutlined /> : <PlusOutlined />}
+            <div style={{ marginTop: 8 }}>Upload</div>
+        </button>
+    );
+
+    // event handling
+    const handleChangeImage: UploadProps['onChange'] = (info) => {
+        if (info.file.status === 'uploading') {
+            setLoading(true);
+            setImage('');
+            return;
+        }
+        if (info.file.status === 'done') {
+            setLoading(false);
+            setImage(info?.file?.response?.data);
+        }
+    };
+
+    const beforeUpload = (file: FileType) => {
+        const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+        if (!isJpgOrPng) {
+            dispatch(common.actions.setErrorMessage('Bạn chỉ có thể up ảnh JPG/PNG!'));
+        }
+        const isLt2M = file.size / 1024 / 1024 < 2;
+        if (!isLt2M) {
+            dispatch(common.actions.setErrorMessage('Ảnh phải có kích cỡ bé hơn 2MB!'));
+        }
+        return isJpgOrPng && isLt2M;
     };
 
     if (variant == 'delete') {
@@ -78,11 +146,18 @@ const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
                 <div className="">
                     <p className="text-center">
                         <>
-                            Bạn có chắc muốn xóa tài khoản bác sĩ <b>"{data.fullname}"</b> không?
+                            Bạn có chắc muốn xóa tài khoản bác sĩ{' '}
+                            <b>"{selectedEmployee?.fullName}"</b> không?
                         </>
                     </p>
                     <div className="flex justify-end space-x-3 mt-4">
-                        <Button onClick={() => {}}>Hủy</Button>
+                        <Button
+                            onClick={() => {
+                                dispatch(common.actions.setHiddenModal(ModalType.EMPLOYEE));
+                            }}
+                        >
+                            Hủy
+                        </Button>
                         <Button type="primary" danger onClick={() => {}}>
                             Xóa
                         </Button>
@@ -92,224 +167,57 @@ const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
         );
     }
 
-    console.log(data);
-
-    if (variant == 'view' || variant == 'edit') {
+    if (variant == 'edit') {
+        console.log('Form errors:', errors);
         return (
             <ModalBase type={type} size="lg">
                 <div className="flex flex-col max-h-[85vh]">
                     <h2 className="font-semibold mb-3 pb-2 shrink-0 text-center border-b border-gray-200">
-                        {variant == 'view' ? 'Thông tin tài khoản' : 'Cập nhật tài khoản'}
+                        Cập nhật thông tin tài khoản
                     </h2>
                     <div className="overflow-y-auto">
                         <form
                             onSubmit={handleSubmit(onSubmit)}
-                            className="px-6 pt-4 pb-2 bg-white rounded-2xl space-y-4 h-[92%] overflow-y-auto"
+                            className="relative px-6 pt-4 pb-2 bg-white rounded-2xl space-y-4 h-[92%] overflow-y-auto"
                         >
-                            <div>
-                                {variant == 'edit' ? (
-                                    <FormField
-                                        name="avatar"
-                                        control={control}
-                                        label="Hình ảnh"
-                                        type="upload"
-                                        uploadProps={{ single: true }}
-                                        error={!!errors.avatar}
-                                        helperText={errors.avatar?.message as string}
-                                    />
-                                ) : (
-                                    <FormField
-                                        name="avatar"
-                                        control={control}
-                                        label="Hình ảnh"
-                                        type="image"
-                                        imageProps={{ src: data?.avatar, width: 100 }}
-                                        error={!!errors.avatar}
-                                        helperText={errors.avatar?.message as string}
-                                    />
-                                )}
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <FormField
-                                    name="fullname"
-                                    control={control}
-                                    label="Họ tên"
-                                    placeholder="Nhập họ tên"
-                                    type={variant == 'edit' ? 'input' : 'text'}
-                                    inputType="text"
-                                    required
-                                    error={!!errors.fullname}
-                                    helperText={errors.fullname?.message}
-                                />
-
-                                <FormField
-                                    name="email"
-                                    control={control}
-                                    label="Email"
-                                    placeholder="Nhập email"
-                                    type={variant == 'edit' ? 'input' : 'text'}
-                                    inputType="email"
-                                    required
-                                    error={!!errors.email}
-                                    helperText={errors.email?.message}
-                                />
-
-                                <FormField
-                                    name="phone_number"
-                                    control={control}
-                                    label="Số điện thoại"
-                                    placeholder="Nhập số điện thoại"
-                                    type={variant == 'edit' ? 'input' : 'text'}
-                                    inputType="text"
-                                    required
-                                    error={!!errors.phone_number}
-                                    helperText={errors.phone_number?.message}
-                                />
-
-                                <FormField
-                                    name="role_id"
-                                    control={control}
-                                    label="Vai trò"
-                                    placeholder="Chọn vai trò"
-                                    type={variant == 'edit' ? 'select' : 'text'}
-                                    options={roles.map((r) => ({
-                                        label: r.name,
-                                        value: r.role_id,
-                                    }))}
-                                    required
-                                    error={!!errors.role_id}
-                                    helperText={errors.role_id?.message}
-                                />
-
-                                <FormField
-                                    name="room_id"
-                                    control={control}
-                                    label="Phòng khám"
-                                    placeholder="Chọn phòng khám"
-                                    type={variant == 'edit' ? 'select' : 'text'}
-                                    options={rooms.map((r) => ({
-                                        label: r.name,
-                                        value: r.room_id,
-                                    }))}
-                                    required
-                                    error={!!errors.room_id}
-                                    helperText={errors.room_id?.message}
-                                />
-
-                                <FormField
-                                    name="specialization_id"
-                                    control={control}
-                                    label="Chuyên khoa"
-                                    placeholder="Chọn chuyên khoa"
-                                    type={variant == 'edit' ? 'select' : 'text'}
-                                    options={specializations.map((s) => ({
-                                        label: s.name,
-                                        value: s.specialization_id,
-                                    }))}
-                                    required
-                                    error={!!errors.specialization_id}
-                                    helperText={errors.specialization_id?.message}
-                                />
-
-                                <FormField
-                                    name="dob"
-                                    control={control}
-                                    label="Ngày sinh"
-                                    placeholder="Chọn ngày sinh"
-                                    type={variant == 'edit' ? 'datepicker' : 'text'}
-                                    required
-                                    error={!!errors.dob}
-                                    helperText={errors.dob?.message}
-                                />
-
-                                <FormField
-                                    name="gender"
-                                    control={control}
-                                    label="Giới tính"
-                                    placeholder="Chọn giới tính"
-                                    type={variant == 'edit' ? 'select' : 'text'}
-                                    options={[
-                                        { label: 'Nam', value: 'male' },
-                                        { label: 'Nữ', value: 'female' },
-                                        { label: 'Khác', value: 'other' },
-                                    ]}
-                                    required
-                                    error={!!errors.gender}
-                                    helperText={errors.gender?.message}
-                                />
-
-                                <FormField
-                                    name="address"
-                                    control={control}
-                                    label="Địa chỉ"
-                                    placeholder="Nhập địa chỉ"
-                                    type={variant == 'edit' ? 'input' : 'text'}
-                                    inputType="text"
-                                    required
-                                    error={!!errors.address}
-                                    helperText={errors.address?.message}
-                                />
-                            </div>
-
-                            {variant == 'edit' && (
-                                <div className="flex justify-end gap-2">
-                                    <Button
-                                        onClick={() => reset()}
-                                        className="px-4 py-2 border rounded-lg"
-                                    >
-                                        Hoàn tác
-                                    </Button>
-                                    <Button
-                                        type="primary"
-                                        htmlType="submit"
-                                        disabled={isSubmitting}
-                                        className="px-4 py-2 bg-primary text-white rounded-lg"
-                                    >
-                                        {isSubmitting ? 'Đang cập nhật...' : 'Cập nhật'}
-                                    </Button>
+                            {loadingComponent && (
+                                <div className="absolute inset-0 bg-white/40 flex items-center justify-center z-20">
+                                    <Spin />
                                 </div>
                             )}
-                        </form>
-                    </div>
-                </div>
-            </ModalBase>
-        );
-    }
-
-    if (variant == 'add') {
-        return (
-            <ModalBase type={type} size="lg">
-                <div className="flex flex-col max-h-[85vh]">
-                    <h2 className="font-semibold mb-3 pb-2 shrink-0 text-center border-b border-gray-200">
-                        Thêm mới tài khoản
-                    </h2>
-                    <div className="overflow-y-auto">
-                        <form
-                            onSubmit={handleSubmit(onSubmit)}
-                            className="px-6 pt-4 pb-2 bg-white rounded-2xl space-y-4 h-[92%] overflow-y-auto"
-                        >
                             <div>
-                                <FormField
+                                <LableField label={'Hình ảnh'} />
+                                <Upload
                                     name="image"
-                                    control={control}
-                                    label="Hình ảnh"
-                                    type="upload"
-                                    uploadProps={{ single: true }}
-                                    error={!!errors.avatar}
-                                    helperText={errors.avatar?.message as string}
-                                />
+                                    listType="picture-card"
+                                    className="avatar-uploader overflow-hidden"
+                                    showUploadList={false}
+                                    action={`${import.meta.env.VITE_BACKEND_URL}/upload/image`}
+                                    beforeUpload={beforeUpload}
+                                    onChange={handleChangeImage}
+                                >
+                                    {image.length > 0 ? (
+                                        <img
+                                            src={image}
+                                            alt="ảnh dịch vụ"
+                                            style={{ width: '100%' }}
+                                        />
+                                    ) : (
+                                        uploadButton
+                                    )}
+                                </Upload>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <FormField
-                                    name="fullname"
+                                    name="fullName"
                                     control={control}
                                     label="Họ tên"
                                     placeholder="Nhập họ tên"
                                     type="input"
                                     inputType="text"
                                     required
-                                    error={!!errors.fullname}
-                                    helperText={errors.fullname?.message}
+                                    error={!!errors.fullName}
+                                    helperText={errors.fullName?.message}
                                 />
 
                                 <FormField
@@ -325,15 +233,27 @@ const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
                                 />
 
                                 <FormField
-                                    name="phone_number"
+                                    name="citizenId"
+                                    control={control}
+                                    label="CCCD"
+                                    placeholder="Nhập số CCCD"
+                                    type="input"
+                                    inputType="text"
+                                    required
+                                    error={!!errors.citizenId}
+                                    helperText={errors.citizenId?.message}
+                                />
+
+                                <FormField
+                                    name="phoneNumber"
                                     control={control}
                                     label="Số điện thoại"
                                     placeholder="Nhập số điện thoại"
                                     type="input"
                                     inputType="text"
                                     required
-                                    error={!!errors.phone_number}
-                                    helperText={errors.phone_number?.message}
+                                    error={!!errors.phoneNumber}
+                                    helperText={errors.phoneNumber?.message}
                                 />
 
                                 <FormField
@@ -349,48 +269,48 @@ const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
                                 />
 
                                 <FormField
-                                    name="role_id"
-                                    control={control}
-                                    label="Vai trò"
-                                    placeholder="Chọn vai trò"
-                                    type="select"
-                                    options={roles.map((r) => ({
-                                        label: r.name,
-                                        value: r.role_id,
-                                    }))}
-                                    required
-                                    error={!!errors.role_id}
-                                    helperText={errors.role_id?.message}
-                                />
-
-                                <FormField
-                                    name="room_id"
+                                    name="room"
                                     control={control}
                                     label="Phòng khám"
                                     placeholder="Chọn phòng khám"
                                     type="select"
-                                    options={rooms.map((r) => ({
+                                    options={roomsList?.data?.map((r) => ({
                                         label: r.name,
-                                        value: r.room_id,
+                                        value: r.roomId,
                                     }))}
                                     required
-                                    error={!!errors.room_id}
-                                    helperText={errors.room_id?.message}
+                                    error={!!errors.room}
+                                    helperText={errors.room?.message}
                                 />
 
                                 <FormField
-                                    name="specialization_id"
+                                    name="specialization"
                                     control={control}
                                     label="Chuyên khoa"
                                     placeholder="Chọn chuyên khoa"
                                     type="select"
-                                    options={specializations.map((s) => ({
+                                    options={specializationsList?.data?.map((s) => ({
                                         label: s.name,
-                                        value: s.specialization_id,
+                                        value: s.specializationId,
                                     }))}
                                     required
-                                    error={!!errors.specialization_id}
-                                    helperText={errors.specialization_id?.message}
+                                    error={!!errors.specialization}
+                                    helperText={errors.specialization?.message}
+                                />
+
+                                <FormField
+                                    name="services"
+                                    control={control}
+                                    label="Dịch vụ"
+                                    placeholder="Chọn dịch vụ"
+                                    type="multiSelect"
+                                    options={servicesList?.data?.map((srv) => ({
+                                        label: srv.name,
+                                        value: srv.serviceId,
+                                    }))}
+                                    required
+                                    error={!!errors.services}
+                                    helperText={errors.services?.message}
                                 />
 
                                 <FormField
@@ -411,9 +331,8 @@ const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
                                     placeholder="Chọn giới tính"
                                     type="select"
                                     options={[
-                                        { label: 'Nam', value: 'male' },
-                                        { label: 'Nữ', value: 'female' },
-                                        { label: 'Khác', value: 'other' },
+                                        { label: 'Nam', value: true },
+                                        { label: 'Nữ', value: false },
                                     ]}
                                     required
                                     error={!!errors.gender}
@@ -431,7 +350,29 @@ const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
                                     error={!!errors.address}
                                     helperText={errors.address?.message}
                                 />
+
+                                <FormField
+                                    name="hiredDate"
+                                    control={control}
+                                    label="Ngày vào làm"
+                                    placeholder="Chọn ngày vào làm"
+                                    type="datepicker"
+                                    required
+                                    error={!!errors.hiredDate}
+                                    helperText={errors.hiredDate?.message}
+                                />
                             </div>
+                            <FormField
+                                name="profile"
+                                control={control}
+                                label="Tóm tắt tiểu sử"
+                                placeholder="Tiểu sử ..."
+                                type="textarea"
+                                rows={4}
+                                required
+                                error={!!errors.profile}
+                                helperText={errors.profile?.message}
+                            />
 
                             <div className="flex justify-end gap-2">
                                 <Button
@@ -442,11 +383,11 @@ const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
                                 </Button>
                                 <Button
                                     type="primary"
-                                    htmlType="submit"
                                     disabled={isSubmitting}
+                                    onClick={() => handleSubmit(onSubmit)()}
                                     className="px-4 py-2 bg-primary text-white rounded-lg"
                                 >
-                                    {isSubmitting ? 'Đang lưu...' : 'Lưu tài khoản'}
+                                    {isSubmitting ? 'Đang cập nhật...' : 'Cập nhật'}
                                 </Button>
                             </div>
                         </form>
@@ -456,7 +397,309 @@ const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
         );
     }
 
-    return <div>ModalDrug</div>;
+    if (variant == 'add') {
+        console.log('Form errors:', errors);
+        return (
+            <ModalBase type={type} size="lg">
+                <div className="flex flex-col max-h-[85vh]">
+                    <h2 className="font-semibold mb-3 pb-2 shrink-0 text-center border-b border-gray-200">
+                        Thêm mới tài khoản
+                    </h2>
+                    <div className="overflow-y-auto">
+                        <form
+                            onSubmit={handleSubmit(onSubmit)}
+                            className="relative px-6 pt-4 pb-2 bg-white rounded-2xl space-y-4 h-[92%] overflow-y-auto"
+                        >
+                            {loadingComponent && (
+                                <div className="absolute inset-0 bg-white/40 flex items-center justify-center z-20">
+                                    <Spin />
+                                </div>
+                            )}
+                            <div>
+                                <LableField label={'Hình ảnh'} />
+                                <Upload
+                                    name="image"
+                                    listType="picture-card"
+                                    className="avatar-uploader overflow-hidden"
+                                    showUploadList={false}
+                                    action={`${import.meta.env.VITE_BACKEND_URL}/upload/image`}
+                                    beforeUpload={beforeUpload}
+                                    onChange={handleChangeImage}
+                                >
+                                    {image.length > 0 ? (
+                                        <img
+                                            src={image}
+                                            alt="ảnh dịch vụ"
+                                            style={{ width: '100%' }}
+                                        />
+                                    ) : (
+                                        uploadButton
+                                    )}
+                                </Upload>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <FormField
+                                    name="fullName"
+                                    control={control}
+                                    label="Họ tên"
+                                    placeholder="Nhập họ tên"
+                                    type="input"
+                                    inputType="text"
+                                    required
+                                    error={!!errors.fullName}
+                                    helperText={errors.fullName?.message}
+                                />
+
+                                <FormField
+                                    name="email"
+                                    control={control}
+                                    label="Email"
+                                    placeholder="Nhập email"
+                                    type="input"
+                                    inputType="email"
+                                    required
+                                    error={!!errors.email}
+                                    helperText={errors.email?.message}
+                                />
+
+                                <FormField
+                                    name="citizenId"
+                                    control={control}
+                                    label="CCCD"
+                                    placeholder="Nhập số CCCD"
+                                    type="input"
+                                    inputType="text"
+                                    required
+                                    error={!!errors.citizenId}
+                                    helperText={errors.citizenId?.message}
+                                />
+
+                                <FormField
+                                    name="phoneNumber"
+                                    control={control}
+                                    label="Số điện thoại"
+                                    placeholder="Nhập số điện thoại"
+                                    type="input"
+                                    inputType="text"
+                                    required
+                                    error={!!errors.phoneNumber}
+                                    helperText={errors.phoneNumber?.message}
+                                />
+
+                                <FormField
+                                    name="password"
+                                    control={control}
+                                    label="Mật khẩu"
+                                    placeholder="Nhập mật khẩu"
+                                    type="input"
+                                    inputType="password"
+                                    required
+                                    error={!!errors.password}
+                                    helperText={errors.password?.message}
+                                />
+
+                                <FormField
+                                    name="room"
+                                    control={control}
+                                    label="Phòng khám"
+                                    placeholder="Chọn phòng khám"
+                                    type="select"
+                                    options={roomsList?.data?.map((r) => ({
+                                        label: r.name,
+                                        value: r.roomId,
+                                    }))}
+                                    required
+                                    error={!!errors.room}
+                                    helperText={errors.room?.message}
+                                />
+
+                                <FormField
+                                    name="specialization"
+                                    control={control}
+                                    label="Chuyên khoa"
+                                    placeholder="Chọn chuyên khoa"
+                                    type="select"
+                                    options={specializationsList?.data?.map((s) => ({
+                                        label: s.name,
+                                        value: s.specializationId,
+                                    }))}
+                                    required
+                                    error={!!errors.specialization}
+                                    helperText={errors.specialization?.message}
+                                />
+
+                                <FormField
+                                    name="services"
+                                    control={control}
+                                    label="Dịch vụ"
+                                    placeholder="Chọn dịch vụ"
+                                    type="multiSelect"
+                                    options={servicesList?.data?.map((srv) => ({
+                                        label: srv.name,
+                                        value: srv.serviceId,
+                                    }))}
+                                    required
+                                    error={!!errors.services}
+                                    helperText={errors.services?.message}
+                                />
+
+                                <FormField
+                                    name="dob"
+                                    control={control}
+                                    label="Ngày sinh"
+                                    placeholder="Chọn ngày sinh"
+                                    type="datepicker"
+                                    required
+                                    error={!!errors.dob}
+                                    helperText={errors.dob?.message}
+                                />
+
+                                <FormField
+                                    name="gender"
+                                    control={control}
+                                    label="Giới tính"
+                                    placeholder="Chọn giới tính"
+                                    type="select"
+                                    options={[
+                                        { label: 'Nam', value: true },
+                                        { label: 'Nữ', value: false },
+                                    ]}
+                                    required
+                                    error={!!errors.gender}
+                                    helperText={errors.gender?.message}
+                                />
+
+                                <FormField
+                                    name="address"
+                                    control={control}
+                                    label="Địa chỉ"
+                                    placeholder="Nhập địa chỉ"
+                                    type="input"
+                                    inputType="text"
+                                    required
+                                    error={!!errors.address}
+                                    helperText={errors.address?.message}
+                                />
+
+                                <FormField
+                                    name="hiredDate"
+                                    control={control}
+                                    label="Ngày vào làm"
+                                    placeholder="Chọn ngày vào làm"
+                                    type="datepicker"
+                                    required
+                                    error={!!errors.hiredDate}
+                                    helperText={errors.hiredDate?.message}
+                                />
+                            </div>
+                            <FormField
+                                name="profile"
+                                control={control}
+                                label="Tóm tắt tiểu sử"
+                                placeholder="Tiểu sử ..."
+                                type="textarea"
+                                rows={4}
+                                required
+                                error={!!errors.profile}
+                                helperText={errors.profile?.message}
+                            />
+
+                            <div className="flex justify-end gap-2">
+                                <Button
+                                    onClick={() => reset()}
+                                    className="px-4 py-2 border rounded-lg"
+                                >
+                                    Làm mới
+                                </Button>
+                                <Button
+                                    type="primary"
+                                    // htmlType="submit"
+                                    disabled={isSubmitting}
+                                    onClick={() => handleSubmit(onSubmit)()}
+                                    className="px-4 py-2 bg-primary text-white rounded-lg"
+                                >
+                                    {isSubmitting ? 'Đang lưu...' : 'Lưu nhân viên'}
+                                </Button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </ModalBase>
+        );
+    }
+
+    return (
+        <ModalBase type={type} size="xl">
+            <Descriptions
+                title="Thông tin chi tiết nhân viên"
+                bordered
+                column={2}
+                size="middle"
+                className="overflow-auto max-h-[85vh] custom-scrollbar"
+            >
+                <Descriptions.Item label="Ảnh đại diện" span={2}>
+                    <Image
+                        width={120}
+                        src={selectedEmployee?.avatar}
+                        alt="Avatar"
+                        style={{ borderRadius: '8px' }}
+                    />
+                </Descriptions.Item>
+
+                <Descriptions.Item label="Họ và tên">{selectedEmployee.fullName}</Descriptions.Item>
+                <Descriptions.Item label="Email">{selectedEmployee?.email}</Descriptions.Item>
+
+                <Descriptions.Item label="Số điện thoại">
+                    {selectedEmployee?.phoneNumber}
+                </Descriptions.Item>
+                <Descriptions.Item label="CCCD">{selectedEmployee?.citizenId}</Descriptions.Item>
+
+                <Descriptions.Item label="Ngày sinh">
+                    {dayjs(selectedEmployee?.dob).format('DD/MM/YYYY')}
+                </Descriptions.Item>
+                <Descriptions.Item label="Giới tính">
+                    {selectedEmployee?.gender ? 'Nam' : 'Nữ'}
+                </Descriptions.Item>
+
+                <Descriptions.Item label="Địa chỉ" span={2}>
+                    {selectedEmployee?.address}
+                </Descriptions.Item>
+
+                <Descriptions.Item label="Ngày vào làm">
+                    {dayjs(selectedEmployee?.hiredDate).format('DD/MM/YYYY')}
+                </Descriptions.Item>
+                <Descriptions.Item label="Trạng thái">
+                    <Tag color={selectedEmployee?.status === 'ACTIVE' ? 'green' : 'red'}>
+                        {selectedEmployee?.status}
+                    </Tag>
+                </Descriptions.Item>
+
+                <Descriptions.Item label="Vai trò">
+                    {selectedEmployee?.nameRole == 'ROLE_DOCTOR' ? 'Bác sĩ' : 'Quản lý'}
+                </Descriptions.Item>
+                {/* <Descriptions.Item label="Mô tả">{selectedEmployee?.description}</Descriptions.Item> */}
+
+                <Descriptions.Item label="Chuyên khoa" span={2}>
+                    {selectedEmployee?.specialization?.name}
+                </Descriptions.Item>
+
+                <Descriptions.Item label="Phòng làm việc" span={2}>
+                    {selectedEmployee?.roomDto?.name} ({selectedEmployee?.roomDto?.location})
+                </Descriptions.Item>
+
+                <Descriptions.Item label="Dịch vụ phụ trách" span={2}>
+                    {selectedEmployee?.serviceDto?.map((s) => (
+                        <div key={s.serviceId} className="mb-4">
+                            <strong>{s.name}</strong> — {s.price.toLocaleString()} VNĐ
+                            <div className="max-h-24 overflow-auto custom-scrollbar">
+                                <p style={{ margin: 0, color: '#555' }}>{s.description}</p>
+                            </div>
+                        </div>
+                    ))}
+                </Descriptions.Item>
+            </Descriptions>
+        </ModalBase>
+    );
 };
 
 export default ModalEmployee;
