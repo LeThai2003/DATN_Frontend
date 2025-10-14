@@ -8,9 +8,8 @@ import {
     verifyOtp,
 } from '@/stores/actions/auth/auth.action';
 import { auth, common } from '@/stores/reducers';
-import { getCookies, setCookies } from '@/utils/cookies/cookies';
+import { setCookies } from '@/utils/cookies/cookies';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { useNavigate } from 'react-router';
 import { all, call, fork, put, takeLatest } from 'typed-redux-saga';
 
 function* handleLogin({ payload }) {
@@ -35,6 +34,8 @@ function* handleLogin({ payload }) {
 
         if (user?.authorities[0]?.authority == 'ROLE_ADMIN') {
             payload.action('/manager');
+        } else if (user?.authorities[0]?.authority == 'ROLE_DOCTOR') {
+            payload.action('/doctors2');
         } else {
             payload.action('/403');
         }

@@ -49,15 +49,15 @@ const Appointment = () => {
     const isEdit = searchParams.has('edit');
 
     const dataWithDefault = [
-        {
-            employee_id: -1,
-            fullname: 'Mặc định (hệ thống tự chọn bác sĩ phù hợp)',
-            avatar: null,
-            specialization_name: '',
-            room_name: '',
-            email: '',
-            dob: '',
-        },
+        // {
+        //     employee_id: -1,
+        //     fullname: 'Mặc định (hệ thống tự chọn bác sĩ phù hợp)',
+        //     avatar: null,
+        //     specialization_name: '',
+        //     room_name: '',
+        //     email: '',
+        //     dob: '',
+        // },
         ...(selectedService?.doctors || []),
     ];
 

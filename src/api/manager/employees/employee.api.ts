@@ -10,7 +10,7 @@ class EmployeeApi extends HttpService {
     };
 
     addEmployee = (data: any) => {
-        return this.post(data, 'create');
+        return this.post(data, 'register-employee');
     };
 
     deleteEmployee = (id) => {

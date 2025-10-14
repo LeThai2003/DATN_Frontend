@@ -86,6 +86,7 @@ const DoctorPageLayout = () => {
     // Mở tab mới hoặc cập nhật tab hiện tại
     const openTab = (patient, isHistory = false, record = null) => {
         if (tabs.length >= 5) {
+            dispatch(common.actions.setWarningMessage('Chỉ được mở tối đa 5 tab cùng lúc.'));
             console.log('Chỉ được mở tối đa 5 tab cùng lúc.');
             return;
         }

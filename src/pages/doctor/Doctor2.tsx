@@ -17,7 +17,7 @@ const Doctor: React.FC<Doctor2Props> = ({ patient, record, isHistory, isNewExam 
 
     if (!patient) {
         return (
-            <div className="text-center text-gray-500 italic py-10">
+            <div className="text-center text-gray-500 italic py-10 bg-white">
                 Vui lòng chọn bệnh nhân từ danh sách bên trái.
             </div>
         );
