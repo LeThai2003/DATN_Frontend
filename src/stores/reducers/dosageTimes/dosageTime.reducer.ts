@@ -25,6 +25,9 @@ const DosageTimeSlice = createSlice({
         setSelectDosageTime(state, { payload }: PayloadAction<any>) {
             state.selectedDosageTime = payload;
         },
+        setPageNo(state, {payload} : PayloadAction<number>) {
+            state.filter.pageNo = payload;
+        }
     },
 });
 

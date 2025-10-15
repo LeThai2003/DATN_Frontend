@@ -8,7 +8,7 @@ export const initCommonValue: CommonType = {
 
 export const initFilterValue: Filter = {
     pageNo: 0,
-    pageSize: 10,
+    pageSize: 2,
     search: '',
     sort: '',
     order: 'asc',

@@ -1,17 +1,19 @@
 import { common, dosageTime, mealRelation } from '@/stores/reducers';
-import { selectFilter as selectFilterDosageTime } from '@/stores/selectors/dosageTimes/dosageTime.selector';
-import { selectFilter as selectFilterMealRealtion } from '@/stores/selectors/mealRelations/mealRelation.selector';
+import { selectDosageTimes, selectFilter as selectFilterDosageTime } from '@/stores/selectors/dosageTimes/dosageTime.selector';
+import { selectFilter as selectFilterMealRealtion, selectMealRealtions } from '@/stores/selectors/mealRelations/mealRelation.selector';
 import { ModalType } from '@/types/stores/common';
 import { DosageTime } from '@/types/stores/dosageTimes/dosageTime_type';
 import { MealRelation } from '@/types/stores/mealRelations/mealRelation_type';
 import { Button, Pagination, Space, Table } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import FilterButton from '@/components/filters/FilterButton';
 import FilterForm from '@/components/filters/FilterForm';
 import { initFilterDosageTime } from '@/defaultValues/dosageTimes/dosageTime_default';
 import { initFilterMealRelation } from '@/defaultValues/mealRelations/mealRelation_default';
+import { changePageAction, fetchFirst } from '@/stores/actions/managers/drug/dosage_time.action';
+import { changePageMealAction, fetchFirstMealRelation } from '@/stores/actions/managers/drug/meal_relation.action';
 
 export const dosageTimes: DosageTime[] = [
     { time_id: 1, name: 'Sáng', description: 'Uống thuốc vào buổi sáng' },
@@ -24,29 +26,16 @@ export const mealRelations: MealRelation[] = [
     { relation_id: 1, name: 'Trước ăn', description: 'Uống thuốc trước khi ăn' },
     { relation_id: 2, name: 'Sau ăn', description: 'Uống thuốc sau khi ăn' },
     { relation_id: 3, name: 'Trong lúc ăn', description: 'Uống thuốc trong lúc ăn' },
-
-    // { relation_id: 4, name: 'Trước ăn', description: 'Uống thuốc trước khi ăn' },
-    // { relation_id: 5, name: 'Sau ăn', description: 'Uống thuốc sau khi ăn' },
-    // { relation_id: 6, name: 'Trong lúc ăn', description: 'Uống thuốc trong lúc ăn' },
-    // { relation_id: 7, name: 'Trước ăn', description: 'Uống thuốc trước khi ăn' },
-    // { relation_id: 8, name: 'Sau ăn', description: 'Uống thuốc sau khi ăn' },
-    // { relation_id: 9, name: 'Trong lúc ăn', description: 'Uống thuốc trong lúc ăn' },
-    // { relation_id: 10, name: 'Trước ăn', description: 'Uống thuốc trước khi ăn' },
-    // { relation_id: 11, name: 'Sau ăn', description: 'Uống thuốc sau khi ăn' },
-    // { relation_id: 12, name: 'Trong lúc ăn', description: 'Uống thuốc trong lúc ăn' },
-    // { relation_id: 13, name: 'Trước ăn', description: 'Uống thuốc trước khi ăn' },
-    // { relation_id: 14, name: 'Sau ăn', description: 'Uống thuốc sau khi ăn' },
-    // { relation_id: 15, name: 'Trong lúc ăn', description: 'Uống thuốc trong lúc ăn' },
-    // { relation_id: 16, name: 'Trước ăn', description: 'Uống thuốc trước khi ăn' },
-    // { relation_id: 17, name: 'Sau ăn', description: 'Uống thuốc sau khi ăn' },
-    // { relation_id: 18, name: 'Trong lúc ăn', description: 'Uống thuốc trong lúc ăn' },
 ];
 
 const TabTime = () => {
-    const dispatch = useDispatch();
 
+    // hooks
+    const dispatch = useDispatch();
     const filterDosageTime = useSelector(selectFilterDosageTime);
     const filterMealRelation = useSelector(selectFilterMealRealtion);
+    const dosageTimeTable = useSelector(selectDosageTimes);
+    const mealRelationTable = useSelector(selectMealRealtions);
 
     const [isOpenDosageTimeFilter, setIsOpenDosageTimeFilter] = useState(false);
     const [isOpenMealRelationFilter, setIsOpenMealRelationFilter] = useState(false);
@@ -148,24 +137,20 @@ const TabTime = () => {
 
     const handleFilterDosageTimeChange = (key, value) => {
         dispatch(dosageTime.actions.setFilterDosageTimes({ ...filterDosageTime, [key]: value }));
-        console.log(filterDosageTime);
+        dispatch(fetchFirst());
     };
 
-    const handleResetDosageTimeFilter = () =>
-        dispatch(dosageTime.actions.setFilterDosageTimes({ initFilterDosageTime }));
+    const handleResetDosageTimeFilter = () => {
+        dispatch(dosageTime.actions.setFilterDosageTimes(initFilterDosageTime ));
+        dispatch(fetchFirst());
+    }
 
     const handleApplyDosageTimeFilter = () => {
         console.log(filterDosageTime);
     };
 
     const handleChangeDosageTimePage = (e) => {
-        console.log(e);
-        dispatch(
-            dosageTime.actions.setFilterDosageTimes({
-                ...filterDosageTime,
-                pageNo: e - 1,
-            })
-        );
+        dispatch(changePageAction(e-1));
     };
 
     // ------------ Uống so với bữa ăn ----------------
@@ -267,11 +252,13 @@ const TabTime = () => {
         dispatch(
             mealRelation.actions.setFilterMealRealtions({ ...filterMealRelation, [key]: value })
         );
-        console.log(filterMealRelation);
+        dispatch(fetchFirstMealRelation());
     };
 
-    const handleResetMealRelationFilter = () =>
-        dispatch(mealRelation.actions.setFilterMealRealtions({ initFilterMealRelation }));
+    const handleResetMealRelationFilter = () =>{
+        dispatch(mealRelation.actions.setFilterMealRealtions(initFilterMealRelation ));
+        dispatch(fetchFirstMealRelation());
+    }    
 
     const handleApplyMealRelationFilter = () => {
         console.log(filterMealRelation);
@@ -280,12 +267,15 @@ const TabTime = () => {
     const handleChangeMealRelationPage = (e) => {
         console.log(e);
         dispatch(
-            mealRelation.actions.setFilterMealRealtions({
-                ...filterMealRelation,
-                pageNo: e - 1,
-            })
+            changePageMealAction(e-1)
         );
     };
+
+    // useEffect 
+    useEffect(() => {
+        dispatch(fetchFirst());
+        dispatch(fetchFirstMealRelation());
+    },[])
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -316,19 +306,20 @@ const TabTime = () => {
                 <div className="h-full">
                     <Table
                         columns={dosageTimeColumns}
-                        dataSource={dosageTimes}
+                        dataSource={dosageTimeTable?.data}
+                        loading={dosageTimeTable?.loadingPage}
                         rowKey="time_id"
                         pagination={false}
                         scroll={{ y: window.innerHeight * 0.82 - 162 }}
                     />
                     <div className="flex justify-end mt-3">
                         <Pagination
-                            current={0}
-                            pageSize={2}
+                            current={filterDosageTime?.pageNo}
+                            pageSize={filterDosageTime?.pageSize}
                             onChange={(e) => {
                                 handleChangeDosageTimePage(e);
                             }}
-                            total={5}
+                            total={dosageTimeTable?.totalPage}
                         />
                     </div>
                 </div>
@@ -361,19 +352,20 @@ const TabTime = () => {
                 <div className="h-full">
                     <Table
                         columns={mealRealationColumns}
-                        dataSource={mealRelations}
-                        rowKey="relation_id"
+                        dataSource={mealRelationTable?.data || []}
+                        loading={mealRelationTable?.loadingPage}
+                        rowKey="relationId"
                         pagination={false}
                         scroll={{ y: window.innerHeight * 0.82 - 160 }}
                     />
                     <div className="flex justify-end mt-3">
                         <Pagination
-                            current={0}
-                            pageSize={2}
+                            current={filterMealRelation?.pageNo}
+                            pageSize={filterMealRelation?.pageSize}
                             onChange={(e) => {
                                 handleChangeMealRelationPage(e);
                             }}
-                            total={5}
+                            total={mealRelationTable?.totalPage}
                         />
                     </div>
                 </div>

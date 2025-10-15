@@ -7,8 +7,12 @@ export const selectDrugs = createSelector(selectState, (state) => state.drugs);
 
 export const selectTotalPage = createSelector(selectState, (state) => state.drugs.totalPage);
 
-export const selectFilter = createSelector(selectState, (state) => state.filter);
+export const selectFilter = createSelector(selectState, (state) => {
+     return state.filter
+});
 
 export const selectSelectedDrug = createSelector(selectState, (state) => state.selectedDrug);
 
 export const selectLoading = createSelector(selectState, (state) => state.loadingComponent);
+
+export const selectLoadingPage = createSelector(selectState, (state) => state.drugs.loadingPage);

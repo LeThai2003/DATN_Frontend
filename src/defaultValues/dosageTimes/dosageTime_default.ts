@@ -3,6 +3,7 @@ import { DosageTimeSlice, FilterDosageTime } from '@/types/stores/dosageTimes/do
 
 export const initFilterDosageTime: FilterDosageTime = {
     ...initFilterValue,
+     sort: 'timeId',
 };
 
 export const initDosageTimeSlice: DosageTimeSlice = {

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectFilter } from '@/stores/selectors/drugs/drug.selector';
+import { selectDrugs, selectFilter, selectLoadingPage } from '@/stores/selectors/drugs/drug.selector';
 import { Drug as DrugType } from '@/types/stores/drugs/drug_type';
 import { common, drug } from '@/stores/reducers';
 import { initFilterDrug } from '@/defaultValues/drugs/drug_default';
@@ -9,6 +9,7 @@ import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { ModalType } from '@/types/stores/common';
 import FilterForm from '@/components/filters/FilterForm';
 import FilterButton from '@/components/filters/FilterButton';
+import { changePageAction, fetchFirst } from '@/stores/actions/managers/drug/drug.action';
 
 export const drugs: DrugType[] = [
     {
@@ -38,11 +39,13 @@ export const drugs: DrugType[] = [
 ];
 
 const TabDrug = () => {
+
+    //hooks
     const dispatch = useDispatch();
-
     const filter = useSelector(selectFilter);
-
     const [isOpenDrugFilter, setIsOpenDrugFilter] = useState(false);
+    const loadingPage = useSelector(selectLoadingPage)
+    const drugsTable = useSelector(selectDrugs);
 
     const handlDeleteDrug = (data) => {
         dispatch(drug.actions.setSelectDrug(data));
@@ -90,10 +93,9 @@ const TabDrug = () => {
 
     const drugColumns: TableProps<any>['columns'] = [
         { title: 'Tên thuốc', dataIndex: 'name', key: 'name' },
-        { title: 'Hoạt chất', dataIndex: 'generic_name', key: 'generic_name' },
-        { title: 'Quy cách', dataIndex: 'packaging', key: 'packaging' },
-        { title: 'Tác dụng phụ', dataIndex: 'side_effects', key: 'side_effects' },
-        { title: 'Cập nhật', dataIndex: 'updated_at', key: 'updated_at' },
+        { title: 'Hoạt chất', dataIndex: 'genericName', key: 'generic_name' },
+        { title: 'Quy cách', dataIndex: 'packing', key: 'packaging' },
+        { title: 'Tác dụng phụ', dataIndex: 'sideEffects', key: 'side_effects' },
         {
             title: 'Hành động',
             key: 'actions',
@@ -135,30 +137,19 @@ const TabDrug = () => {
     const drugsFilterFields = [
         { key: 'search', type: 'text', placeholder: 'Tìm kiếm thuốc' },
         {
-            key: 'chooseTheDrugs',
-            type: 'multiSelect',
-            placeholder: 'Chọn loại thuốc',
-            options: [
-                { label: 'Thuốc bổ', value: 'thuoc_bo' },
-                { label: 'Thuốc chức năng', value: 'thuoc_chuc_nang' },
-                { label: 'Thuốc kháng sinh', value: 'thuoc_khang_sinh' },
-            ],
-        },
-        { key: 'startDate', type: 'date', placeholder: 'Thời gian tạo' },
-        {
             key: 'order',
             type: 'select',
             placeholder: 'Sắp xếp',
             options: [
-                { label: 'Tên tăng dần', value: 'name_asc' },
-                { label: 'Tên giảm dần', value: 'name_desc' },
+                { label: 'Tên tăng dần', value: 'asc' },
+                { label: 'Tên giảm dần', value: 'desc' },
             ],
         },
     ];
 
     const handleFilterChange = (key, value) => {
         dispatch(drug.actions.setFilterDrug({ ...filter, [key]: value }));
-        console.log(filter);
+         dispatch(fetchFirst());
     };
 
     const handleResetFilter = () => dispatch(drug.actions.setFilterDrug({ initFilterDrug }));
@@ -167,15 +158,18 @@ const TabDrug = () => {
         console.log(filter);
     };
 
-    const handleChangePage = (e) => {
-        console.log(e);
+    const handleChangePage = (e: number) => {
         dispatch(
-            drug.actions.setFilterDrug({
-                ...filter,
-                pageNo: e - 1,
-            })
+            changePageAction(e - 1)
         );
     };
+
+    //useEffect 
+    useEffect(() => {
+        dispatch(fetchFirst());
+    },[])
+
+
     return (
         <div className="p-2 bg-white rounded-lg flex flex-col gap-3">
             <div className="flex justify-between items-center">
@@ -202,19 +196,20 @@ const TabDrug = () => {
             )}
             <Table
                 columns={drugColumns}
-                dataSource={drugs}
-                rowKey="drug_id"
+                dataSource={drugsTable?.data || []}
+                rowKey="drugId"
+                loading={loadingPage}
                 pagination={false}
                 scroll={{ x: 'max-content', y: window.innerHeight * 0.82 - 160 }}
             />
             <div className="flex justify-end">
                 <Pagination
-                    current={0}
-                    pageSize={2}
+                    current={filter?.pageNo + 1}
+                    pageSize={10}
                     onChange={(e) => {
                         handleChangePage(e);
                     }}
-                    total={5}
+                    total={drugsTable?.totalPage * 10}
                 />
             </div>
         </div>

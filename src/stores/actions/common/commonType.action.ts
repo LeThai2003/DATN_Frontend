@@ -4,4 +4,5 @@ export const getCommonActionsTypeByName = (name: String) => ({
     create: `${name}/CREATE`,
     update: `${name}/UPDATE`,
     delete: `${name}/DELETE`,
+    changePage: `${name}/CHANGE_PAGE`,
 });
