@@ -25,6 +25,9 @@ const MealRelationSlice = createSlice({
         setSelectMealRelation(state, { payload }: PayloadAction<any>) {
             state.selectedMealRelation = payload;
         },
+        setPageNo(state, {payload} : PayloadAction<number>) {
+            state.filter.pageNo = payload;
+        }
     },
 });
 

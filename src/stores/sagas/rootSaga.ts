@@ -4,6 +4,10 @@ import { watchRoom } from './managers/rooms/room.saga';
 import { watchSpecialization } from './managers/specializations/specialization.saga';
 import { watchService } from './managers/services/service.saga';
 import { watchEmployee } from './managers/employees/employee.saga';
+import { watchDrug } from './managers/drug/drug.saga';
+import { watchUnitSaga } from './managers/drug/unit.saga';
+import { watchDosageTime } from './managers/drug/dosage_time.saga';
+import { watchMealRelationSaga } from './managers/drug/meal_relation.saga';
 
 export default function* rootSaga() {
     yield* fork(watchAuth);
@@ -11,4 +15,8 @@ export default function* rootSaga() {
     yield* fork(watchSpecialization);
     yield* fork(watchService);
     yield* fork(watchEmployee);
+    yield* fork(watchDrug);
+    yield* fork(watchUnitSaga);
+    yield* fork(watchDosageTime);
+    yield* fork(watchMealRelationSaga);
 }

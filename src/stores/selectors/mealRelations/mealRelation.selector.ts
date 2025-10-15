@@ -18,3 +18,5 @@ export const selectSelectedDosageTime = createSelector(
 );
 
 export const selectLoading = createSelector(selectState, (state) => state.loadingComponent);
+
+export const selectLoadingPage = createSelector(selectState, (state) => state.mealRelations.loadingPage);

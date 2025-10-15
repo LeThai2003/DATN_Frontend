@@ -1,36 +1,60 @@
-import { ModalState } from '@/types/stores/common';
+import { ModalState, ModalType } from '@/types/stores/common';
 import React from 'react';
 import ModalBase from '../ModalBase';
-import { Button } from 'antd';
+import { Button, Spin } from 'antd';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { drugSchema } from '@/validations/drug.validation';
 import FormField from '@/components/forms/FormField';
+import { useDispatch, useSelector } from 'react-redux';
+import { createDrugAction, deleteDrugAction, updateDrugAction } from '@/stores/actions/managers/drug/drug.action';
+import { selectLoading } from '@/stores/selectors/drugs/drug.selector';
+import { common } from '@/stores/reducers';
 
 const ModalDrug: React.FC<ModalState> = ({ data, type, variant }) => {
+
+    //hooks
+    const dispatch = useDispatch();
+    const loadingComponent = useSelector(selectLoading);
+
+
     const {
         control,
         handleSubmit,
         reset,
-        watch,
         formState: { errors, isSubmitting },
     } = useForm({
         defaultValues: {
-            name: data?.name || '',
-            generic_name: data?.generic_name || '',
-            description: data?.description || '',
-            packaging: data?.packaging || '',
-            side_effects: data?.side_effects || '',
-            contraindications: data?.contraindications || '',
-            allergy_info: data?.allergy_info || '',
+            name: data?.name || 'Amoxicillin 500mg',
+            genericName: data?.genericName || 'Amoxicillin',
+            description: data?.description || 'Mô tả',
+            packing: data?.packing || 'Quy cách đóng gói',
+            sideEffects: data?.sideEffects || 'Tác dụng phụ',
+            contraindication: data?.contraindication || 'Chống chỉ định',
+            allergyInfo: data?.allergyInfo || 'Thông tin dị ứng',
         },
         resolver: yupResolver(drugSchema),
     });
 
-    const onSubmit = (data: any) => {
-        console.log(variant);
-        console.log(data);
+    const onSubmit = (dt: any) => {
+        if( variant == 'add'){
+            dispatch(createDrugAction(dt));
+        }else if(variant == 'edit'){
+            dispatch(updateDrugAction({
+                id : data?.drugId,
+                data : dt
+            }));
+        }
     };
+
+    const handleDeleteDrug = () => {
+        console.log(data?.drugId)
+        dispatch(deleteDrugAction(data?.drugId));
+    };
+
+    const handleClose = () => {
+        dispatch(common.actions.setHiddenModal(ModalType.DRUG));
+    }
 
     // ------------------ Thêm mới thuốc ----------------
 
@@ -42,7 +66,8 @@ const ModalDrug: React.FC<ModalState> = ({ data, type, variant }) => {
                         Thêm mới thuốc
                     </h2>
                     <div className="overflow-y-auto">
-                        <form
+                        <Spin spinning={loadingComponent}>
+                            <form
                             onSubmit={handleSubmit(onSubmit)}
                             className="px-6 pt-4 pb-2 bg-white rounded-2xl space-y-4 h-[92%] overflow-y-auto"
                         >
@@ -59,25 +84,25 @@ const ModalDrug: React.FC<ModalState> = ({ data, type, variant }) => {
                             />
 
                             <FormField
-                                name="generic_name"
+                                name="genericName"
                                 control={control}
                                 label="Tên hoạt chất"
                                 placeholder="Nhập tên hoạt chất"
                                 type="input"
                                 inputType="text"
-                                error={!!errors.generic_name}
-                                helperText={errors.generic_name?.message as string}
+                                error={!!errors.genericName}
+                                helperText={errors.genericName?.message as string}
                             />
 
                             <FormField
-                                name="packaging"
+                                name="packing"
                                 control={control}
                                 label="Quy cách đóng gói"
                                 placeholder="VD: Hộp 10 vỉ x 10 viên"
                                 type="input"
                                 inputType="text"
-                                error={!!errors.packaging}
-                                helperText={errors.packaging?.message as string}
+                                error={!!errors.packing}
+                                helperText={errors.packing?.message as string}
                             />
 
                             <FormField
@@ -91,36 +116,36 @@ const ModalDrug: React.FC<ModalState> = ({ data, type, variant }) => {
                             />
 
                             <FormField
-                                name="side_effects"
+                                name="sideEffects"
                                 control={control}
                                 label="Tác dụng phụ"
                                 placeholder="Nhập tác dụng phụ"
                                 type="input"
                                 inputType="text"
-                                error={!!errors.side_effects}
-                                helperText={errors.side_effects?.message as string}
+                                error={!!errors.sideEffects}
+                                helperText={errors.sideEffects?.message as string}
                             />
 
                             <FormField
-                                name="contraindications"
+                                name="contraindication"
                                 control={control}
                                 label="Chống chỉ định"
                                 placeholder="Nhập chống chỉ định"
                                 type="input"
                                 inputType="text"
-                                error={!!errors.contraindications}
-                                helperText={errors.contraindications?.message as string}
+                                error={!!errors.contraindication}
+                                helperText={errors.contraindication?.message as string}
                             />
 
                             <FormField
-                                name="allergy_info"
+                                name="allergyInfo"
                                 control={control}
                                 label="Thông tin dị ứng"
                                 placeholder="VD: Dị ứng penicillin"
                                 type="input"
                                 inputType="text"
-                                error={!!errors.allergy_info}
-                                helperText={errors.allergy_info?.message as string}
+                                error={!!errors.allergyInfo}
+                                helperText={errors.allergyInfo?.message as string}
                             />
 
                             <div className="flex justify-end gap-2">
@@ -140,6 +165,7 @@ const ModalDrug: React.FC<ModalState> = ({ data, type, variant }) => {
                                 </button>
                             </div>
                         </form>
+                        </Spin>
                     </div>
                 </div>
             </ModalBase>
@@ -154,10 +180,11 @@ const ModalDrug: React.FC<ModalState> = ({ data, type, variant }) => {
                         {variant == 'view' ? 'Thông tin thuốc' : 'Cập nhật thông tin thuốc'}
                     </h2>
                     <div className="overflow-y-auto">
-                        <form
+                        <Spin spinning={loadingComponent}>
+                            <form
                             onSubmit={handleSubmit(onSubmit)}
                             className="px-6 pt-4 pb-2 bg-white rounded-2xl space-y-4 h-[92%] overflow-y-auto"
-                        >
+                            >
                             <FormField
                                 name="name"
                                 control={control}
@@ -171,25 +198,25 @@ const ModalDrug: React.FC<ModalState> = ({ data, type, variant }) => {
                             />
 
                             <FormField
-                                name="generic_name"
+                                name="genericName"
                                 control={control}
                                 label="Tên hoạt chất"
                                 placeholder="Nhập tên hoạt chất"
                                 type={variant == 'edit' ? 'input' : 'text'}
                                 inputType="text"
-                                error={!!errors.generic_name}
-                                helperText={errors.generic_name?.message as string}
+                                error={!!errors.genericName}
+                                helperText={errors.genericName?.message as string}
                             />
 
                             <FormField
-                                name="packaging"
+                                name="packing"
                                 control={control}
                                 label="Quy cách đóng gói"
                                 placeholder="VD: Hộp 10 vỉ x 10 viên"
                                 type={variant == 'edit' ? 'input' : 'text'}
                                 inputType="text"
-                                error={!!errors.packaging}
-                                helperText={errors.packaging?.message as string}
+                                error={!!errors.packing}
+                                helperText={errors.packing?.message as string}
                             />
 
                             <FormField
@@ -203,36 +230,36 @@ const ModalDrug: React.FC<ModalState> = ({ data, type, variant }) => {
                             />
 
                             <FormField
-                                name="side_effects"
+                                name="sideEffects"
                                 control={control}
                                 label="Tác dụng phụ"
                                 placeholder="Nhập tác dụng phụ"
                                 type={variant == 'edit' ? 'input' : 'text'}
                                 inputType="text"
-                                error={!!errors.side_effects}
-                                helperText={errors.side_effects?.message as string}
+                                error={!!errors.sideEffects}
+                                helperText={errors.sideEffects?.message as string}
                             />
 
                             <FormField
-                                name="contraindications"
+                                name="contraindication"
                                 control={control}
                                 label="Chống chỉ định"
                                 placeholder="Nhập chống chỉ định"
                                 type={variant == 'edit' ? 'input' : 'text'}
                                 inputType="text"
-                                error={!!errors.contraindications}
-                                helperText={errors.contraindications?.message as string}
+                                error={!!errors.contraindication}
+                                helperText={errors.contraindication?.message as string}
                             />
 
                             <FormField
-                                name="allergy_info"
+                                name="allergyInfo"
                                 control={control}
                                 label="Thông tin dị ứng"
                                 placeholder="VD: Dị ứng penicillin"
                                 type={variant == 'edit' ? 'input' : 'text'}
                                 inputType="text"
-                                error={!!errors.allergy_info}
-                                helperText={errors.allergy_info?.message as string}
+                                error={!!errors.allergyInfo}
+                                helperText={errors.allergyInfo?.message as string}
                             />
 
                             {variant == 'edit' && (
@@ -254,6 +281,7 @@ const ModalDrug: React.FC<ModalState> = ({ data, type, variant }) => {
                                 </div>
                             )}
                         </form>
+                        </Spin>
                     </div>
                 </div>
             </ModalBase>
@@ -264,7 +292,8 @@ const ModalDrug: React.FC<ModalState> = ({ data, type, variant }) => {
     if (variant == 'delete') {
         return (
             <ModalBase type={type} size="sm">
-                <div>
+                <Spin spinning={loadingComponent}>
+                    <div>
                     <h2 className="font-semibold mb-3 text-center">Xóa thuốc</h2>
                 </div>
                 <div className="">
@@ -274,12 +303,13 @@ const ModalDrug: React.FC<ModalState> = ({ data, type, variant }) => {
                         </>
                     </p>
                     <div className="flex justify-end space-x-3 mt-4">
-                        <Button onClick={() => {}}>Hủy</Button>
-                        <Button type="primary" danger onClick={() => {}}>
+                        <Button onClick={handleClose}>Hủy</Button>
+                        <Button type="primary" danger onClick={handleDeleteDrug}>
                             Xóa
                         </Button>
                     </div>
                 </div>
+                </Spin>
             </ModalBase>
         );
     }

@@ -5,8 +5,6 @@ import { Navigate } from 'react-router';
 const privateRoute = ({ children, roles = [] }) => {
     const user = JSON.parse(getCookies('user'));
 
-    console.log(user);
-
     if (!user) {
         return <Navigate to="/auths/login" replace />;
     }

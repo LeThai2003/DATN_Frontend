@@ -25,6 +25,9 @@ const UnitSlice = createSlice({
         setSelectUnit(state, { payload }: PayloadAction<any>) {
             state.selectedUnit = payload;
         },
+        setPageNo(state, {payload} : PayloadAction<any>){
+            state.filter.pageNo = payload;
+        }
     },
 });
 
