@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { Button, Card, Descriptions, Form, Image, Input, Tabs, Tooltip } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { Button, Card, Descriptions, Form, Image, Input, Spin, Tabs, Tooltip } from 'antd';
 import TabPane from 'antd/es/tabs/TabPane';
 import WelcomeCard from '@/components/cards/WelcomeCard';
+import { updatePasswordEmployee } from '@/stores/actions/managers/employees/employee.action';
+import { selectLoadingComponent } from '@/stores/selectors/employees/employee.selector';
 
 const doctor = {
     employee_id: 1,
@@ -23,10 +25,19 @@ const doctor = {
 const AccountEmployee = () => {
     const dispatch = useDispatch();
 
+    const loadingComponent = useSelector(selectLoadingComponent);
+
     const [form] = Form.useForm();
 
     const handleChangePassword = (values) => {
         console.log(values);
+        const dataUpload = {
+            newPass: values.newPassword,
+            oldPass: values.oldPassword,
+        };
+        dispatch(
+            updatePasswordEmployee({ data: dataUpload, id: 'da2c93fb-0cac-4920-804e-405942bb4adb' })
+        );
     };
 
     const onReset = () => {
@@ -86,7 +97,12 @@ const AccountEmployee = () => {
                                 </TabPane>
 
                                 <TabPane tab="Thay đổi mật khẩu" key="2">
-                                    <div className="mt-4 p-4 rounded-md bg-slate-50">
+                                    <div className="relative mt-4 p-4 rounded-md bg-slate-50">
+                                        {loadingComponent && (
+                                            <div className="absolute flex items-center justify-center z-20 inset-0 bg-white/40">
+                                                <Spin />
+                                            </div>
+                                        )}
                                         <Form
                                             form={form}
                                             layout="vertical"

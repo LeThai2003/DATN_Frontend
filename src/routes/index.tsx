@@ -30,6 +30,7 @@ const Patient = lazy(() => import('../pages/manager/patients/Patient'));
 const PatientDetail = lazy(() => import('../pages/manager/patients/PatientDetail'));
 const AccountEmployee = lazy(() => import('../pages/manager/accounts/AccountEmployee'));
 const Dashboard = lazy(() => import('../pages/manager/dashboards/Dashboard'));
+const Schedule = lazy(() => import('../pages/manager/schedules/Schedule'));
 
 const Home = lazy(() => import('../pages/patients/Home'));
 const ServicePatient = lazy(() => import('../pages/patients/Service'));
@@ -131,6 +132,14 @@ function AppRoutes() {
                     element: (
                         <TitleRouter title="Tài khoản cá nhân">
                             <AccountEmployee />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    path: 'schedules',
+                    element: (
+                        <TitleRouter title="Lịch làm việc">
+                            <Schedule />
                         </TitleRouter>
                     ),
                 },
@@ -239,7 +248,7 @@ function AppRoutes() {
                     index: true,
                     path: '/appointment',
                     element: (
-                        <PrivateRoute roles={[]}>
+                        <PrivateRoute roles={['ROLE_PATIENT']}>
                             <TitleRouter title="Đặt lịch khám">
                                 <Appointment />
                             </TitleRouter>
@@ -250,7 +259,7 @@ function AppRoutes() {
                     index: true,
                     path: '/checkout',
                     element: (
-                        <PrivateRoute roles={[]}>
+                        <PrivateRoute roles={['ROLE_PATIENT']}>
                             <TitleRouter title="Thanh toán">
                                 <Checkout />
                             </TitleRouter>
@@ -261,7 +270,7 @@ function AppRoutes() {
                     index: true,
                     path: '/account',
                     element: (
-                        <PrivateRoute roles={[]}>
+                        <PrivateRoute roles={['ROLE_PATIENT']}>
                             <TitleRouter title="Tài khoản">
                                 <AccountPatient />
                             </TitleRouter>
@@ -272,7 +281,7 @@ function AppRoutes() {
                     index: true,
                     path: '/appointment-history',
                     element: (
-                        <PrivateRoute roles={[]}>
+                        <PrivateRoute roles={['ROLE_PATIENT']}>
                             <TitleRouter title="Lịch sử khám bệnh">
                                 <AppointmentHistory />
                             </TitleRouter>
@@ -292,7 +301,7 @@ function AppRoutes() {
                     index: true,
                     path: '/payment-result',
                     element: (
-                        <PrivateRoute roles={[]}>
+                        <PrivateRoute roles={['ROLE_PATIENT']}>
                             <TitleRouter title="Kết quả thanh toán">
                                 <PaymentResult />
                             </TitleRouter>

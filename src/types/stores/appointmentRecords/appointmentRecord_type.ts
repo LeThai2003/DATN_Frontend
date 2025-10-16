@@ -1,19 +1,35 @@
 import { Filter, PageObject } from '@/types/stores/common';
+import { Prescription } from '../prescriptions/prescription_type';
 
 export interface FilterAppointmentRecord extends Filter {}
 
+export interface Icd10 {
+    code: string;
+    description: string;
+}
+export interface FollowUpVisit {
+    followUpId: string;
+    appointmentRecord: string;
+    appointment: string;
+    followUpDate: string;
+    instruction: string;
+}
+
 export interface AppointmentRecord {
-    record_id: number;
-    appointment_id: number;
+    recordId: string;
+    appointment?: string;
     height?: number;
     weight?: number;
-    blood_pressure?: string;
+    bloodPressure?: string;
     temperature?: number;
-    heart_rate?: number;
+    heartRate?: number;
+    spo2?: number;
     symptoms?: string;
-    // initial_diagnosis?: string;
-    icd10: string;
-    icd10_value?: string;
+    initialDiagnosis?: string;
+    finalDiagnosis?: string;
+    icd10: Icd10;
+    followUpVisit?: FollowUpVisit;
+    perscriptionDtos?: Prescription[];
     notes?: string;
     date?: string;
 }

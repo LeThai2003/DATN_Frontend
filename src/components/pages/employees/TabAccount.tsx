@@ -17,6 +17,9 @@ import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { Button, Pagination, Popconfirm, Space, Spin, Table, TableProps, Tag } from 'antd';
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { CiLock } from 'react-icons/ci';
+import { MdOutlineSettingsBackupRestore } from 'react-icons/md';
+import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 
 export const roles: Role[] = [
     { role_id: 1, name: 'Admin', description: 'Quản trị hệ thống' },
@@ -167,6 +170,17 @@ const TabAccount = () => {
         );
     };
 
+    const handleUnlockEmployee = (data) => {
+        dispatch(employee.actions.setSelectEmployee(data));
+        dispatch(
+            common.actions.setShowModal({
+                type: ModalType.EMPLOYEE,
+                variant: 'unlock',
+                data: data,
+            })
+        );
+    };
+
     const handleOpenAddEmployeeModal = () => {
         dispatch(employee.actions.setSelectEmployee(null));
         dispatch(
@@ -257,65 +271,87 @@ const TabAccount = () => {
                 const status = record?.status;
                 let color = 'default';
                 if (status === 'ACTIVE') color = 'green';
-                else if (status === 'INACTIVE') color = 'orange';
+                else if (status === 'DELETE') color = 'red';
                 // else if (status === 'banned') color = 'red';
 
-                return (
-                    <Tag color={color}>{status == 'ACTIVE' ? 'Hoạt động' : 'Dừng hoạt động'}</Tag>
-                );
+                return <Tag color={color}>{status == 'ACTIVE' ? 'Hoạt động' : 'Khóa'}</Tag>;
             },
         },
         {
             title: 'Hành động',
             key: 'actions',
-            render: (_, record) => (
-                <Space size="small">
-                    <Button
-                        color="primary"
-                        variant="filled"
-                        icon={<EyeOutlined />}
-                        onClick={() => {
-                            handleOpenViewEmployee(record);
-                        }}
-                        className=""
-                        size="small"
-                    />
-                    <Button
-                        type="primary"
-                        icon={<EditOutlined />}
-                        onClick={() => {
-                            handleOpenEditEmployee(record);
-                        }}
-                        className="bg-blue-500 hover:bg-blue-600"
-                        size="small"
-                    />
-                    <Button
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => {
-                            handlDeleteEmployee(record);
-                        }}
-                        size="small"
-                    />
-                    <div className="text-gray-300 text-lg">|</div>
-                    <Popconfirm
-                        title="Xác nhận đặt lại mật khẩu"
-                        description={
-                            <>
-                                Bạn có chắc đặt lại mật khẩu cho tài khoản bác sĩ{' '}
-                                <b>"{record.fullName}"</b> ?
-                            </>
-                        }
-                        onConfirm={() => {}}
-                        okText="Đồng ý"
-                        cancelText="Hủy"
-                    >
-                        <Button color="danger" variant="solid" size="small">
-                            Đặt lại mật khẩu
-                        </Button>
-                    </Popconfirm>
-                </Space>
-            ),
+            render: (_, record) =>
+                record?.status == 'ACTIVE' ? (
+                    <Space size="small">
+                        <Button
+                            color="primary"
+                            variant="filled"
+                            icon={<EyeOutlined />}
+                            onClick={() => {
+                                handleOpenViewEmployee(record);
+                            }}
+                            className=""
+                            size="small"
+                        />
+                        <Button
+                            type="primary"
+                            icon={<EditOutlined />}
+                            onClick={() => {
+                                handleOpenEditEmployee(record);
+                            }}
+                            className="bg-blue-500 hover:bg-blue-600"
+                            size="small"
+                        />
+                        <Button
+                            danger
+                            icon={<CiLock size={16} />}
+                            onClick={() => {
+                                handlDeleteEmployee(record);
+                            }}
+                            size="small"
+                        />
+                        <div className="text-gray-300 text-lg">|</div>
+                        <Popconfirm
+                            title="Xác nhận đặt lại mật khẩu"
+                            description={
+                                <>
+                                    Bạn có chắc đặt lại mật khẩu cho tài khoản bác sĩ{' '}
+                                    <b>"{record.fullName}"</b> ?
+                                </>
+                            }
+                            onConfirm={() => {}}
+                            okText="Đồng ý"
+                            cancelText="Hủy"
+                        >
+                            <Button color="danger" variant="solid" size="small">
+                                Đặt lại mật khẩu
+                            </Button>
+                        </Popconfirm>
+                    </Space>
+                ) : (
+                    <Space size="small">
+                        <Button
+                            color="primary"
+                            variant="filled"
+                            icon={<EyeOutlined />}
+                            onClick={() => {
+                                handleOpenViewEmployee(record);
+                            }}
+                            className=""
+                            size="small"
+                        />
+                        {/* <Button
+                            variant="outlined"
+                            color="orange"
+                            icon={<MdOutlineSettingsBackupRestore size={16} />}
+                            onClick={() => {
+                                handleUnlockEmployee(record);
+                            }}
+                            // className="bg-orange-500 hover:bg-orange-600"
+                            size="small"
+                        /> */}
+                    </Space>
+                ),
         },
     ];
 
@@ -347,11 +383,7 @@ const TabAccount = () => {
 
     return (
         <div className="relative p-2 bg-white rounded-lg flex flex-col gap-3">
-            {loadingPage && (
-                <div className="absolute inset-0 bg-white/40 flex items-center justify-center z-20">
-                    <Spin />
-                </div>
-            )}
+            {loadingPage && <LoadingSpinAntD />}
             <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Danh sách bác sĩ</h3>
                 <div className="flex gap-2">

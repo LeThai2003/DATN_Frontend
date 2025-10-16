@@ -5,8 +5,11 @@ import ModalRender from './components/modals/ModalRender';
 import '@n8n/chat/style.css';
 import { createChat } from '@n8n/chat';
 import { useEffect } from 'react';
+import { useLocation } from 'react-router';
 
 function App() {
+    const location = useLocation();
+
     // useEffect(() => {
     //     createChat({
     //         webhookUrl:
@@ -16,7 +19,10 @@ function App() {
 
     return (
         <>
-            <ErrorBoundary fallback={({ resetError }) => <FallbackError resetError={resetError} />}>
+            <ErrorBoundary
+                key={location.pathname}
+                fallback={({ resetError }) => <FallbackError resetError={resetError} />}
+            >
                 {/* {loadingPage && <LoadingPage />} */}
                 <AppRoutes />
                 <ModalRender />

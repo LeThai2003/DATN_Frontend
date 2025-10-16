@@ -16,6 +16,10 @@ class EmployeeApi extends HttpService {
     deleteEmployee = (id) => {
         return this.delete(id, 'delete');
     };
+
+    updatePassword = (data, id) => {
+        return this.put(id, data, 'update/password');
+    };
 }
 
 export const employeeApi = new EmployeeApi('employee');

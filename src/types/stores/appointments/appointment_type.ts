@@ -1,18 +1,26 @@
 import { Filter, PageObject } from '../common';
+import { Employee } from '../employees/employee_type';
+import { Patient } from '../patients/patient_type';
+import { Room } from '../rooms/room_type';
+import { Service } from '../services/service_type';
 
-export interface FilterAppointment extends Filter {}
+export interface FilterAppointment extends Filter {
+    patientId?: string[] | null;
+    employeeId?: string[] | null;
+}
 
 export interface Appointment {
-    appointment_id?: number;
-    patient_id: number;
-    appointment_date: string | Date;
-    appointment_hour: string | Date;
-    employee_id: number;
-    service_id: number;
-    payment_id: number;
+    appointmentId?: number;
+    patientId: Patient;
+    appointmentDate: string;
+    appointmentTime: string;
+    employeeId: Employee;
+    serviceId: Service;
+    roomDto?: Room;
+    payments: number;
     price: number;
-    transaction_code?: number;
-    status: string;
+    transactionCode?: number;
+    status?: string;
 }
 
 export interface PatientAppointment {

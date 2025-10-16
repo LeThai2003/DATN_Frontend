@@ -10,6 +10,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectLoadingPage, selectRooms } from '@/stores/selectors/rooms/room.selector';
 import { fetchFirst, loadPage } from '@/stores/actions/managers/rooms/room.action';
+import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 
 const rooms = [
     {
@@ -270,11 +271,7 @@ const Room = () => {
 
     return (
         <div className="relative p-2 bg-white rounded-lg flex flex-col gap-3">
-            {loadingPage && (
-                <div className="absolute inset-0 bg-white/40 flex items-center justify-center z-20">
-                    <Spin />
-                </div>
-            )}
+            {loadingPage && <LoadingSpinAntD />}
 
             <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Danh sách phòng khám</h3>

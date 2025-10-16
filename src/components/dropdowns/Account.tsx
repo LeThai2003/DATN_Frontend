@@ -3,6 +3,7 @@ import { Button, Dropdown, Space } from 'antd';
 import { Link, useNavigate } from 'react-router';
 import { useDispatch } from 'react-redux';
 import { FaRegUser } from 'react-icons/fa';
+import { deleteAllCookies } from '@/utils/cookies/cookies';
 
 const Account = () => {
     // dispatch
@@ -11,6 +12,7 @@ const Account = () => {
 
     // event handling
     const handleLogout = () => {
+        deleteAllCookies();
         navigate('/auths/login');
     };
 
@@ -24,14 +26,14 @@ const Account = () => {
             ),
             key: '0',
         },
-        {
-            label: (
-                <Link to="#" className="menu-item-link">
-                    Lịch làm việc
-                </Link>
-            ),
-            key: '1',
-        },
+        // {
+        //     label: (
+        //         <Link to="#" className="menu-item-link">
+        //             Lịch làm việc
+        //         </Link>
+        //     ),
+        //     key: '1',
+        // },
         {
             type: 'divider',
         },

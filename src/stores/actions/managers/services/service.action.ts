@@ -21,3 +21,5 @@ export const deleteService = createAction(serviceAction.delete, (state) => ({
 export const loadingPage = createAction(`${name}/LOAD_PAGE`);
 
 export const loadPage = createAction(`${name}/LOAD_PAGE`);
+
+export const getServiceById = createAction(`${name}/GET_BY_ID`, (state) => ({ payload: state }));

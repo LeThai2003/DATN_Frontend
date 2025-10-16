@@ -3,20 +3,26 @@ import { Filter, PageObject } from '@/types/stores/common';
 export interface FilterPatient extends Filter {}
 
 export type Patient = {
-    patient_id: number;
-    fullname: string;
-    dob: string | Date;
-    gender: 'Nam' | 'Nữ' | 'Khác';
+    patientId: string;
+    fullName: string;
+    dob: string;
+    gender: boolean;
     address: string;
-    insurance_code: string;
-    emergency_contact: string;
-    phone_number: string;
+    insuranceCode: string;
+    emergencyContact: string;
+    phoneNumber: string;
     job: string;
+    citizenId: string;
+    status?: string;
+    nameRole?: string;
+    description?: string;
+    password?: string;
 };
 
 export interface PatientSlice {
     patients: PageObject<Patient>;
     filter: FilterPatient;
     selectedPatient: Patient;
+    infoPatient: Patient;
     loadingComponent: boolean;
 }

@@ -1,14 +1,14 @@
 import { getCookies } from '@/utils/cookies/cookies';
 import React from 'react';
-import { Navigate } from 'react-router';
+import { Navigate, useLocation } from 'react-router';
 
 const privateRoute = ({ children, roles = [] }) => {
-    const user = JSON.parse(getCookies('user'));
+    const location = useLocation();
 
-    console.log(user);
+    const user = JSON.parse(getCookies('user') || null);
 
     if (!user) {
-        return <Navigate to="/auths/login" replace />;
+        return <Navigate to="/auths/login" state={{ from: location }} replace />;
     }
 
     if (roles.length > 0 && !roles.includes(user?.authorities[0]?.authority)) {

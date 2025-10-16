@@ -8,17 +8,28 @@ import {
     verifyOtp,
 } from '@/stores/actions/auth/auth.action';
 import { auth, common } from '@/stores/reducers';
-import { setCookies } from '@/utils/cookies/cookies';
+import { deleteCookies, setCookies } from '@/utils/cookies/cookies';
 import { PayloadAction } from '@reduxjs/toolkit';
 import { all, call, fork, put, takeLatest } from 'typed-redux-saga';
 
 function* handleLogin({ payload }) {
-    const { username, password } = payload;
+    const { username, password, from } = payload;
 
     try {
         yield put(auth.actions.setLoading(true));
 
-        const { data } = yield* call(authApi.login, { username, password });
+        deleteCookies('access_token');
+        deleteCookies('refresh_token');
+        deleteCookies('user');
+
+        const { data, error } = yield* call(authApi.login, { username, password });
+
+        if (error) {
+            yield put(common.actions.setErrorMessage(error.message));
+            return;
+        }
+
+        console.log(data);
 
         const user: any = data.data;
         yield put(
@@ -31,15 +42,18 @@ function* handleLogin({ payload }) {
         setCookies('access_token', data?.access_token, 7);
         setCookies('refresh_token', data?.refresh_token, 30);
         setCookies('user', JSON.stringify(user), 7);
-
-        if (user?.authorities[0]?.authority == 'ROLE_ADMIN') {
+        if (from && from.includes('appointment')) {
+            payload.action(from);
+        } else if (user?.authorities[0]?.authority == 'ROLE_ADMIN') {
             payload.action('/manager');
         } else if (user?.authorities[0]?.authority == 'ROLE_DOCTOR') {
             payload.action('/doctors2');
+        } else if (user?.authorities[0]?.authority == 'ROLE_PATIENT') {
+            payload.action('/');
         } else {
             payload.action('/403');
         }
-        console.log(data);
+        // console.log(data);
     } catch (error) {
         console.log(error);
         yield put(common.actions.setErrorMessage(error?.message));

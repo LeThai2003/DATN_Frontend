@@ -17,6 +17,7 @@ import {
     fetchFirst,
     loadPage,
 } from '@/stores/actions/managers/specializations/specialization.action';
+import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 
 export const specializations: SpecializationType[] = [
     {
@@ -241,11 +242,7 @@ const Specialization = () => {
 
     return (
         <div className="relative p-2 bg-white rounded-lg flex flex-col gap-3">
-            {loadingPage && (
-                <div className="absolute inset-0 bg-white/40 flex items-center justify-center z-20">
-                    <Spin />
-                </div>
-            )}
+            {loadingPage && <LoadingSpinAntD />}
             <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Danh sách chuyên khoa</h3>
                 <div className="flex gap-2">

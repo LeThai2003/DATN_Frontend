@@ -19,7 +19,13 @@ function* handleFetchFirst() {
             filter: select(selectFilter),
         });
 
-        const { data } = yield call(roomApi.getRoomByFilter, filter);
+        const { data, error } = yield call(roomApi.getRoomByFilter, filter);
+
+        if (error) {
+            console.log(error);
+            yield put(common.actions.setErrorMessage(error.message));
+            return;
+        }
 
         yield put(
             room.actions.setRooms({

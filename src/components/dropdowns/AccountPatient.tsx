@@ -1,17 +1,33 @@
 import type { MenuProps } from 'antd';
 import { Button, Dropdown, Space } from 'antd';
 import { Link, useNavigate } from 'react-router';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { FaRegUser } from 'react-icons/fa';
+import { deleteAllCookies, getCookies } from '@/utils/cookies/cookies';
+import { fetchInfoPatient } from '@/stores/actions/patients/patient.action';
+import { selectInfoPatient } from '@/stores/selectors/patients/patient.selector';
+import { useEffect } from 'react';
 
-const AccountPatient = () => {
+const AccountPatient = ({ scrolled }) => {
     // dispatch
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const infoPatient = useSelector(selectInfoPatient);
+
+    const user = JSON.parse(getCookies('user') || null);
+
+    useEffect(() => {
+        if (user && user?.authorities[0]?.authority == 'ROLE_PATIENT') {
+            dispatch(fetchInfoPatient({ phone_number: user?.username }));
+        }
+    }, []);
+
+    console.log(infoPatient);
 
     // event handling
     const handleLogout = () => {
         console.log('logout');
+        deleteAllCookies();
         navigate('/auths/login');
     };
 
@@ -20,7 +36,7 @@ const AccountPatient = () => {
         {
             label: (
                 <Link to="/account" className="menu-item-link">
-                    Nguyễn Văn Name
+                    {infoPatient?.fullName}
                 </Link>
             ),
             key: '0',
@@ -28,7 +44,7 @@ const AccountPatient = () => {
         {
             label: (
                 <Link to="/appointment-history" className="menu-item-link">
-                    Lịch khám bệnh
+                    Lịch sử khám bệnh
                 </Link>
             ),
             key: '1',
@@ -54,9 +70,24 @@ const AccountPatient = () => {
     ];
 
     return (
-        <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
-            <a onClick={(e) => e.preventDefault()}>Tài khoản</a>
-        </Dropdown>
+        <div>
+            {user && user?.authorities && user?.authorities[0]?.authority == 'ROLE_PATIENT' ? (
+                <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
+                    <a onClick={(e) => e.preventDefault()}>Tài khoản</a>
+                </Dropdown>
+            ) : (
+                <Link
+                    to="/auths/login"
+                    className={`hover:text-blue-600 transition-colors duration-300 ${
+                        !scrolled && location.pathname === '/'
+                            ? 'hover:text-blue-100 opacity-0'
+                            : 'opacity-100'
+                    }`}
+                >
+                    Đăng nhập
+                </Link>
+            )}
+        </div>
     );
 };
 

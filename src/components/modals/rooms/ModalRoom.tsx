@@ -15,6 +15,7 @@ import {
     updateRoom,
 } from '@/stores/actions/managers/rooms/room.action';
 import { common } from '@/stores/reducers';
+import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 
 const ModalRoom: React.FC<ModalState> = ({ data, type, variant }) => {
     const dispatch = useDispatch();
@@ -79,11 +80,7 @@ const ModalRoom: React.FC<ModalState> = ({ data, type, variant }) => {
     if (variant == 'delete') {
         return (
             <ModalBase type={type} size="md">
-                {loadingComponent && (
-                    <div className="absolute inset-0 bg-white/40 backdrop-blur-[0px] flex items-center justify-center rounded-2xl z-20">
-                        <Spin />
-                    </div>
-                )}
+                {loadingComponent && <LoadingSpinAntD />}
                 <div>
                     <h2 className="font-semibold mb-3 text-center">Xóa phòng khám</h2>
                 </div>
@@ -127,11 +124,7 @@ const ModalRoom: React.FC<ModalState> = ({ data, type, variant }) => {
                         onSubmit={handleSubmit(onSubmit)}
                         className="relative space-y-4 mt-2 p-2 bg-slate-50 rounded-md"
                     >
-                        {loadingComponent && (
-                            <div className="absolute inset-0 bg-white/40 backdrop-blur-[0px] flex items-center justify-center rounded-2xl z-20">
-                                <Spin />
-                            </div>
-                        )}
+                        {loadingComponent && <LoadingSpinAntD />}
                         <div className="grid md:grid-cols-2 grid-cols-1 gap-3">
                             <FormField
                                 name="name"
@@ -195,11 +188,7 @@ const ModalRoom: React.FC<ModalState> = ({ data, type, variant }) => {
                         onSubmit={handleSubmit(onSubmit)}
                         className="space-y-4 mt-2 pr-1 pt-2 overflow-y-auto h-[92%] relative"
                     >
-                        {loadingComponent && (
-                            <div className="absolute inset-0 bg-white/40 backdrop-blur-[0px] flex items-center justify-center rounded-2xl z-20">
-                                <Spin />
-                            </div>
-                        )}
+                        {loadingComponent && <LoadingSpinAntD />}
                         <FormField
                             name="name"
                             control={control}

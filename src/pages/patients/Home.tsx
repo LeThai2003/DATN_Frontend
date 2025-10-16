@@ -1,7 +1,12 @@
 import ServiceCard from '@/components/cards/services/ServiceCard';
 import HeroSection from '@/components/layouts/patients/HeroSection';
+import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
+import { fetchFirst } from '@/stores/actions/managers/services/service.action';
+import { common } from '@/stores/reducers';
+import { selectLoadingPage, selectServices } from '@/stores/selectors/services/service.selector';
 import { Button } from 'antd';
 import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 
 const employees = [
@@ -90,19 +95,30 @@ const services = [
 const Home = () => {
     const navigate = useNavigate();
 
+    const dispatch = useDispatch();
+
+    const servicesList = useSelector(selectServices);
+    const loadingPage = useSelector(selectLoadingPage);
+
+    useEffect(() => {
+        dispatch(fetchFirst());
+    }, []);
+
     return (
         <div className="">
             <HeroSection />
 
             <section className="py-16">
-                <div className="container mx-auto text-center">
+                <div className="relative container mx-auto text-center">
                     <h2 className="text-3xl font-bold mb-10 text-gray-800">
                         Dịch vụ của chúng tôi
                     </h2>
 
+                    {loadingPage && <LoadingSpinAntD />}
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {services.map((service) => (
-                            <ServiceCard key={service.id} service={service} />
+                        {servicesList?.data?.slice(0, 3).map((service) => (
+                            <ServiceCard key={service?.serviceId} service={service} />
                         ))}
                     </div>
                     <Button

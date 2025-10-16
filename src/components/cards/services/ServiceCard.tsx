@@ -1,3 +1,4 @@
+import { getServiceById } from '@/stores/actions/managers/services/service.action';
 import { common, service as serviceSlice } from '@/stores/reducers';
 import { ModalType } from '@/types/stores/common';
 import { Button } from 'antd';
@@ -37,14 +38,24 @@ const ServiceCard = ({ service }) => {
                 </span>
             </div>
             <div className="flex items-center justify-center gap-4 flex-col lg:flex-row">
-                <Button type="primary" onClick={() => handleOpenViewService(service)} className="">
+                <Button
+                    type="primary"
+                    onClick={() => {
+                        handleOpenViewService(service);
+                        dispatch(getServiceById({ id: service.serviceId }));
+                    }}
+                    className=""
+                >
                     Xem thêm
                 </Button>
 
                 <Button
                     color="primary"
                     variant="outlined"
-                    onClick={() => handleBookAppointment()}
+                    onClick={() => {
+                        handleBookAppointment();
+                        dispatch(getServiceById({ id: service.serviceId }));
+                    }}
                     className=""
                 >
                     Đặt lịch khám

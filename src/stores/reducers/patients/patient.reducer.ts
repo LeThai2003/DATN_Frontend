@@ -11,7 +11,7 @@ const PatientSlice = createSlice({
             state.patients.loadingPage = payload;
         },
         setPatients(state, { payload }: PayloadAction<any>) {
-            state.patients.data = payload;
+            state.patients = payload;
         },
         setTotalPage(state, { payload }: PayloadAction<any>) {
             state.patients.totalPage = payload;
@@ -24,6 +24,9 @@ const PatientSlice = createSlice({
         },
         setSelectPatient(state, { payload }: PayloadAction<any>) {
             state.selectedPatient = payload;
+        },
+        setInfoPatient(state, { payload }: PayloadAction<any>) {
+            state.infoPatient = payload;
         },
     },
 });

@@ -1,191 +1,201 @@
-// src/services/HttpService.ts
 import { deleteAllCookies, getCookies, setCookies } from '@/utils/cookies/cookies';
 import axios, { AxiosInstance } from 'axios';
 import type { ResponseType as AxiosResponseType } from 'axios';
 
 const navigateToPage = (path: string) => {
-    // Sử dụng history API để chuyển trang mà không reload
     window.history.pushState({}, '', path);
-    // Trigger navigation event để React Router cập nhật
     window.dispatchEvent(new PopStateEvent('popstate'));
 };
 
-// Hàm helper để xử lý error navigation
 const handleErrorNavigation = (status: number, currentPath: string) => {
-    const errorPages = {
+    const errorPages: Record<number, string> = {
         404: '/404',
         500: '/500',
         503: '/500',
     };
-
     const targetPath = errorPages[status];
     if (targetPath && currentPath !== targetPath) {
         navigateToPage(targetPath);
-        return true; // Đã navigate
+        return true;
     }
-    return false; // Không navigate
+    return false;
 };
 
 class HttpService {
     protected entity: string;
     protected instance: AxiosInstance;
-    protected token: string;
 
     constructor(entity: string) {
         this.entity = entity;
+
         this.instance = axios.create({
             baseURL: import.meta.env.VITE_BACKEND_URL,
         });
-        this.instance.interceptors.response.use((response) => response, this.handleError);
-        this.token = getCookies('access_token');
+
+        this.instance.interceptors.request.use((config) => {
+            const token = getCookies('access_token');
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
+            return config;
+        });
+
+        this.instance.interceptors.response.use(
+            (response) => response,
+            (error) => Promise.reject(error)
+        );
     }
 
-    private async handleError(error: any) {
-        console.log(error);
-        let formatError = {};
+    // Bọc request để luôn trả { data, error }
+    protected async safeRequest<T>(
+        promise: Promise<any>
+    ): Promise<{ data: T | null; error: any | null }> {
+        try {
+            const response = await promise;
+            return { data: response.data as T, error: null };
+        } catch (error: any) {
+            const handled = await this.handleError(error);
+            return handled as { data: T | null; error: any | null };
+        }
+    }
+
+    /** Xử lý lỗi thống nhất */
+    private async handleError(error: any): Promise<{ data: null; error: any }> {
+        console.log('HTTP Error:', error);
+        let formatError: any = {};
+
         if (!error?.response) {
-            // Xử lý network error
             if (!handleErrorNavigation(500, window.location.pathname)) {
                 formatError = { message: 'Network error or server unavailable', status: 500 };
-                return Promise.reject(formatError);
             }
-            return;
-        }
-        if (error?.response) {
-            const { data, status } = error.response;
-            const isServer = typeof window === 'undefined';
-            switch (status) {
-                case 401:
-                    if (!isServer) {
-                        const refresh_token = getCookies('refresh_token');
-                        const access_token = getCookies('access_token');
-
-                        if (
-                            refresh_token == null ||
-                            refresh_token == undefined ||
-                            access_token == null ||
-                            access_token == undefined
-                        ) {
-                            return;
-                        }
-                        try {
-                            const response = await axios.post(
-                                `${
-                                    import.meta.env.VITE_BACKEND_URL
-                                }/auth/refreshToken/${access_token}/${refresh_token}`
-                            );
-                            const accessToken = response.data.access_token;
-                            const refreshToken = response.data.refresh_token;
-
-                            setCookies('refresh_token', refreshToken, 30);
-                            setCookies('access_token', accessToken, 7);
-                            const newRequest = {
-                                ...error.config,
-                                headers: {
-                                    ...error.config.headers,
-                                    Authorization: 'Bearer ' + accessToken,
-                                },
-                            };
-                            if (newRequest.url.includes('import')) {
-                                newRequest.headers['Content-Type'] = 'multipart/form-data';
-                            }
-                            return await axios(newRequest);
-                        } catch (error) {
-                            if (error.response.status >= 400 && error.response.status <= 600) {
-                                // BAD request
-                                formatError = {
-                                    status: error.response.status,
-                                    message: error.response.data.message,
-                                };
-                                return Promise.reject(formatError);
-                            } else {
-                                deleteAllCookies();
-                                window.location.href = 'login';
-                                return;
-                            }
-                        }
-                    }
-                    break;
-                case 500:
-                    if (!handleErrorNavigation(500, window.location.pathname)) {
-                        formatError = { message: 'Internal server error', status: 500 };
-                    }
-                    break;
-                case 503:
-                    if (!isServer) deleteAllCookies();
-                    if (!handleErrorNavigation(503, window.location.pathname)) {
-                        formatError = { message: 'Service unavailable', status: 503 };
-                    }
-                    break;
-                default:
-                    break;
-            }
-            const { message, ...restData } = data;
-            formatError = { message, status, ...restData };
+            return { data: null, error: { message: error?.message, status: 500 } };
         }
 
-        // Aborted request case
+        const { data, status } = error.response;
+        const isServer = typeof window === 'undefined';
+
+        switch (status) {
+            case 401: {
+                if (!isServer) {
+                    const refresh_token = getCookies('refresh_token');
+                    const access_token = getCookies('access_token');
+
+                    if (!refresh_token || !access_token) {
+                        deleteAllCookies();
+                        if (window.location.pathname !== '/auths/login') {
+                            navigateToPage('/auths/login');
+                        }
+                        return {
+                            data: null,
+                            error: { message: data?.message || 'Unauthorized', status },
+                        };
+                    }
+
+                    try {
+                        // Refresh token
+                        const response = await axios.post(
+                            `${
+                                import.meta.env.VITE_BACKEND_URL
+                            }/auth/refreshToken/${access_token}/${refresh_token}`
+                        );
+
+                        const accessToken = response.data.access_token;
+                        const refreshToken = response.data.refresh_token;
+
+                        // Lưu token mới
+                        setCookies('access_token', accessToken, 7);
+                        setCookies('refresh_token', refreshToken, 30);
+
+                        // Thử lại request ban đầu với token mới
+                        const newRequest = {
+                            ...error.config,
+                            headers: {
+                                ...error.config.headers,
+                                Authorization: `Bearer ${accessToken}`,
+                            },
+                        };
+                        if (newRequest.url.includes('import')) {
+                            newRequest.headers['Content-Type'] = 'multipart/form-data';
+                        }
+
+                        const retryResponse = await axios(newRequest);
+                        return { data: retryResponse.data, error: null };
+                    } catch {
+                        deleteAllCookies();
+                        if (window.location.pathname !== '/auths/login') {
+                            navigateToPage('/auths/login');
+                        }
+                        return {
+                            data: null,
+                            error: { message: data?.message || 'Unauthorized', status },
+                        };
+                    }
+                }
+                break;
+            }
+
+            case 500:
+                if (!handleErrorNavigation(500, window.location.pathname)) {
+                    formatError = {
+                        message: data?.message || 'Internal server error',
+                        status: 500,
+                    };
+                }
+                break;
+
+            case 503:
+                if (!isServer) deleteAllCookies();
+                if (!handleErrorNavigation(503, window.location.pathname)) {
+                    formatError = { message: data?.message || 'Service unavailable', status: 503 };
+                }
+                break;
+
+            default:
+                formatError = { message: data?.message || 'Unexpected error', status };
+                break;
+        }
+
         if (error?.code === 'ECONNABORTED') {
             formatError = { message: 'Request aborted', status: 'canceled' };
         }
-        // For dev only
-        return Promise.reject(formatError);
+
+        return { data: null, error: formatError };
     }
 
+    // ==============================
     get = <T = any>(
         endpoint: string,
         params: Record<string, any> = {},
         responseType: AxiosResponseType = 'json'
-    ) => {
-        return this.instance.get<T>(`/${this.entity}/${endpoint}`, {
-            params,
-            responseType,
-            headers: {
-                Authorization: this.token ? `Bearer ${this.token}` : undefined,
-                'Content-Type': 'application/json',
-            },
-        });
-    };
+    ) =>
+        this.safeRequest<T>(
+            this.instance.get(`/${this.entity}/${endpoint}`, { params, responseType })
+        );
 
-    getOne = <T = any>(id: number) => this.instance.get<T>(`/${this.entity}/${id}`);
+    getOne = <T = any>(id: number) =>
+        this.safeRequest<T>(this.instance.get(`/${this.entity}/${id}`));
 
     getList = <T = any>(params?: Record<string, any>) =>
-        this.instance.get<T>(`/${this.entity}`, { params });
+        this.safeRequest<T>(this.instance.get(`/${this.entity}`, { params }));
 
     post = <T = any>(data: any, endpoint = '') =>
-        this.instance.post<T>(`/${this.entity}/${endpoint}`, data, {
-            headers: {
-                Authorization: this.token ? `Bearer ${this.token}` : undefined,
-                'Content-Type': 'application/json',
-            },
-        });
+        this.safeRequest<T>(this.instance.post(`/${this.entity}/${endpoint}`, data));
 
     put = <T = any>(id: string | number, data: any, path: string) =>
-        this.instance.put<T>(`/${this.entity}/${path}/${id}`, data, {
-            headers: {
-                Authorization: this.token ? `Bearer ${this.token}` : undefined,
-                'Content-Type': 'application/json',
-            },
-        });
+        this.safeRequest<T>(this.instance.put(`/${this.entity}/${path}/${id}`, data));
 
     patch = <T = any>(id: string | number, data: any) =>
-        this.instance.patch<T>(`/${this.entity}/${id}`, data);
+        this.safeRequest<T>(this.instance.patch(`/${this.entity}/${id}`, data));
 
     delete = <T = any>(id: string | number, endpoint?: string) =>
-        this.instance.delete<T>(`/${this.entity}/${endpoint}/${id}`, {
-            headers: {
-                Authorization: this.token ? `Bearer ${this.token}` : undefined,
-                'Content-Type': 'application/json',
-            },
-        });
+        this.safeRequest<T>(this.instance.delete(`/${this.entity}/${endpoint}/${id}`));
 
     upload = <T = any>(data: FormData, endpoint = 'upload') =>
-        this.instance.post<T>(`/${this.entity}/${endpoint}`, data, {
-            headers: {
-                Authorization: this.token ? `Bearer ${this.token}` : undefined,
-                'Content-Type': 'multipart/form-data',
-            },
-        });
+        this.safeRequest<T>(
+            this.instance.post(`/${this.entity}/${endpoint}`, data, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            })
+        );
 }
 
 export default HttpService;

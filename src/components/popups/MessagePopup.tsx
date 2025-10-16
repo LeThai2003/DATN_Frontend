@@ -84,16 +84,46 @@ const CustomToastContent = ({ message, status }: CustomToastContentProps) => {
         <Box
             sx={{
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: 'flex-start',
                 gap: '16px',
+                maxWidth: '500px',
+                flexWrap: 'wrap',
+                wordBreak: 'break-word',
             }}
         >
-            <IconComponent sx={{ width: 37, height: 37, fill: color }} />
-            <Box>
-                <Typography sx={{ fontWeight: 600, fontSize: 18, color: 'black' }}>
-                    {status}
+            <IconComponent sx={{ width: 37, height: 37, fill: color, flexShrink: 0 }} />
+            <Box sx={{ flex: 1 }}>
+                <Typography
+                    sx={{
+                        fontWeight: 600,
+                        fontSize: 16,
+                        color: 'black',
+                    }}
+                >
+                    {status == 'success' ? 'Thành công' : status == 'error' ? 'Lỗi' : 'Chú ý'}
                 </Typography>
-                <Typography sx={{ fontSize: 16, color: '#323232', textWrap: 'nowrap' }}>
+                <Typography
+                    sx={{
+                        fontSize: 14,
+                        color: '#323232',
+                        wordBreak: 'break-word',
+                        overflowWrap: 'break-word',
+                        whiteSpace: 'pre-wrap',
+                        maxHeight: '7.5em',
+                        overflowY: 'auto',
+                        pr: 1,
+                        '&::-webkit-scrollbar': {
+                            width: '6px',
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                            backgroundColor: '#bdbdbd',
+                            borderRadius: '4px',
+                        },
+                        '&::-webkit-scrollbar-thumb:hover': {
+                            backgroundColor: '#9e9e9e',
+                        },
+                    }}
+                >
                     {message}
                 </Typography>
             </Box>

@@ -22,6 +22,7 @@ import {
     updateEmployee,
 } from '@/stores/actions/managers/employees/employee.action';
 import dayjs from 'dayjs';
+import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
@@ -105,6 +106,42 @@ const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
         }
     };
 
+    const handleLockUnlockAccount = (type) => {
+        const dataUpdate = {
+            fullName: selectedEmployee?.fullName,
+            citizenId: selectedEmployee?.citizenId,
+            dob: selectedEmployee?.dob,
+            gender: selectedEmployee?.gender,
+            address: selectedEmployee?.address,
+            avatar: selectedEmployee?.avatar,
+            hiredDate: selectedEmployee?.hiredDate,
+            email: selectedEmployee?.email,
+            phoneNumber: selectedEmployee?.phoneNumber,
+            status: type == 'DELETE' ? 'DELETE' : 'ACTIVE',
+            roleId: '4d5a0317-f194-4f36-a4d0-0fb018f6eb23',
+            specialization: selectedEmployee?.specialization?.specializationId,
+            room: selectedEmployee?.roomDto?.roomId,
+            services: selectedEmployee?.serviceDto?.map((s) => s?.serviceId),
+        };
+
+        dispatch(
+            updateEmployee({
+                id: selectedEmployee?.employeeId,
+                ...dataUpdate,
+            })
+        );
+    };
+
+    const handleUnlockAccount = () => {
+        const dataUpdate = { ...selectedEmployee, status: 'ACTIVE' };
+        dispatch(
+            updateEmployee({
+                id: selectedEmployee?.employeeId,
+                ...dataUpdate,
+            })
+        );
+    };
+
     const uploadButton = (
         <button style={{ border: 0, background: 'none' }} type="button">
             {loading ? <LoadingOutlined /> : <PlusOutlined />}
@@ -140,13 +177,14 @@ const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
     if (variant == 'delete') {
         return (
             <ModalBase type={type} size="md">
+                {loadingComponent && <LoadingSpinAntD />}
                 <div>
-                    <h2 className="font-semibold mb-3 text-center">Xóa tài khoản</h2>
+                    <h2 className="font-semibold mb-3 text-center">Khóa tài khoản</h2>
                 </div>
                 <div className="">
                     <p className="text-center">
                         <>
-                            Bạn có chắc muốn xóa tài khoản bác sĩ{' '}
+                            Bạn có chắc muốn khóa tài khoản bác sĩ{' '}
                             <b>"{selectedEmployee?.fullName}"</b> không?
                         </>
                     </p>
@@ -158,8 +196,51 @@ const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
                         >
                             Hủy
                         </Button>
-                        <Button type="primary" danger onClick={() => {}}>
-                            Xóa
+                        <Button
+                            type="primary"
+                            danger
+                            onClick={() => {
+                                handleLockUnlockAccount('DELETE');
+                            }}
+                        >
+                            Khóa
+                        </Button>
+                    </div>
+                </div>
+            </ModalBase>
+        );
+    }
+
+    if (variant == 'unlock') {
+        return (
+            <ModalBase type={type} size="md">
+                {loadingComponent && <LoadingSpinAntD />}
+                <div>
+                    <h2 className="font-semibold mb-3 text-center">Mở khóa tài khoản</h2>
+                </div>
+                <div className="">
+                    <p className="text-center">
+                        <>
+                            Bạn có chắc muốn mở khóa tài khoản bác sĩ{' '}
+                            <b>"{selectedEmployee?.fullName}"</b> không?
+                        </>
+                    </p>
+                    <div className="flex justify-end space-x-3 mt-4">
+                        <Button
+                            onClick={() => {
+                                dispatch(common.actions.setHiddenModal(ModalType.EMPLOYEE));
+                            }}
+                        >
+                            Hủy
+                        </Button>
+                        <Button
+                            type="primary"
+                            danger
+                            onClick={() => {
+                                handleLockUnlockAccount('ACTIVE');
+                            }}
+                        >
+                            Mở khóa
                         </Button>
                     </div>
                 </div>
@@ -180,11 +261,7 @@ const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
                             onSubmit={handleSubmit(onSubmit)}
                             className="relative px-6 pt-4 pb-2 bg-white rounded-2xl space-y-4 h-[92%] overflow-y-auto"
                         >
-                            {loadingComponent && (
-                                <div className="absolute inset-0 bg-white/40 flex items-center justify-center z-20">
-                                    <Spin />
-                                </div>
-                            )}
+                            {loadingComponent && <LoadingSpinAntD />}
                             <div>
                                 <LableField label={'Hình ảnh'} />
                                 <Upload
@@ -410,11 +487,7 @@ const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
                             onSubmit={handleSubmit(onSubmit)}
                             className="relative px-6 pt-4 pb-2 bg-white rounded-2xl space-y-4 h-[92%] overflow-y-auto"
                         >
-                            {loadingComponent && (
-                                <div className="absolute inset-0 bg-white/40 flex items-center justify-center z-20">
-                                    <Spin />
-                                </div>
-                            )}
+                            {loadingComponent && <LoadingSpinAntD />}
                             <div>
                                 <LableField label={'Hình ảnh'} />
                                 <Upload

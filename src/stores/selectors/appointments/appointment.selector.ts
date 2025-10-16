@@ -31,4 +31,12 @@ export const selectTimeBookingAppointment = createSelector(
     (state) => state.timeBookingAppointment
 );
 
-export const selectLoading = createSelector(selectState, (state) => state.loadingComponent);
+export const selectLoadingComponent = createSelector(
+    selectState,
+    (state) => state.loadingComponent
+);
+
+export const selectLoadingPage = createSelector(
+    selectState,
+    (state) => state.appointments.loadingPage
+);

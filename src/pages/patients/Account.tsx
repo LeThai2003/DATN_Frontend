@@ -1,23 +1,39 @@
 import WelcomeCard from '@/components/cards/WelcomeCard';
 import FormField from '@/components/forms/FormField';
+import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
+import { updatePatient } from '@/stores/actions/patients/patient.action';
+import {
+    selectInfoPatient,
+    selectLoadingComponent,
+} from '@/stores/selectors/patients/patient.selector';
 
 import { patientAppointmentSchema } from '@/validations/appointment.validate';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Button, Card, Form, Input, Tabs, Tooltip } from 'antd';
+import { Button, Card, Form, Input, Spin, Tabs, Tooltip } from 'antd';
 import TabPane from 'antd/es/tabs/TabPane';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { data } from 'react-router';
 
 const Account = () => {
     const dispatch = useDispatch();
+
+    const infoPatient = useSelector(selectInfoPatient);
+    const loadingComponent = useSelector(selectLoadingComponent);
+
+    console.log(infoPatient);
 
     const [form] = Form.useForm();
 
     const [isEdit, setIsEdit] = useState(false);
 
     const handleChangePassword = (values) => {
-        console.log(values);
+        // console.log(values);
+        let dataSubmit = { ...infoPatient };
+        dataSubmit.password = values?.newPassword;
+        console.log(dataSubmit);
+        dispatch(updatePatient({ data: dataSubmit, id: infoPatient?.patientId }));
     };
 
     const onReset = () => {
@@ -26,6 +42,10 @@ const Account = () => {
 
     const onSubmitInfo = (data) => {
         console.log(data);
+        data.status = 'ACTIVE';
+        data.roleId = '51db1034-54ee-4a35-83a5-f479f430bec8';
+
+        dispatch(updatePatient({ data, id: infoPatient?.patientId }));
     };
 
     const {
@@ -36,15 +56,15 @@ const Account = () => {
     } = useForm({
         resolver: yupResolver(patientAppointmentSchema),
         defaultValues: {
-            fullname: 'Nguyễn Văn Name',
-            phone_number: '0123456789',
-            citizen_id: '123456789',
-            insurance_code: 'BHYT0001',
-            job: 'Sinh viên',
-            dob: '2003-01-01',
-            gender: 'male',
-            address: 'TP Hồ Chí Minh',
-            emergency_contact: '0533055066',
+            fullName: infoPatient?.fullName || '',
+            phoneNumber: infoPatient?.phoneNumber || '',
+            citizenId: infoPatient?.citizenId || '',
+            insuranceCode: infoPatient?.insuranceCode || '',
+            job: infoPatient?.job || '',
+            dob: infoPatient?.dob || '',
+            gender: infoPatient?.gender || true,
+            address: infoPatient?.address || '',
+            emergencyContact: infoPatient?.emergencyContact || '',
         },
     });
 
@@ -52,7 +72,7 @@ const Account = () => {
         <div className="relative">
             <div className="container min-h-screen">
                 <div className="pt-[86px]">
-                    <WelcomeCard name="Nguyễn Văn Name" />
+                    <WelcomeCard name={infoPatient?.fullName} />
                     <section className="py-2">
                         <Card title="Tài khoản cá nhân">
                             <Tabs defaultActiveKey="1">
@@ -60,29 +80,30 @@ const Account = () => {
                                     <div className="mt-4 p-4 rounded-md bg-slate-50">
                                         <form
                                             onSubmit={handleSubmit(onSubmitInfo)}
-                                            className="flex flex-col gap-5 max-h-[700px] overflow-y-auto"
+                                            className="relative flex flex-col gap-5 max-h-[700px] overflow-y-auto"
                                         >
+                                            {loadingComponent && <LoadingSpinAntD />}
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                 <FormField
-                                                    name="fullname"
+                                                    name="fullName"
                                                     control={control}
                                                     label="Họ và tên"
                                                     placeholder="Nhập họ và tên"
                                                     inputType="text"
                                                     type={isEdit ? 'input' : 'text'}
-                                                    error={!!errors.fullname}
-                                                    helperText={errors.fullname?.message}
+                                                    error={!!errors.fullName}
+                                                    helperText={errors.fullName?.message}
                                                     required
                                                 />
                                                 <FormField
-                                                    name="phone_number"
+                                                    name="phoneNumber"
                                                     control={control}
                                                     label="Số điện thoại"
                                                     placeholder="Nhập số điện thoại"
                                                     inputType="text"
                                                     type={isEdit ? 'input' : 'text'}
-                                                    error={!!errors.phone_number}
-                                                    helperText={errors.phone_number?.message}
+                                                    error={!!errors.phoneNumber}
+                                                    helperText={errors.phoneNumber?.message}
                                                     required
                                                 />
                                                 <FormField
@@ -103,35 +124,34 @@ const Account = () => {
                                                     placeholder="Chọn giới tính"
                                                     type={isEdit ? 'select' : 'text'}
                                                     options={[
-                                                        { label: 'Nam', value: 'male' },
-                                                        { label: 'Nữ', value: 'female' },
-                                                        { label: 'Khác', value: 'other' },
+                                                        { label: 'Nam', value: true },
+                                                        { label: 'Nữ', value: false },
                                                     ]}
                                                     error={!!errors.gender}
                                                     helperText={errors.gender?.message}
                                                     required
                                                 />
                                                 <FormField
-                                                    name="citizen_id"
+                                                    name="citizenId"
                                                     control={control}
                                                     label="CCCD/CMND"
                                                     placeholder="Nhập số CCCD/CMND"
                                                     inputType="text"
                                                     type={isEdit ? 'input' : 'text'}
-                                                    error={!!errors.citizen_id}
-                                                    helperText={errors.citizen_id?.message}
+                                                    error={!!errors.citizenId}
+                                                    helperText={errors.citizenId?.message}
                                                     required
                                                 />
 
                                                 <FormField
-                                                    name="insurance_code"
+                                                    name="insuranceCode"
                                                     control={control}
                                                     label="Mã bảo hiểm y tế"
                                                     placeholder="Nhập mã BHYT"
                                                     inputType="text"
                                                     type={isEdit ? 'input' : 'text'}
-                                                    error={!!errors.insurance_code}
-                                                    helperText={errors.insurance_code?.message}
+                                                    error={!!errors.insuranceCode}
+                                                    helperText={errors.insuranceCode?.message}
                                                     required
                                                 />
 
@@ -147,14 +167,14 @@ const Account = () => {
                                                     required
                                                 />
                                                 <FormField
-                                                    name="emergency_contact"
+                                                    name="emergencyContact"
                                                     control={control}
                                                     label="SĐT liên hệ khẩn cấp"
                                                     placeholder="Nhập số điện thoại khẩn cấp"
                                                     inputType="text"
                                                     type={isEdit ? 'input' : 'text'}
-                                                    error={!!errors.emergency_contact}
-                                                    helperText={errors.emergency_contact?.message}
+                                                    error={!!errors.emergencyContact}
+                                                    helperText={errors.emergencyContact?.message}
                                                     required
                                                 />
                                                 <FormField
@@ -202,13 +222,14 @@ const Account = () => {
                                 </TabPane>
 
                                 <TabPane tab="Thay đổi mật khẩu" key="2">
-                                    <div className="mt-4 p-4 rounded-md bg-slate-50">
+                                    <div className="relative mt-4 p-4 rounded-md bg-slate-50">
                                         <Form
                                             form={form}
                                             layout="vertical"
                                             onFinish={handleChangePassword}
                                             style={{ maxWidth: 400 }}
                                         >
+                                            {loadingComponent && <LoadingSpinAntD />}
                                             <Form.Item
                                                 label="Mật khẩu hiện tại"
                                                 name="oldPassword"

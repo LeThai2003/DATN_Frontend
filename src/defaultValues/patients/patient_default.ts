@@ -13,5 +13,6 @@ export const initPatientSlice: PatientSlice = {
     },
     filter: initFilterPatient,
     selectedPatient: null,
+    infoPatient: null,
     loadingComponent: false,
 };

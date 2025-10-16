@@ -83,7 +83,7 @@ const Navbar = () => {
                                     : 'opacity-100'
                             }`}
                         >
-                            <AccountPatient />
+                            <AccountPatient scrolled />
                         </span>
                     </li>
                 </ul>

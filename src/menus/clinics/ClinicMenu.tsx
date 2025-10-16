@@ -7,6 +7,7 @@ import {
     MdOutlineManageAccounts,
     MdOutlineCalendarToday,
     MdOutlineReceiptLong,
+    MdCalendarMonth,
 } from 'react-icons/md';
 import { HiOutlineClipboardList } from 'react-icons/hi';
 import { IoCalendarOutline } from 'react-icons/io5';
@@ -47,6 +48,11 @@ export const clinicMenu = {
             key: 'patients',
             label: 'Quản lý bệnh nhân',
             icon: <FaUserInjured />,
+        },
+        {
+            key: 'schedules',
+            label: 'Quản lý lịch làm',
+            icon: <MdCalendarMonth />,
         },
         // {
         //     key: 'work_shifts',

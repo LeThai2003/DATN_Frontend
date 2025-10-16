@@ -5,6 +5,7 @@ import {
     fetchFirst,
     loadPage,
     updateEmployee,
+    updatePasswordEmployee,
 } from '@/stores/actions/managers/employees/employee.action';
 import { common, employee } from '@/stores/reducers';
 import { selectFilter } from '@/stores/selectors/employees/employee.selector';
@@ -83,6 +84,21 @@ function* handleDeleteEmployee({ payload }) {
     }
 }
 
+function* handleUpdatePasswordEmployee({ payload }: PayloadAction<any>) {
+    yield put(employee.actions.setLoadingComponent(true));
+    try {
+        const { data, id } = payload;
+        yield call(employeeApi.updateEmployee, data, id);
+        yield put(common.actions.setSuccessMessage('Cập nhật mật khẩu thành công'));
+        yield handleFetchFirst();
+    } catch (error) {
+        console.log(error);
+        yield put(common.actions.setErrorMessage(error?.message || 'Cập nhật mật khẩu thất bại'));
+    } finally {
+        yield put(employee.actions.setLoadingComponent(false));
+    }
+}
+
 function* watchFetchFirst() {
     yield takeLatest(fetchFirst, handleFetchFirst);
 }
@@ -93,6 +109,10 @@ function* watchLoadPage() {
 
 function* watchUpdateEmployee() {
     yield takeLatest(updateEmployee, handleUpdateEmployee);
+}
+
+function* watchUpdatePassowrdEmployee() {
+    yield takeLatest(updatePasswordEmployee, handleUpdatePasswordEmployee);
 }
 
 function* watchDeleteEmployee() {
@@ -110,5 +130,6 @@ export function* watchEmployee() {
         fork(watchCreateEmployee),
         fork(watchLoadPage),
         fork(watchDeleteEmployee),
+        fork(watchUpdatePassowrdEmployee),
     ]);
 }

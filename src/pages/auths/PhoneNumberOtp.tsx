@@ -1,4 +1,5 @@
 import FormField from '@/components/forms/FormField';
+import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 import { signUpPhoneNumber } from '@/stores/actions/auth/auth.action';
 import { selectLoading } from '@/stores/selectors/auth/auth.selector';
 import { phoneNumberSignUpSchema } from '@/validations/auth.validation';
@@ -52,11 +53,7 @@ const PhoneNumberOtp = () => {
                 onSubmit={handleSubmit(onSubmit)}
                 className="relative w-full max-w-md bg-white rounded-2xl px-6 py-8 space-y-6 z-10 shadow-xl flex flex-col items-center"
             >
-                {loading && (
-                    <div className="absolute inset-0 bg-white/40 backdrop-blur-[0px] flex items-center justify-center rounded-2xl z-20">
-                        <Spin />
-                    </div>
-                )}
+                {loading && <LoadingSpinAntD />}
                 <div className="text-center space-y-2">
                     <h2 className="text-2xl font-bold text-gray-800">Số điện thoại đăng ký</h2>
                     <p className="text-gray-600 text-sm leading-relaxed">

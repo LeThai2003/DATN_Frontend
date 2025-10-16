@@ -12,7 +12,7 @@ const AppointmentSlice = createSlice({
             state.appointments.loadingPage = payload;
         },
         setAppointments(state, { payload }: PayloadAction<any>) {
-            state.appointments.data = payload;
+            state.appointments = payload;
         },
         setTotalPage(state, { payload }: PayloadAction<any>) {
             state.appointments.totalPage = payload;

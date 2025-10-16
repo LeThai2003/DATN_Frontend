@@ -16,6 +16,10 @@ class ServiceApi extends HttpService {
     deleteService = (id) => {
         return this.delete(id, 'delete');
     };
+
+    getServiceById = (id) => {
+        return this.get(`get/${id}`);
+    };
 }
 
 export const serviceApi = new ServiceApi('service');

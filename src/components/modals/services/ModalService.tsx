@@ -19,6 +19,7 @@ import {
 import { common } from '@/stores/reducers';
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import LableField from '@/components/forms/LableField';
+import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
@@ -128,11 +129,7 @@ const ModalService: React.FC<ModalState> = ({ data, type, variant }) => {
     if (variant == 'delete') {
         return (
             <ModalBase type={type} size="md">
-                {loadingComponent && (
-                    <div className="absolute inset-0 bg-white/40 backdrop-blur-[0px] flex items-center justify-center rounded-2xl z-20">
-                        <Spin />
-                    </div>
-                )}
+                {loadingComponent && <LoadingSpinAntD />}
                 <div>
                     <h2 className="font-semibold mb-3 text-center">Xóa dịch vụ</h2>
                 </div>
@@ -177,11 +174,7 @@ const ModalService: React.FC<ModalState> = ({ data, type, variant }) => {
                             onSubmit={handleSubmit(onSubmit)}
                             className="relative space-y-4 mt-2 pr-1 pt-2 overflow-y-auto h-[92%]"
                         >
-                            {loadingComponent && (
-                                <div className="absolute inset-0 bg-white/40 backdrop-blur-[0px] flex items-center justify-center rounded-2xl z-20">
-                                    <Spin />
-                                </div>
-                            )}
+                            {loadingComponent && <LoadingSpinAntD />}
                             <div className="grid grid-cols-2 gap-3">
                                 <FormField
                                     name="name"
@@ -268,11 +261,7 @@ const ModalService: React.FC<ModalState> = ({ data, type, variant }) => {
                             onSubmit={handleSubmit(onSubmit)}
                             className="relative space-y-4 mt-2 pr-1 pt-2 overflow-y-auto h-[92%]"
                         >
-                            {loadingComponent && (
-                                <div className="absolute inset-0 bg-white/40 flex items-center justify-center rounded-2xl z-20">
-                                    <Spin />
-                                </div>
-                            )}
+                            {loadingComponent && <LoadingSpinAntD />}
                             <div className="grid grid-cols-2 gap-3">
                                 <FormField
                                     name="name"

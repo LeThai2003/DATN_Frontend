@@ -16,6 +16,7 @@ import { initFilterService } from '@/defaultValues/services/service_default';
 import { useNavigate } from 'react-router';
 import type { TableProps } from 'antd';
 import { fetchFirst, loadPage } from '@/stores/actions/managers/services/service.action';
+import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 
 // rooms
 const rooms = [
@@ -268,11 +269,7 @@ const Service = () => {
 
     return (
         <div className="relative p-2 bg-white rounded-lg flex flex-col gap-3">
-            {loadingPage && (
-                <div className="absolute inset-0 bg-white/40 flex items-center justify-center z-20">
-                    <Spin />
-                </div>
-            )}
+            {loadingPage && <LoadingSpinAntD />}
             <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Danh sách dịch vụ</h3>
                 <div className="flex gap-2">

@@ -1,4 +1,5 @@
 import FormField from '@/components/forms/FormField';
+import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 import { registerAction } from '@/stores/actions/auth/auth.action';
 import { selectLoading } from '@/stores/selectors/auth/auth.selector';
 import { getCookies } from '@/utils/cookies/cookies';
@@ -59,11 +60,7 @@ const SignUp = () => {
                 onSubmit={handleSubmit(onSubmit)}
                 className="relative w-full max-w-2xl bg-white rounded-2xl px-8 py-4 space-y-3 z-10 shadow-2xl max-h-[93vh] flex flex-col"
             >
-                {loading && (
-                    <div className="absolute inset-0 bg-white/40 backdrop-blur-[0px] flex items-center justify-center rounded-2xl z-20">
-                        <Spin />
-                    </div>
-                )}
+                {loading && <LoadingSpinAntD />}
                 {/* Tiêu đề */}
                 <div className="text-center">
                     <h2 className="text-2xl font-semibold text-gray-800">Đăng ký</h2>

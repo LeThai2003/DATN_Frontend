@@ -3,6 +3,7 @@ import {
     createService,
     deleteService,
     fetchFirst,
+    getServiceById,
     loadPage,
     updateService,
 } from '@/stores/actions/managers/services/service.action';
@@ -82,6 +83,22 @@ function* handleDeleteService({ payload }) {
     }
 }
 
+function* handleGetServiceById({ payload }: PayloadAction<any>) {
+    yield put(service.actions.setLoadingComponent(true));
+    try {
+        const { data, error } = yield call(serviceApi.getServiceById, payload?.id);
+        if (error) {
+            yield put(common.actions.setErrorMessage(error?.message));
+        }
+        yield put(service.actions.setSelectService(data?.data));
+    } catch (error) {
+        console.log(error);
+        yield put(common.actions.setErrorMessage(error?.message || 'Lấy dữ liệu dịch vụ thất bại'));
+    } finally {
+        yield put(service.actions.setLoadingComponent(false));
+    }
+}
+
 function* watchFetchFirst() {
     yield takeLatest(fetchFirst, handleFetchFirst);
 }
@@ -102,6 +119,10 @@ function* watchCreateService() {
     yield takeLatest(createService, handleCreateService);
 }
 
+function* watchGetServiceById() {
+    yield takeLatest(getServiceById, handleGetServiceById);
+}
+
 export function* watchService() {
     yield all([
         fork(watchFetchFirst),
@@ -109,5 +130,6 @@ export function* watchService() {
         fork(watchCreateService),
         fork(watchLoadPage),
         fork(watchDeleteService),
+        fork(watchGetServiceById),
     ]);
 }

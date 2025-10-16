@@ -3,6 +3,9 @@ import { initFilterValue } from '../common/common';
 
 export const initFilterAppointment: FilterAppointment = {
     ...initFilterValue,
+    sort: 'appointmentId',
+    patientId: null,
+    employeeId: null,
 };
 
 export const initAppointmentSlice: AppointmentSlice = {

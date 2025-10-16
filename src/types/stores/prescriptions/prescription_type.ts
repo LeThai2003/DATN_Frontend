@@ -2,18 +2,46 @@ import { Filter, PageObject } from '@/types/stores/common';
 
 export interface FilterPrescription extends Filter {}
 
+export interface DrugId {
+    drugId: string;
+    name: string;
+    genericName?: string;
+    description?: string;
+    packing?: string;
+    sideEffects?: string;
+    contraindication?: string;
+    allergyInfo?: string;
+}
+
+export interface UnitDosageId {
+    unitId: string;
+    name: string;
+    description: string;
+}
+
+export interface MealRelation {
+    relationsId: string;
+    name: string;
+    description: string;
+}
+export interface DosageTimeDtos {
+    timeId: string;
+    name: string;
+    description: string;
+}
+
 export interface Prescription {
-    key: string;
-    drug_id: number | string;
-    drug_name?: string;
-    unit_dosage_id: number;
-    unit_dosage_name?: string;
+    perscriptionId: string;
+    recordId?: string;
+    drugId: DrugId;
+    customDrugName?: string;
+    unitDosageId?: UnitDosageId;
     dosage?: number | string;
-    meal_time?: string;
-    dosage_time?: string[];
+    mealRelation?: MealRelation;
+    dosageTimeDtos?: DosageTimeDtos[];
     duration?: number;
     frequency?: number;
-    note?: string;
+    instructions?: string;
 }
 export interface PrescriptionSlice {
     prescriptions: PageObject<Prescription>;

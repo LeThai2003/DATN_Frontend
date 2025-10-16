@@ -19,7 +19,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { EyeOutlined } from '@ant-design/icons';
-import { appointment, common } from '@/stores/reducers';
+import { appointment, common, specialization } from '@/stores/reducers';
 import { ModalType } from '@/types/stores/common';
 import ButtonTurnBack from '@/components/buttons/ButtonTurnBack';
 import dayjs from 'dayjs';
@@ -48,18 +48,7 @@ const Appointment = () => {
 
     const isEdit = searchParams.has('edit');
 
-    const dataWithDefault = [
-        // {
-        //     employee_id: -1,
-        //     fullname: 'Mặc định (hệ thống tự chọn bác sĩ phù hợp)',
-        //     avatar: null,
-        //     specialization_name: '',
-        //     room_name: '',
-        //     email: '',
-        //     dob: '',
-        // },
-        ...(selectedService?.doctors || []),
-    ];
+    const dataWithDefault = [...(selectedService?.employeeDtos || [])];
 
     const handleOpenViewDoctor = (data) => {
         dispatch(
@@ -75,7 +64,7 @@ const Appointment = () => {
         const selected =
             data?.employee_id === -1
                 ? { employee_id: -1, fullname: 'Mặc định' }
-                : selectedService?.doctors.find((e) => e.employee_id === data?.employee_id);
+                : selectedService?.employeeDtos?.find((e) => e.employee_id === data?.employee_id);
 
         const dataDoctor = {
             employee_id: selected?.employee_id || '',
@@ -130,7 +119,7 @@ const Appointment = () => {
         },
         {
             title: 'Bác sĩ',
-            dataIndex: 'fullname',
+            dataIndex: 'fullName',
             render: (text: string, record: any) => (
                 <Space>
                     {record.avatar && <Avatar src={record.avatar} />}
@@ -140,19 +129,24 @@ const Appointment = () => {
         },
         {
             title: 'Chuyên khoa',
-            dataIndex: 'specialization_name',
+            dataIndex: ['specialization', 'name'],
+            width: 200,
         },
         {
             title: 'Phòng khám',
-            dataIndex: 'room_name',
+            dataIndex: ['roomDto', 'name'],
+            width: 230,
         },
         {
             title: 'Email',
             dataIndex: 'email',
+            width: 200,
         },
         {
             title: 'Ngày sinh',
             dataIndex: 'dob',
+            render: (dob) => dayjs(dob).format('DD/MM/YYYY'),
+            width: 150,
         },
         {
             title: 'Hành động',
@@ -184,15 +178,15 @@ const Appointment = () => {
     } = useForm({
         resolver: yupResolver(patientAppointmentSchema),
         defaultValues: {
-            fullname: selectedPatientAppointment?.fullname || 'Nguyễn Văn Name',
-            phone_number: selectedPatientAppointment?.phone_number || '0123456789',
-            citizen_id: selectedPatientAppointment?.citizen_id || '123456789',
-            insurance_code: selectedPatientAppointment?.insurance_code || 'BHYT0001',
+            fullName: selectedPatientAppointment?.fullname || 'Nguyễn Văn Name',
+            phoneNumber: selectedPatientAppointment?.phone_number || '0123456789',
+            citizenId: selectedPatientAppointment?.citizen_id || '123456789',
+            insuranceCode: selectedPatientAppointment?.insurance_code || 'BHYT0001',
             job: selectedPatientAppointment?.job || 'Sinh viên',
             dob: selectedPatientAppointment?.dob || '2003-01-01',
-            gender: selectedPatientAppointment?.gender || 'male',
+            gender: true,
             address: selectedPatientAppointment?.address || 'TP Hồ Chí Minh',
-            emergency_contact: selectedPatientAppointment?.emergency_contact || '0533055066',
+            emergencyContact: selectedPatientAppointment?.emergency_contact || '0533055066',
         },
     });
 
@@ -207,7 +201,7 @@ const Appointment = () => {
             appointment_date: new Date(),
             appointment_hour: selectedTimeBokingAppointment?.appointment_hour,
             employee_id: selectedDoctorAppointment?.employee_id,
-            service_id: selectedService?.service_id,
+            service_id: selectedService?.serviceId,
             payment_id: 1,
             price: selectedService?.price,
             transaction_code: 1,
@@ -336,25 +330,25 @@ const Appointment = () => {
                                     >
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                             <FormField
-                                                name="phone_number"
+                                                name="phoneNumber"
                                                 control={control}
                                                 label="Số điện thoại"
                                                 placeholder="Nhập số điện thoại"
                                                 inputType="text"
                                                 type="input"
-                                                error={!!errors.phone_number}
-                                                helperText={errors.phone_number?.message}
+                                                error={!!errors.phoneNumber}
+                                                helperText={errors.phoneNumber?.message}
                                                 required
                                             />
                                             <FormField
-                                                name="fullname"
+                                                name="fullName"
                                                 control={control}
                                                 label="Họ và tên"
                                                 placeholder="Nhập họ và tên"
                                                 inputType="text"
                                                 type="input"
-                                                error={!!errors.fullname}
-                                                helperText={errors.fullname?.message}
+                                                error={!!errors.fullName}
+                                                helperText={errors.fullName?.message}
                                                 required
                                             />
 
@@ -376,35 +370,34 @@ const Appointment = () => {
                                                 placeholder="Chọn giới tính"
                                                 type="select"
                                                 options={[
-                                                    { label: 'Nam', value: 'male' },
-                                                    { label: 'Nữ', value: 'female' },
-                                                    { label: 'Khác', value: 'other' },
+                                                    { label: 'Nam', value: true },
+                                                    { label: 'Nữ', value: false },
                                                 ]}
                                                 error={!!errors.gender}
                                                 helperText={errors.gender?.message}
                                                 required
                                             />
                                             <FormField
-                                                name="citizen_id"
+                                                name="citizenId"
                                                 control={control}
                                                 label="CCCD/CMND"
                                                 placeholder="Nhập số CCCD/CMND"
                                                 inputType="text"
                                                 type="input"
-                                                error={!!errors.citizen_id}
-                                                helperText={errors.citizen_id?.message}
+                                                error={!!errors.citizenId}
+                                                helperText={errors.citizenId?.message}
                                                 required
                                             />
 
                                             <FormField
-                                                name="insurance_code"
+                                                name="insuranceCode"
                                                 control={control}
                                                 label="Mã bảo hiểm y tế"
                                                 placeholder="Nhập mã BHYT"
                                                 inputType="text"
                                                 type="input"
-                                                error={!!errors.insurance_code}
-                                                helperText={errors.insurance_code?.message}
+                                                error={!!errors.insuranceCode}
+                                                helperText={errors.insuranceCode?.message}
                                                 required
                                             />
 
@@ -420,14 +413,14 @@ const Appointment = () => {
                                                 required
                                             />
                                             <FormField
-                                                name="emergency_contact"
+                                                name="emergencyContact"
                                                 control={control}
                                                 label="SĐT liên hệ khẩn cấp"
                                                 placeholder="Nhập số điện thoại khẩn cấp"
                                                 inputType="text"
                                                 type="input"
-                                                error={!!errors.emergency_contact}
-                                                helperText={errors.emergency_contact?.message}
+                                                error={!!errors.emergencyContact}
+                                                helperText={errors.emergencyContact?.message}
                                                 required
                                             />
                                             <FormField

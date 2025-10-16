@@ -1,7 +1,7 @@
-import { UserOutlined, LineChartOutlined, RedoOutlined, TeamOutlined } from '@ant-design/icons';
-import { Row, Col, Card, Statistic, Space, Select, DatePicker } from 'antd';
+import { UserOutlined, RedoOutlined, TeamOutlined } from '@ant-design/icons';
+import { Row, Col, Card, Statistic, DatePicker, Spin, Empty } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Bar,
     BarChart,
@@ -17,276 +17,194 @@ import {
     YAxis,
 } from 'recharts';
 
-const { Option } = Select;
+const { RangePicker } = DatePicker;
 
 const Dashboard = () => {
-    const [filterType, setFilterType] = useState<'day' | 'month' | 'year'>('month');
-    const [selectedDate, setSelectedDate] = useState(dayjs());
+    const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [departmentStats, setDepartmentStats] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
 
-    function CustomTooltip({ payload, label, active }) {
-        if (active) {
-            return (
-                <div className="custom-tooltip bg-slate-400 p-3 rounded-md bg-opacity-70">
-                    <p className="label">
-                        {filterType == 'year' ? `Tháng: ${label}` : `Ngày: ${label}`}
-                    </p>
-                    <p className="label">{`Lượt khám: ${payload[0].value}`}</p>
-                </div>
-            );
-        }
+    const departments = ['Nội tổng quát', 'Tai mũi họng', 'Da liễu', 'Tim mạch', 'Nhi'];
 
-        return null;
-    }
-
+    // mặc định từ đầu tháng đến hôm nay
     useEffect(() => {
-        generateData();
-    }, [filterType, selectedDate]);
+        const start = dayjs().startOf('month');
+        const end = dayjs();
+        setDateRange([start, end]);
+    }, []);
+
+    // đổi khoảng ngày -> load dữ liệu
+    useEffect(() => {
+        if (dateRange) generateData();
+    }, [dateRange]);
 
     const generateData = () => {
-        let barData: any[] = [];
-        let pieData: any[] = [];
+        setLoading(true);
+        const timer = setTimeout(() => {
+            const [start, end] = dateRange!;
+            const days = end.diff(start, 'day') + 1;
 
-        const departments = ['Nội tổng quát', 'Tai mũi họng', 'Da liễu', 'Tim mạch', 'Nhi'];
+            // giả lập không có dữ liệu nếu khoảng > 20 ngày
+            if (days > 20) {
+                setFilteredData([]);
+                setDepartmentStats([]);
+                setLoading(false);
+                return;
+            }
 
-        if (filterType === 'year') {
-            // 12 tháng
-            barData = Array.from({ length: 12 }, (_, i) => ({
-                date: `${i + 1}`,
-                count: Math.floor(Math.random() * 200 + 100),
-            }));
+            const barData = Array.from({ length: days }, (_, i) => {
+                const date = start.add(i, 'day');
+                return {
+                    date: date.format('DD/MM/YYYY'),
+                    count: Math.floor(Math.random() * 25 + 5),
+                };
+            });
 
-            pieData = departments.map((name) => ({
+            const pieData = departments.map((name) => ({
                 name,
-                value: Math.floor(Math.random() * 300 + 50),
-            }));
-        } else if (filterType === 'month') {
-            const daysInMonth = selectedDate.daysInMonth();
-            barData = Array.from({ length: daysInMonth }, (_, i) => ({
-                date:
-                    i >= 9
-                        ? `${i + 1}/${selectedDate.month() + 1}/${selectedDate.year()}`
-                        : `0${i + 1}/${selectedDate.month() + 1}/${selectedDate.year()}`,
-                count: Math.floor(Math.random() * 20 + 5),
+                value: Math.floor(Math.random() * 100 + 10),
             }));
 
-            pieData = departments.map((name) => ({
-                name,
-                value: Math.floor(Math.random() * 100 + 20),
-            }));
-        } else {
-            barData = [
-                {
-                    date: selectedDate.format('DD/MM/YYYY'),
-                    count: Math.floor(Math.random() * 40 + 10),
-                },
-            ];
+            setFilteredData(barData);
+            setDepartmentStats(pieData);
+            setLoading(false);
+            clearTimeout(timer);
+        }, 800); // giả lập API call
+    };
 
-            pieData = departments.map((name) => ({
-                name,
-                value: Math.floor(Math.random() * 30 + 5),
-            }));
-        }
-
-        setFilteredData(barData);
-        setDepartmentStats(pieData);
+    const stats = {
+        total: filteredData.reduce((sum, item) => sum + item.count, 0),
+        reExamRate: 22,
+        departments: departments.length,
     };
 
     const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AA00FF'];
 
-    const renderDatePicker = () => {
-        switch (filterType) {
-            case 'year':
-                return (
-                    <DatePicker
-                        picker="year"
-                        value={selectedDate}
-                        onChange={(val) => setSelectedDate(val || dayjs())}
-                    />
-                );
-            case 'month':
-                return (
-                    <DatePicker
-                        picker="month"
-                        value={selectedDate}
-                        onChange={(val) => setSelectedDate(val || dayjs())}
-                    />
-                );
-            default:
-                return (
-                    <DatePicker
-                        value={selectedDate}
-                        onChange={(val) => setSelectedDate(val || dayjs())}
-                    />
-                );
-        }
-    };
-
-    const stats = {
-        totalToday: filteredData.length
-            ? filteredData?.reduce((sum, item) => (sum += item.count), 0)
-            : 0,
-        reExamRate: 22,
-        departments: 5,
-    };
-
     return (
         <div className="flex flex-col gap-4">
+            {/* Header */}
             <div className="flex justify-between items-center">
                 <h2 className="mt-1">Tổng quan phòng khám</h2>
-
-                <div className="flex flex-wrap items-center gap-4">
-                    <Select
-                        value={filterType}
-                        onChange={(v) => setFilterType(v)}
-                        style={{ width: 150 }}
-                        options={[
-                            { label: 'Theo ngày', value: 'day' },
-                            { label: 'Theo tháng', value: 'month' },
-                            { label: 'Theo năm', value: 'year' },
-                        ]}
-                    />
-                    {renderDatePicker()}
-                </div>
+                <RangePicker
+                    value={dateRange}
+                    onChange={(val) => setDateRange(val as [dayjs.Dayjs, dayjs.Dayjs])}
+                    format="DD/MM/YYYY"
+                />
             </div>
 
+            {/* Thống kê tổng */}
             <div className="p-3 rounded-lg bg-white">
                 <Row gutter={[16, 16]}>
                     <Col span={12} xl={8}>
-                        <Card
-                            style={{
-                                background: '#e6f7ff', // xanh nhạt
-                            }}
-                            className="border border-blue-200"
-                        >
+                        <Card className="border border-blue-200" style={{ background: '#e6f7ff' }}>
                             <Statistic
                                 title="Tổng ca khám"
-                                value={stats?.totalToday}
-                                valueStyle={{ color: '#1890ff' }} // xanh
+                                value={stats.total}
                                 prefix={<UserOutlined style={{ color: '#1890ff' }} />}
+                                valueStyle={{ color: '#1890ff' }}
                             />
                         </Card>
                     </Col>
 
                     <Col span={12} xl={8}>
-                        <Card
-                            style={{
-                                background: '#f6ffed', // xanh lá nhạt
-                            }}
-                            className="border border-green-200"
-                        >
+                        <Card className="border border-green-200" style={{ background: '#f6ffed' }}>
                             <Statistic
                                 title="Tỷ lệ tái khám"
-                                value={stats?.reExamRate}
+                                value={stats.reExamRate}
                                 suffix="%"
-                                valueStyle={{ color: '#52c41a' }} // xanh lá
                                 prefix={<RedoOutlined style={{ color: '#52c41a' }} />}
+                                valueStyle={{ color: '#52c41a' }}
                             />
                         </Card>
                     </Col>
 
                     <Col span={12} xl={8}>
-                        <Card
-                            style={{
-                                background: '#fff0f6', // hồng nhạt
-                            }}
-                            className="border border-pink-200"
-                        >
+                        <Card className="border border-pink-200" style={{ background: '#fff0f6' }}>
                             <Statistic
                                 title="Phòng ban hoạt động"
-                                value={stats?.departments}
-                                valueStyle={{ color: '#eb2f96' }} // hồng
+                                value={stats.departments}
                                 prefix={<TeamOutlined style={{ color: '#eb2f96' }} />}
+                                valueStyle={{ color: '#eb2f96' }}
                             />
                         </Card>
                     </Col>
                 </Row>
             </div>
 
-            <Row gutter={[16, 16]}>
-                {/* Biểu đồ cột */}
-                <Col span={24} xl={16}>
-                    <Card
-                        title={
-                            <>
-                                Số ca khám theo{' '}
-                                {filterType === 'day'
-                                    ? 'ngày'
-                                    : filterType === 'month'
-                                    ? 'tháng'
-                                    : 'năm'}
-                            </>
-                        }
-                    >
-                        <ResponsiveContainer width="100%" height={310}>
-                            <BarChart data={filteredData}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="date">
-                                    <Label
-                                        value={
-                                            filterType === 'day'
-                                                ? 'Ngày'
-                                                : filterType === 'month'
-                                                ? 'Tháng'
-                                                : 'Năm'
-                                        }
-                                        offset={0}
-                                        position="insideBottom"
-                                    />
-                                </XAxis>
-                                <YAxis
-                                    label={{
-                                        value: 'Số ca khám',
-                                        angle: -90,
-                                        position: 'insideLeft',
-                                    }}
-                                />
-                                <Tooltip
-                                    content={
-                                        <CustomTooltip
-                                            payload={undefined}
-                                            label={undefined}
-                                            active={undefined}
+            <Spin spinning={loading} tip="Đang tải dữ liệu...">
+                <Row gutter={[16, 16]}>
+                    {/* Biểu đồ cột */}
+                    <Col span={24} xl={16}>
+                        <Card title="Số ca khám theo ngày">
+                            {filteredData.length === 0 && !loading ? (
+                                <Empty description="Không có dữ liệu để hiển thị" />
+                            ) : (
+                                <ResponsiveContainer width="100%" height={310}>
+                                    <BarChart data={filteredData}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="date">
+                                            <Label
+                                                value="Ngày"
+                                                offset={0}
+                                                position="insideBottom"
+                                            />
+                                        </XAxis>
+                                        <YAxis
+                                            label={{
+                                                value: 'Số ca khám',
+                                                angle: -90,
+                                                position: 'insideLeft',
+                                            }}
                                         />
-                                    }
-                                />
-                                <Bar
-                                    dataKey="count"
-                                    fill="#1890ff"
-                                    barSize={40}
-                                    radius={[6, 6, 0, 0]}
-                                />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </Card>
-                </Col>
+                                        <Tooltip />
+                                        <Bar
+                                            dataKey="count"
+                                            fill="#1890ff"
+                                            barSize={40}
+                                            radius={[6, 6, 0, 0]}
+                                        />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            )}
+                        </Card>
+                    </Col>
 
-                {/* Biểu đồ tròn */}
-                <Col span={24} xl={8}>
-                    <Card title="Phân bố ca khám theo phòng ban">
-                        <ResponsiveContainer width="100%" height={310}>
-                            <PieChart>
-                                <Pie
-                                    data={departmentStats}
-                                    dataKey="value"
-                                    nameKey="name"
-                                    outerRadius={90}
-                                    label={({ name, percent }) =>
-                                        `${name} (${((percent as number) * 100).toFixed(0)}%)`
-                                    }
-                                >
-                                    {departmentStats.map((_, i) => (
-                                        <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <Tooltip />
-                                <Legend />
-                            </PieChart>
-                        </ResponsiveContainer>
-                    </Card>
-                </Col>
-            </Row>
+                    {/* Biểu đồ tròn */}
+                    <Col span={24} xl={8}>
+                        <Card title="Phân bố ca khám theo phòng ban">
+                            {departmentStats.length === 0 && !loading ? (
+                                <Empty description="Không có dữ liệu để hiển thị" />
+                            ) : (
+                                <ResponsiveContainer width="100%" height={310}>
+                                    <PieChart>
+                                        <Pie
+                                            data={departmentStats}
+                                            dataKey="value"
+                                            nameKey="name"
+                                            outerRadius={90}
+                                            label={({ name, percent }) =>
+                                                `${name} (${((percent as number) * 100).toFixed(
+                                                    0
+                                                )}%)`
+                                            }
+                                        >
+                                            {departmentStats.map((_, i) => (
+                                                <Cell
+                                                    key={`cell-${i}`}
+                                                    fill={COLORS[i % COLORS.length]}
+                                                />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip />
+                                        <Legend />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            )}
+                        </Card>
+                    </Col>
+                </Row>
+            </Spin>
         </div>
     );
 };

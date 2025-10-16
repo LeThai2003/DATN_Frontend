@@ -1,11 +1,17 @@
 import ServiceCard from '@/components/cards/services/ServiceCard';
 import FilterButton from '@/components/filters/FilterButton';
 import FilterForm from '@/components/filters/FilterForm';
+import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 import { initFilterService } from '@/defaultValues/services/service_default';
+import { fetchFirst, loadPage } from '@/stores/actions/managers/services/service.action';
 import { service } from '@/stores/reducers';
-import { selectFilter } from '@/stores/selectors/services/service.selector';
-import { Pagination } from 'antd';
-import React, { useState } from 'react';
+import {
+    selectFilter,
+    selectLoadingPage,
+    selectServices,
+} from '@/stores/selectors/services/service.selector';
+import { Empty, Pagination, Spin } from 'antd';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 const employees = [
@@ -143,34 +149,44 @@ const Service = () => {
     const filterService = useSelector(selectFilter);
     const [isOpenServiceFilter, setIsOpenServiceFilter] = useState(false);
 
+    const servicesList = useSelector(selectServices);
+    const loadingPage = useSelector(selectLoadingPage);
+
+    useEffect(() => {
+        dispatch(fetchFirst());
+    }, []);
+
     const FilterServiceFields = [{ key: 'search', type: 'text', placeholder: 'Tìm kiếm dịch vụ' }];
 
     const handleFilterServiceChange = (key, value) => {
         dispatch(service.actions.setFilterService({ ...filterService, [key]: value }));
-        console.log(filterService);
+        dispatch(loadPage());
     };
 
-    const handleResetServiceFilter = () =>
-        dispatch(service.actions.setFilterService({ initFilterService }));
+    const handleResetServiceFilter = () => {
+        dispatch(service.actions.setFilterService({ ...initFilterService }));
+        dispatch(loadPage());
+    };
 
     const handleApplyServiceFilter = () => {
-        console.log(filterService);
+        dispatch(loadPage());
     };
 
     const handleChangeRoomPage = (e) => {
-        console.log(e);
         dispatch(
             service.actions.setFilterService({
                 ...filterService,
                 pageNo: e - 1,
             })
         );
+        dispatch(loadPage());
     };
 
     return (
-        <section className="py-10">
-            <div className="pt-[68px]">
-                <div className="container mx-auto text-center">
+        <section className="py-10 min-h-screen">
+            <div className="relative pt-[68px]">
+                {loadingPage && <LoadingSpinAntD />}
+                <div className=" container mx-auto text-center">
                     <h2 className="text-3xl font-bold mb-5 text-gray-800">Dịch vụ của chúng tôi</h2>
 
                     <div className="mb-3">
@@ -194,22 +210,30 @@ const Service = () => {
                         </div>
                     )}
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {services.map((service) => (
-                            <ServiceCard key={service.service_id} service={service} />
-                        ))}
-                    </div>
+                    {servicesList?.data?.length > 0 ? (
+                        <div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {servicesList?.data?.map((service) => (
+                                    <ServiceCard key={service.serviceId} service={service} />
+                                ))}
+                            </div>
 
-                    <div className="flex justify-center mt-10">
-                        <Pagination
-                            current={0}
-                            pageSize={2}
-                            onChange={(e) => {
-                                handleChangeRoomPage(e);
-                            }}
-                            total={5}
+                            <div className="flex justify-center mt-10">
+                                <Pagination
+                                    current={filterService?.pageNo + 1 || 0}
+                                    pageSize={10}
+                                    onChange={(e) => {
+                                        handleChangeRoomPage(e);
+                                    }}
+                                    total={servicesList?.totalPage * 10 || 1}
+                                />
+                            </div>
+                        </div>
+                    ) : (
+                        <Empty
+                            description={loadingPage ? 'Đang tải dữ liệu' : "'Không có dữ liệu'"}
                         />
-                    </div>
+                    )}
                 </div>
             </div>
         </section>

@@ -14,6 +14,10 @@ export const updateEmployee = createAction(employeeAction.update, (state) => ({
     payload: state,
 }));
 
+export const updatePasswordEmployee = createAction(`${name}/CHANGE_PASSWORD`, (state) => ({
+    payload: state,
+}));
+
 export const deleteEmployee = createAction(employeeAction.delete, (state) => ({
     payload: state,
 }));

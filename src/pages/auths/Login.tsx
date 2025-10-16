@@ -1,5 +1,5 @@
 import { useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { loginSchema } from '@/validations/auth.validation';
 import FormField from '@/components/forms/FormField';
@@ -7,21 +7,26 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loginAction } from '@/stores/actions/auth/auth.action';
 import { selectLoading } from '@/stores/selectors/auth/auth.selector';
 import { Spin } from 'antd';
+import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 
 const Login = () => {
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
 
+    const location = useLocation();
+
     const loading = useSelector(selectLoading);
 
+    const from = location.state?.from?.pathname + location.state?.from?.search || '/';
+
     const handleSubmitLogin = (data) => {
-        console.log(data);
         dispatch(
             loginAction({
                 username: data.username,
                 password: data.password,
                 action: (e) => navigate(e),
+                from,
             })
         );
     };
@@ -52,11 +57,7 @@ const Login = () => {
                 onSubmit={handleSubmit(handleSubmitLogin)}
                 className="relative w-[330px] sm:w-[420px] max-w-md bg-white rounded-2xl p-8 space-y-6 z-10 shadow-2xl"
             >
-                {loading && (
-                    <div className="absolute inset-0 bg-white/40 backdrop-blur-[0px] flex items-center justify-center rounded-2xl z-20">
-                        <Spin />
-                    </div>
-                )}
+                {loading && <LoadingSpinAntD />}
                 {/* Tiêu đề */}
                 <div className="text-center">
                     <h2 className="text-2xl font-semibold text-gray-800">Đăng nhập</h2>
