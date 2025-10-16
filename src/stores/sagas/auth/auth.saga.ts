@@ -15,6 +15,7 @@ import { all, call, fork, put, takeLatest } from 'typed-redux-saga';
 function* handleLogin({ payload }) {
     const { username, password, from } = payload;
 
+
     try {
         yield put(auth.actions.setLoading(true));
 

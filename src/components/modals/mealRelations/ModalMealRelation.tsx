@@ -1,13 +1,21 @@
-import { ModalState } from '@/types/stores/common';
+import { ModalState, ModalType } from '@/types/stores/common';
 import React from 'react';
 import ModalBase from '../ModalBase';
-import { Button } from 'antd';
+import { Button, Spin } from 'antd';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import FormField from '@/components/forms/FormField';
 import { mealRelationSchema } from '@/validations/mealRelation.validation';
+import { useDispatch, useSelector } from 'react-redux';
+import { createMealRelationAction, deleteMealRelationAction, updateMealRelationAction } from '@/stores/actions/managers/drug/meal_relation.action';
+import { selectLoading } from '@/stores/selectors/mealRelations/mealRelation.selector';
+import { common } from '@/stores/reducers';
 
 const ModalMealRelation: React.FC<ModalState> = ({ data, type, variant }) => {
+
+    const dispatch = useDispatch();
+    const loadingComponent = useSelector(selectLoading);
+
     const {
         control,
         handleSubmit,
@@ -22,15 +30,30 @@ const ModalMealRelation: React.FC<ModalState> = ({ data, type, variant }) => {
         resolver: yupResolver(mealRelationSchema),
     });
 
-    const onSubmit = (data) => {
-        console.log(variant);
-        console.log(data);
+    const onSubmit = (dt) => {
+        if( variant == 'edit'){
+            dispatch(updateMealRelationAction({
+                id : data?.relationsId,
+                data : dt
+            }))
+        } else if( variant == 'add'){
+            dispatch(createMealRelationAction(dt))
+        }
     };
+
+    const handleClose = () => {
+        dispatch(common.actions.setHiddenModal(ModalType.MEAL_RELATION));
+    }
+
+    const handleDelete = () => {
+        dispatch(deleteMealRelationAction(data?.relationsId))   
+    }
 
     if (variant == 'delete') {
         return (
             <ModalBase type={type} size="md">
-                <div>
+                <Spin spinning={loadingComponent}>
+                    <div>
                     <h2 className="font-semibold mb-3 text-center">
                         Xóa thời điểm uống thuốc so với bữa ăn
                     </h2>
@@ -42,12 +65,13 @@ const ModalMealRelation: React.FC<ModalState> = ({ data, type, variant }) => {
                         </>
                     </p>
                     <div className="flex justify-end space-x-3 mt-4">
-                        <Button onClick={() => {}}>Hủy</Button>
-                        <Button type="primary" danger onClick={() => {}}>
+                        <Button onClick={handleClose}>Hủy</Button>
+                        <Button type="primary" danger onClick={handleDelete}>
                             Xóa
                         </Button>
                     </div>
                 </div>
+                </Spin>
             </ModalBase>
         );
     }
@@ -55,7 +79,8 @@ const ModalMealRelation: React.FC<ModalState> = ({ data, type, variant }) => {
     if (variant == 'view' || variant == 'edit') {
         return (
             <ModalBase type={type} size="md">
-                <div>
+                <Spin spinning={loadingComponent}>
+                    <div>
                     <h2 className="font-semibold mb-3 text-center">
                         {variant == 'view'
                             ? 'Thời điểm uống thuốc so với bữa ăn'
@@ -98,6 +123,7 @@ const ModalMealRelation: React.FC<ModalState> = ({ data, type, variant }) => {
                         )}
                     </form>
                 </div>
+                </Spin>
             </ModalBase>
         );
     }
@@ -105,7 +131,8 @@ const ModalMealRelation: React.FC<ModalState> = ({ data, type, variant }) => {
     if (variant == 'add') {
         return (
             <ModalBase type={type} size="md">
-                <div>
+                <Spin spinning={loadingComponent}>
+                    <div>
                     <h2 className="font-semibold mb-3 text-center">
                         Thêm mới thời điểm uống thuốc với bữa ăn
                     </h2>
@@ -142,6 +169,7 @@ const ModalMealRelation: React.FC<ModalState> = ({ data, type, variant }) => {
                         </div>
                     </form>
                 </div>
+                </Spin>
             </ModalBase>
         );
     }

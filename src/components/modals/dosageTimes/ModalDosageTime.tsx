@@ -1,13 +1,21 @@
-import { ModalState } from '@/types/stores/common';
+import { ModalState, ModalType } from '@/types/stores/common';
 import React from 'react';
 import ModalBase from '../ModalBase';
-import { Button } from 'antd';
+import { Button, Spin } from 'antd';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import FormField from '@/components/forms/FormField';
 import { dosageTimeSchema } from '@/validations/dosageTime.validation';
+import { useDispatch, useSelector } from 'react-redux';
+import { createDosageTimeAction, deleteDosageTimeAction, updateDosageTimeAction } from '@/stores/actions/managers/drug/dosage_time.action';
+import { selectLoading } from '@/stores/selectors/dosageTimes/dosageTime.selector';
+import { common } from '@/stores/reducers';
 
 const ModalDosageTime: React.FC<ModalState> = ({ data, type, variant }) => {
+
+    const dispatch = useDispatch();
+    const loadingComponent = useSelector(selectLoading);
+
     const {
         control,
         handleSubmit,
@@ -22,15 +30,27 @@ const ModalDosageTime: React.FC<ModalState> = ({ data, type, variant }) => {
         resolver: yupResolver(dosageTimeSchema),
     });
 
-    const onSubmit = (data) => {
-        console.log(variant);
-        console.log(data);
+    const onSubmit = (dt) => {
+        if( variant == 'edit'){
+            dispatch(updateDosageTimeAction({id :data?.timeId, data : dt}))
+        } else if( variant == 'add'){
+            dispatch(createDosageTimeAction(dt))
+        }
     };
+
+    const handleClose = () => {
+        dispatch(common.actions.setHiddenModal(ModalType.DOSAGE_TIME))
+    }
+
+    const handleDelete = () => {
+        dispatch(deleteDosageTimeAction(data?.timeId))
+    }
 
     if (variant == 'delete') {
         return (
             <ModalBase type={type} size="sm">
-                <div>
+                <Spin spinning={loadingComponent}>
+                    <div>
                     <h2 className="font-semibold mb-3 text-center">Xóa thời gian uống thuốc</h2>
                 </div>
                 <div className="">
@@ -40,12 +60,13 @@ const ModalDosageTime: React.FC<ModalState> = ({ data, type, variant }) => {
                         </>
                     </p>
                     <div className="flex justify-end space-x-3 mt-4">
-                        <Button onClick={() => {}}>Hủy</Button>
-                        <Button type="primary" danger onClick={() => {}}>
+                        <Button onClick={handleClose}>Hủy</Button>
+                        <Button type="primary" danger onClick={handleDelete}>
                             Xóa
                         </Button>
                     </div>
                 </div>
+                </Spin>
             </ModalBase>
         );
     }
@@ -53,7 +74,8 @@ const ModalDosageTime: React.FC<ModalState> = ({ data, type, variant }) => {
     if (variant == 'view' || variant == 'edit') {
         return (
             <ModalBase type={type} size="sm">
-                <div>
+                <Spin spinning={loadingComponent}>
+                    <div>
                     <h2 className="font-semibold mb-3 text-center">
                         {variant == 'view'
                             ? 'Thông tin thời gian uống thuốc'
@@ -96,6 +118,7 @@ const ModalDosageTime: React.FC<ModalState> = ({ data, type, variant }) => {
                         )}
                     </form>
                 </div>
+                </Spin>
             </ModalBase>
         );
     }
@@ -103,7 +126,8 @@ const ModalDosageTime: React.FC<ModalState> = ({ data, type, variant }) => {
     if (variant == 'add') {
         return (
             <ModalBase type={type} size="sm">
-                <div>
+                <Spin spinning={loadingComponent}>
+                    <div>
                     <h2 className="font-semibold mb-3 text-center">
                         Thêm mới thời gian uống thuốc
                     </h2>
@@ -140,6 +164,7 @@ const ModalDosageTime: React.FC<ModalState> = ({ data, type, variant }) => {
                         </div>
                     </form>
                 </div>
+                </Spin>
             </ModalBase>
         );
     }

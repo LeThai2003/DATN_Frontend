@@ -1,7 +1,7 @@
 import { Unit } from '@/types/stores/units/unit_type';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectFilter as selectFilterUnit } from '@/stores/selectors/units/unit.selector';
+import { selectFilter as selectFilterUnit, selectUnits } from '@/stores/selectors/units/unit.selector';
 import { common, drug, unit } from '@/stores/reducers';
 import { initFilterUnit } from '@/defaultValues/units/unit_default';
 import { Button, Pagination, Space, Table } from 'antd';
@@ -9,6 +9,7 @@ import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { ModalType } from '@/types/stores/common';
 import FilterForm from '@/components/filters/FilterForm';
 import FilterButton from '@/components/filters/FilterButton';
+import { fetchFirst } from '@/stores/actions/managers/drug/unit.action';
 
 export const units: Unit[] = [
     {
@@ -24,7 +25,10 @@ export const units: Unit[] = [
 ];
 
 const TabUnit = () => {
+
+    // hooks
     const dispatch = useDispatch();
+    const unitTable = useSelector(selectUnits);
 
     const filterUnit = useSelector(selectFilterUnit);
 
@@ -78,8 +82,8 @@ const TabUnit = () => {
         { title: 'Đơn vị', dataIndex: 'name', key: 'name', width: 200 },
         {
             title: 'Mô tả',
-            dataIndex: 'descriptions',
-            key: 'descriptions',
+            dataIndex: 'description',
+            key: 'description',
             ellipsis: true,
             onCell: () => ({
                 style: {
@@ -132,13 +136,12 @@ const TabUnit = () => {
 
     const handleFilterUnitChange = (key, value) => {
         dispatch(unit.actions.setFilterUnit({ ...filterUnit, [key]: value }));
-        console.log(filterUnit);
+         dispatch(fetchFirst());
     };
 
     const handleResetUnitFilter = () => dispatch(unit.actions.setFilterUnit({ initFilterUnit }));
 
     const handleApplyUnitFilter = () => {
-        console.log(filterUnit);
     };
 
     const handleChangeUnitPage = (e) => {
@@ -150,6 +153,11 @@ const TabUnit = () => {
             })
         );
     };
+
+    // useEffect 
+    useEffect(() => {
+        dispatch(fetchFirst());
+    },[])
 
     return (
         <div className="p-2 bg-white rounded-lg flex flex-col gap-3">
@@ -177,19 +185,20 @@ const TabUnit = () => {
             )}
             <Table
                 columns={unitColumns}
-                dataSource={units}
+                loading={unitTable?.loadingPage}
+                dataSource={unitTable?.data}
                 rowKey="unit_id"
                 pagination={false}
                 scroll={{ x: 'max-content', y: window.innerHeight * 0.82 - 160 }}
             />
             <div className="flex justify-end">
                 <Pagination
-                    current={0}
-                    pageSize={2}
+                    current={filterUnit?.pageNo + 1 }
+                    pageSize={filterUnit?.pageSize || 10}
                     onChange={(e) => {
                         handleChangeUnitPage(e);
                     }}
-                    total={5}
+                    total={unitTable?.totalPage}
                 />
             </div>
         </div>

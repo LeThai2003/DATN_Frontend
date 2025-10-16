@@ -6,6 +6,7 @@ import { initFilterValue } from '../common/common';
 
 export const initFilterMealRelation: FilterMealRelation = {
     ...initFilterValue,
+    sort : 'relationsId'
 };
 
 export const initMealRelationSlice: MealRelationSlice = {

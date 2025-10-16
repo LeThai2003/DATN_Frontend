@@ -4,6 +4,7 @@ import { initFilterValue } from '../common/common';
 export const initFilterDrug: FilterDrug = {
     ...initFilterValue,
     chooseTheDrugs: [],
+    sort: 'drugId'
 };
 
 export const initDrugSlice: DrugSlice = {

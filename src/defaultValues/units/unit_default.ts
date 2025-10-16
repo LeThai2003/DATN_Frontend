@@ -3,6 +3,7 @@ import { initFilterValue } from '../common/common';
 
 export const initFilterUnit: FilterUnit = {
     ...initFilterValue,
+    sort: 'unitId',
 };
 
 export const initUnitSlice: UnitSlice = {

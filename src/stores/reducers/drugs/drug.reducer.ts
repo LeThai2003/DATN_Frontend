@@ -1,5 +1,6 @@
 import { initDrugSlice } from '@/defaultValues/drugs/drug_default';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Payload } from 'recharts/types/component/DefaultTooltipContent';
 
 export const name = 'drug';
 
@@ -25,6 +26,9 @@ const DrugSlice = createSlice({
         setSelectDrug(state, { payload }: PayloadAction<any>) {
             state.selectedDrug = payload;
         },
+        setPageNo(state, {payload} : PayloadAction<any>){
+            state.filter.pageNo = payload;
+        }
     },
 });
 

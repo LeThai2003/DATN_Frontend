@@ -1,36 +1,55 @@
-import { ModalState } from '@/types/stores/common';
+import { ModalState, ModalType } from '@/types/stores/common';
 import React from 'react';
 import ModalBase from '../ModalBase';
-import { Button } from 'antd';
+import { Button, Spin } from 'antd';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { unitSchema } from '@/validations/unit.validation';
 import FormField from '@/components/forms/FormField';
+import { useDispatch, useSelector } from 'react-redux';
+import { createUnitAction, deleteUnitAction, updateUnitAction } from '@/stores/actions/managers/drug/unit.action';
+import { selectLoading } from '@/stores/selectors/units/unit.selector';
+import { common } from '@/stores/reducers';
 
 const ModalUnitDrug: React.FC<ModalState> = ({ data, type, variant }) => {
+
+    const dispatch = useDispatch();
+    const loadingComponent = useSelector(selectLoading);
+
     const {
         control,
         handleSubmit,
         reset,
-        watch,
         formState: { errors, isSubmitting },
     } = useForm({
         defaultValues: {
             name: data?.name || '',
-            descriptions: data?.descriptions || '',
+            description: data?.description || '',
         },
         resolver: yupResolver(unitSchema),
     });
 
-    const onSubmit = (data) => {
-        console.log(variant);
-        console.log(data);
+    const onSubmit = (dt) => {
+        if( variant == 'edit'){
+            dispatch(updateUnitAction({id: data.unitId, dt}))
+        } else if(variant == 'add'){
+            dispatch(createUnitAction(dt))
+        }
     };
+
+    const handleClose = () => {
+        dispatch(common.actions.setHiddenModal(ModalType.UNIT))
+    }
+
+    const handleDelete = () => {
+        dispatch(deleteUnitAction(data.unitId))
+    }
 
     if (variant == 'delete') {
         return (
             <ModalBase type={type} size="sm">
-                <div>
+                <Spin spinning={loadingComponent}>
+                     <div>
                     <h2 className="font-semibold mb-3 text-center">Xóa đơn vị thuốc</h2>
                 </div>
                 <div className="">
@@ -40,12 +59,13 @@ const ModalUnitDrug: React.FC<ModalState> = ({ data, type, variant }) => {
                         </>
                     </p>
                     <div className="flex justify-end space-x-3 mt-4">
-                        <Button onClick={() => {}}>Hủy</Button>
-                        <Button type="primary" danger onClick={() => {}}>
+                        <Button onClick={handleClose}>Hủy</Button>
+                        <Button type="primary" danger onClick={handleDelete}>
                             Xóa
                         </Button>
                     </div>
                 </div>
+                </Spin>
             </ModalBase>
         );
     }
@@ -57,7 +77,8 @@ const ModalUnitDrug: React.FC<ModalState> = ({ data, type, variant }) => {
                     <h2 className="font-semibold mb-3 text-center">
                         {variant == 'view' ? 'Thông tin đơn vị' : 'Cập nhật đơn vị'}
                     </h2>
-                    <form
+                    <Spin spinning={loadingComponent}>
+                        <form
                         onSubmit={handleSubmit(onSubmit)}
                         className="space-y-4 mt-2 pr-1 pt-2 overflow-y-auto h-[92%]"
                     >
@@ -74,15 +95,15 @@ const ModalUnitDrug: React.FC<ModalState> = ({ data, type, variant }) => {
                             helperText={errors.name?.message as string}
                         />
                         <FormField
-                            name="descriptions"
+                            name="description"
                             control={control}
                             label="Mô tả đơn vị thuốc"
                             placeholder="Nhập mô tả đơn vị thuốc"
                             type={variant === 'edit' ? 'textarea' : 'text'}
                             disabled={variant != 'edit'}
                             rows={3}
-                            error={!!errors.descriptions}
-                            helperText={errors.descriptions?.message as string}
+                            error={!!errors.description}
+                            helperText={errors.description?.message as string}
                         />
                         {variant == 'edit' && (
                             <div className="flex justify-end gap-2">
@@ -93,6 +114,7 @@ const ModalUnitDrug: React.FC<ModalState> = ({ data, type, variant }) => {
                             </div>
                         )}
                     </form>
+                    </Spin>
                 </div>
             </ModalBase>
         );
@@ -102,7 +124,8 @@ const ModalUnitDrug: React.FC<ModalState> = ({ data, type, variant }) => {
         return (
             <ModalBase type={type} size="sm">
                 <div>
-                    <h2 className="font-semibold mb-3 text-center">Thêm mới đơn vị thuốc</h2>
+                    <Spin spinning={loadingComponent}>
+                        <h2 className="font-semibold mb-3 text-center">Thêm mới đơn vị thuốc</h2>
                     <form
                         onSubmit={handleSubmit(onSubmit)}
                         className="space-y-4 mt-2 pr-1 pt-2 overflow-y-auto h-[92%]"
@@ -119,14 +142,14 @@ const ModalUnitDrug: React.FC<ModalState> = ({ data, type, variant }) => {
                             helperText={errors.name?.message as string}
                         />
                         <FormField
-                            name="descriptions"
+                            name="description"
                             control={control}
                             label="Mô tả đơn vị thuốc"
                             placeholder="Nhập mô tả đơn vị thuốc"
                             type="textarea"
                             rows={3}
-                            error={!!errors.descriptions}
-                            helperText={errors.descriptions?.message as string}
+                            error={!!errors.description}
+                            helperText={errors.description?.message as string}
                         />
                         <div className="flex justify-end gap-2">
                             <Button onClick={() => reset(data)}>Hoàn tác</Button>
@@ -135,6 +158,7 @@ const ModalUnitDrug: React.FC<ModalState> = ({ data, type, variant }) => {
                             </Button>
                         </div>
                     </form>
+                    </Spin>
                 </div>
             </ModalBase>
         );
