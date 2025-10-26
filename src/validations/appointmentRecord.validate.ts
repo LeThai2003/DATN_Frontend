@@ -45,4 +45,21 @@ export const appointmentRecordSchema = yup.object().shape({
     icd10_value: yup.string().optional(),
 
     notes: yup.string().optional(),
+
+    followUpVisit: yup.object().shape({
+        isFollowUp: yup.boolean().default(false),
+        followUpDate: yup.string().when('isFollowUp', {
+            is: true,
+            then: (schema) =>
+                schema
+                    .required('Vui lòng chọn ngày tái khám')
+                    .matches(/^\d{4}-\d{2}-\d{2}$/, 'Định dạng ngày không hợp lệ (YYYY-MM-DD)'),
+            otherwise: (schema) => schema.optional(),
+        }),
+        notes: yup.string().when('isFollowUp', {
+            is: true,
+            then: (schema) => schema.optional(),
+            otherwise: (schema) => schema.optional(),
+        }),
+    }),
 });

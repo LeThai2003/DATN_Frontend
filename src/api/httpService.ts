@@ -33,7 +33,7 @@ class HttpService {
         });
 
         this.instance.interceptors.request.use((config) => {
-            const token = getCookies('access_token');
+            const token = getCookies('access_token') || localStorage.getItem('access_token');
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
             }
@@ -77,8 +77,10 @@ class HttpService {
         switch (status) {
             case 401: {
                 if (!isServer) {
-                    const refresh_token = getCookies('refresh_token');
-                    const access_token = getCookies('access_token');
+                    const refresh_token =
+                        getCookies('refresh_token') || localStorage.getItem('refresh_token');
+                    const access_token =
+                        getCookies('access_token') || localStorage.getItem('access_token');
 
                     if (!refresh_token || !access_token) {
                         deleteAllCookies();
@@ -96,7 +98,7 @@ class HttpService {
                         const response = await axios.post(
                             `${
                                 import.meta.env.VITE_BACKEND_URL
-                            }/auth/refreshToken/${access_token}/${refresh_token}`
+                            }/auth/refresh?refreshToken=${refresh_token}`
                         );
 
                         const accessToken = response.data.access_token;

@@ -6,10 +6,16 @@ export const initFilterAppointment: FilterAppointment = {
     sort: 'appointmentId',
     patientId: null,
     employeeId: null,
+    statuses: null,
 };
 
 export const initAppointmentSlice: AppointmentSlice = {
-    appointments: {
+    appointments_patient: {
+        data: [],
+        totalPage: 0,
+        loadingPage: false,
+    },
+    appointments_doctor: {
         data: [],
         totalPage: 0,
         loadingPage: false,
@@ -19,5 +25,6 @@ export const initAppointmentSlice: AppointmentSlice = {
     newAppointment: null,
     patientAppointment: null,
     doctorAppointment: null,
+    shift: null,
     loadingComponent: false,
 };

@@ -29,7 +29,9 @@ const ServiceCard = ({ service }) => {
     return (
         <div className="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
             <img src={service.image} alt={service.name} className="h-32 mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-gray-800 mb-2">{service.name}</h3>
+            <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-1 text-ellipsis">
+                {service.name}
+            </h3>
             <p className="text-gray-600 mb-2 line-clamp-1">{service.description}</p>
             <div className="bg-gray-100 rounded-xl py-1 px-4 mb-4 inline-block">
                 <span className="text-sm text-gray-500 mr-2">Phí khám:</span>

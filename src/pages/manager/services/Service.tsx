@@ -195,14 +195,14 @@ const Service = () => {
             key: 'price',
             render: (price: number) => price.toLocaleString(),
         },
-        {
-            title: 'Số lượng bác sĩ',
-            dataIndex: 'employeeDtos',
-            key: 'employeeDtos',
-            width: 150,
-            align: 'center',
-            render: (employeeDtos) => employeeDtos?.length || 0,
-        },
+        // {
+        //     title: 'Số lượng bác sĩ',
+        //     dataIndex: 'employeeDtos',
+        //     key: 'employeeDtos',
+        //     width: 150,
+        //     align: 'center',
+        //     render: (employeeDtos) => employeeDtos?.length || 0,
+        // },
         {
             title: 'Hành động',
             key: 'actions',

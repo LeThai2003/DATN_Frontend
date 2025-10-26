@@ -26,6 +26,9 @@ const EmployeeSlice = createSlice({
         setSelectEmployee(state, { payload }: PayloadAction<any>) {
             state.selectedEmployee = payload;
         },
+        setEmployeeInfo(state, { payload }: PayloadAction<any>) {
+            state.employeeInfo = payload;
+        },
     },
 });
 

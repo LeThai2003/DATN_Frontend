@@ -7,12 +7,14 @@ import {
     dosageTime,
     drug,
     employee,
+    icd10,
     mealRelation,
     patient,
     prescription,
     role,
     room,
     service,
+    shift,
     specialization,
     unit,
 } from '.';
@@ -33,6 +35,8 @@ const rootReducers = combineReducers({
     [specialization.name]: specialization.default.reducer,
     [service.name]: service.default.reducer,
     [appointment.name]: appointment.default.reducer,
+    [icd10.name]: icd10.default.reducer,
+    [shift.name]: shift.default.reducer,
 });
 
 export type RootReducerType = ReturnType<typeof rootReducers>;

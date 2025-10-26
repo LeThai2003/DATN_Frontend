@@ -3,52 +3,47 @@ import { Button, Card, Pagination, Spin, Tag, Tooltip } from 'antd';
 import Table, { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { EyeOutlined } from '@ant-design/icons';
-import { appointment, common } from '@/stores/reducers';
+import { appointment, appointment_record, common } from '@/stores/reducers';
 import { ModalType } from '@/types/stores/common';
 import { useDispatch, useSelector } from 'react-redux';
 import { initFilterAppointment } from '@/defaultValues/appointments/appointment_default';
 import {
-    selectAppointments,
+    selectAppointmentsPatient,
     selectFilter,
-    selectLoadingPage,
+    selectLoadingPagePatient,
 } from '@/stores/selectors/appointments/appointment.selector';
 import { useEffect, useState } from 'react';
 import FilterButton from '@/components/filters/FilterButton';
 import FilterForm from '@/components/filters/FilterForm';
 import WelcomeCard from '@/components/cards/WelcomeCard';
 import { selectInfoPatient } from '@/stores/selectors/patients/patient.selector';
-import { fetchFirst, loadPage } from '@/stores/actions/appointments/appointment.action';
-import { getAppointmentRecord } from '@/stores/actions/appointmentRecord.s/appointmentRecord.action';
-import { selectSelectedAppointmentRecord } from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
+import {
+    fetchAppointmentListPatient,
+    loadPagePatient,
+} from '@/stores/actions/appointments/appointment.action';
 
 const AppointmentHistory = () => {
     const dispatch = useDispatch();
 
     const filterAppointment = useSelector(selectFilter);
     const infoPatient = useSelector(selectInfoPatient);
-    const loadingPage = useSelector(selectLoadingPage);
-    const appointmentsList = useSelector(selectAppointments);
-    const appointmentRecord = useSelector(selectSelectedAppointmentRecord);
-
-    console.log(appointmentRecord);
-
-    // console.log(appointmentsList);
+    const loadingPage = useSelector(selectLoadingPagePatient);
+    const appointmentsList = useSelector(selectAppointmentsPatient);
 
     useEffect(() => {
         dispatch(
             appointment.actions.setFilterAppointment({
                 ...initFilterAppointment,
                 patientId: [infoPatient?.patientId],
+                statuses: ['COMPLETE', 'CREATE', 'PAYMENT'],
             })
         );
-        dispatch(fetchFirst());
+        dispatch(fetchAppointmentListPatient());
     }, []);
 
     const [isOpenAppointmentFilter, setIsOpenAppointmentFilter] = useState(false);
 
     const handleOpenViewAppointmentRecord = (data) => {
-        dispatch(getAppointmentRecord({ id: data?.appointmentId }));
-        dispatch(appointment.actions.setSelectAppointment(data));
         dispatch(
             common.actions.setShowModal({
                 type: ModalType.APPOINTMENT_PATIENT,
@@ -57,6 +52,10 @@ const AppointmentHistory = () => {
             })
         );
     };
+
+    const sortedData = appointmentsList?.data
+        ?.slice()
+        .sort((a, b) => new Date(b.shiftId.date).getTime() - new Date(a.shiftId.date).getTime());
 
     const appointmentColumns: ColumnsType<any> = [
         // {
@@ -67,30 +66,30 @@ const AppointmentHistory = () => {
         // },
         {
             title: 'Ngày khám',
-            dataIndex: 'appointmentDate',
+            dataIndex: ['shiftId', 'date'],
             key: 'appointmentDate',
             render: (date) => dayjs(date).format('DD/MM/YYYY'),
             width: 130,
         },
-        {
-            title: 'Giờ khám',
-            dataIndex: 'appointmentTime',
-            key: 'appointmentTime',
-            render: (hour) => dayjs(hour, 'HH:mm').format('HH:mm'),
-            width: 100,
-        },
+        // {
+        //     title: 'Giờ khám',
+        //     dataIndex: 'appointmentTime',
+        //     key: 'appointmentTime',
+        //     render: (hour) => dayjs(hour, 'HH:mm').format('HH:mm'),
+        //     width: 100,
+        // },
         {
             title: 'Bác sĩ khám',
-            dataIndex: ['employeeId', 'fullName'],
+            dataIndex: ['shiftId', 'employeeDto', 'fullName'],
             key: 'doctor',
             width: 180,
         },
-        // {
-        //     title: 'Chuyên khoa',
-        //     dataIndex: ['doctor', 'specialization', 'name'],
-        //     key: 'specialization',
-        //     width: 150,
-        // },
+        {
+            title: 'Phòng khám',
+            dataIndex: ['roomDto', 'name'],
+            key: 'specialization',
+            width: 150,
+        },
         {
             title: 'Dịch vụ',
             dataIndex: ['serviceId', 'name'],
@@ -105,23 +104,23 @@ const AppointmentHistory = () => {
             render: (price) => `${price.toLocaleString()} ₫`,
             width: 120,
         },
-        // {
-        //     title: 'Trạng thái',
-        //     dataIndex: 'status',
-        //     key: 'status',
-        //     width: 120,
-        //     render: (status) => {
-        //         const color =
-        //             status === 'completed' ? 'green' : status === 'pending' ? 'orange' : 'red';
-        //         const label =
-        //             status === 'completed'
-        //                 ? 'Hoàn thành'
-        //                 : status === 'pending'
-        //                 ? 'Đang xử lý'
-        //                 : 'Đã hủy';
-        //         return <Tag color={color}>{label}</Tag>;
-        //     },
-        // },
+        {
+            title: 'Trạng thái',
+            dataIndex: 'status',
+            key: 'status',
+            width: 120,
+            render: (status) => {
+                const color =
+                    status === 'COMPLETE' ? 'green' : status === 'CREATE' ? 'orange' : 'red';
+                const label =
+                    status === 'COMPLETE'
+                        ? 'Hoàn thành'
+                        : status === 'CREATE'
+                        ? 'Đang xử lý'
+                        : 'Đã thanh toán';
+                return <Tag color={color}>{label}</Tag>;
+            },
+        },
         // {
         //     title: 'Ghi chú / Kết quả',
         //     key: 'record',
@@ -158,16 +157,16 @@ const AppointmentHistory = () => {
 
     const handleFilterAppointmentChange = (key, value) => {
         dispatch(appointment.actions.setFilterAppointment({ ...filterAppointment, [key]: value }));
-        dispatch(loadPage());
+        dispatch(loadPagePatient());
     };
 
     const handleResetAppointmentFilter = () => {
         dispatch(appointment.actions.setFilterAppointment({ ...initFilterAppointment }));
-        dispatch(loadPage());
+        dispatch(loadPagePatient());
     };
 
     const handleApplyAppointmentFilter = () => {
-        dispatch(loadPage());
+        dispatch(loadPagePatient());
     };
 
     const handleChangeAppointmentPage = (e) => {
@@ -177,7 +176,7 @@ const AppointmentHistory = () => {
                 pageNo: e - 1,
             })
         );
-        dispatch(loadPage());
+        dispatch(loadPagePatient());
     };
 
     return (
@@ -213,7 +212,7 @@ const AppointmentHistory = () => {
                                         )}
                                     </div>
                                     <Table
-                                        dataSource={appointmentsList?.data}
+                                        dataSource={sortedData}
                                         columns={appointmentColumns}
                                         rowKey="appointmentId"
                                         pagination={false}
@@ -232,7 +231,7 @@ const AppointmentHistory = () => {
                                 </div>
                             ) : (
                                 <div>
-                                    <p>Không tìm thấy lịch sử khám bệnh.</p>
+                                    {!loadingPage && <p>Không tìm thấy lịch sử khám bệnh.</p>}
                                 </div>
                             )}
                         </Card>

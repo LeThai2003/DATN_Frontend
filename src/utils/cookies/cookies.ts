@@ -4,7 +4,7 @@ export const setCookies = (key: string, value: any, time: number) => {
     Cookies.set(key, value, {
         expires: time,
         secure: false,
-        sameSite: 'Strict',
+        sameSite: 'Lax',
     });
 };
 

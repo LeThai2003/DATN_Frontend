@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Table,
     Input,
@@ -13,36 +13,65 @@ import {
     Empty,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { drugs } from '../drugs/TabDrug';
-import { units } from '../drugs/TabUnit';
-import { Prescription } from '@/types/stores/prescriptions/prescription_type';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectNewPrescription } from '@/stores/selectors/prescriptions/prescription.selector';
 import { prescription } from '@/stores/reducers';
+import { fetchFirst as fetchFirstDrug } from '@/stores/actions/managers/drug/drug.action';
+import { fetchFirst as fetchFirstDosageTime } from '@/stores/actions/managers/drug/dosage_time.action';
+import { fetchFirstMealRelation as fetchFirstMealRelation } from '@/stores/actions/managers/drug/meal_relation.action';
+import { fetchFirst as fetchFirstUnit } from '@/stores/actions/managers/drug/unit.action';
+import { selectDrugs } from '@/stores/selectors/drugs/drug.selector';
+import { selectMealRealtions } from '@/stores/selectors/mealRelations/mealRelation.selector';
+import { selectUnits } from '@/stores/selectors/units/unit.selector';
+import { selectDosageTimes } from '@/stores/selectors/dosageTimes/dosageTime.selector';
 
-const mealTimeOptions = [
-    { value: 'before', label: 'Trước ăn' },
-    { value: 'during', label: 'Trong bữa ăn' },
-    { value: 'after', label: 'Sau ăn' },
-];
+const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
+    console.log(appointmentRecordData?.perscriptionDtos);
 
-const dosageOptions = ['Sáng', 'Trưa', 'Chiều', 'Tối'];
-
-const SectionPrescription = ({ record, isHistory }) => {
     const dispatch = useDispatch();
     const newPrescription = useSelector(selectNewPrescription);
+    const drugsList = useSelector(selectDrugs);
+    const mealRelationsList = useSelector(selectMealRealtions);
+    const unitsList = useSelector(selectUnits);
+    const dosageTimesList = useSelector(selectDosageTimes);
 
-    const [dataAdd, setDataAdd] = useState<Prescription[]>([]);
+    // console.log(drugsList);
+    // console.log(mealRelationsList);
+    // console.log(unitsList);
+    // console.log(dosageTimesList);
+
+    const dosageOptions =
+        dosageTimesList?.data?.map((item) => ({
+            label: item?.name,
+            value: item?.timeId,
+        })) || [];
+
+    const [dataAdd, setDataAdd] = useState<any[]>([]);
     const [editingKey, setEditingKey] = useState<string>('');
-
     const [form] = Form.useForm();
 
-    const isEditing = (recordRow: Prescription) => recordRow.key === editingKey;
+    const isEditing = (recordRow: any) => recordRow.key === editingKey;
 
-    const edit = (recordRow: Prescription) => {
-        form.setFieldsValue({ ...recordRow });
-        setEditingKey(recordRow.key);
-    };
+    // khi có dữ liệu mới (thêm thuốc)
+    useEffect(() => {
+        if (newPrescription && newPrescription.length > 0) {
+            setDataAdd(newPrescription);
+        }
+    }, [newPrescription]);
+
+    // khi hiển thị lịch sử
+    useEffect(() => {
+        if (isHistory && appointmentRecordData?.perscriptionDtos) {
+            setDataAdd(appointmentRecordData.perscriptionDtos);
+        }
+    }, [isHistory, appointmentRecordData]);
+
+    useEffect(() => {
+        dispatch(fetchFirstDrug());
+        dispatch(fetchFirstDosageTime());
+        dispatch(fetchFirstMealRelation());
+        dispatch(fetchFirstUnit());
+    }, []);
 
     const cancel = () => {
         const row = dataAdd.find((d) => d.key == editingKey);
@@ -52,15 +81,18 @@ const SectionPrescription = ({ record, isHistory }) => {
         setEditingKey('');
     };
 
+    const edit = (recordRow: any) => {
+        form.setFieldsValue({ ...recordRow });
+        setEditingKey(recordRow.key);
+    };
+
     const save = async (key: string) => {
         try {
-            const row = (await form.validateFields()) as Prescription;
+            const row = (await form.validateFields()) as any;
             const newData = [...dataAdd];
             const index = newData.findIndex((item) => key === item.key);
 
-            row.drug_name = drugs.find((d) => d.drug_id == (row.drug_id as number))?.name || '';
-            row.unit_dosage_name =
-                units.find((u) => u.unit_id == (row.unit_dosage_id as number))?.name || '';
+            // console.log('=========================', row);
 
             if (index > -1) {
                 newData.splice(index, 1, { ...newData[index], ...row });
@@ -73,17 +105,16 @@ const SectionPrescription = ({ record, isHistory }) => {
     };
 
     const addRow = () => {
-        const newRow: Prescription = {
+        const newRow: any = {
             key: Date.now().toString(),
             drug_id: '',
             drug_name: '',
             unit_dosage_id: null,
-            unit_dosage_name: '',
             dosage: null,
             dosage_time: [],
             duration: null,
             meal_time: '',
-            note: '',
+            instructions: '',
         };
         setDataAdd([newRow, ...dataAdd]);
         setEditingKey(newRow.key);
@@ -94,21 +125,38 @@ const SectionPrescription = ({ record, isHistory }) => {
         setDataAdd(dataAdd.filter((item) => item.key !== key));
     };
 
-    const baseColumns: ColumnsType<Prescription> = [
+    // ========== CỘT DÙNG KHI TẠO MỚI (cho phép nhập) ==========
+    const baseColumns: ColumnsType<any> = [
         {
-            title: <span>Thuốc {!record && <span className="text-red-500"> * </span>}</span>,
-            dataIndex: 'drug_id',
+            title: (
+                <span>
+                    Thuốc <span className="text-red-500">*</span>
+                </span>
+            ),
+            dataIndex: 'drug_name',
             render: (_, record) =>
                 isEditing(record) ? (
-                    <Form.Item name="drug_id" rules={[{ required: true, message: 'Chọn thuốc' }]}>
-                        <Select
-                            style={{ width: 180 }}
-                            options={drugs.map((d) => ({
-                                value: d.drug_id,
-                                label: d.name,
-                            }))}
-                        />
-                    </Form.Item>
+                    <>
+                        <Form.Item name="drug_id" className="mb-0">
+                            <Select
+                                showSearch
+                                optionFilterProp="label"
+                                placeholder="Tên thuốc"
+                                style={{ width: 180 }}
+                                options={drugsList?.data?.map((drug) => ({
+                                    value: drug?.drugId,
+                                    label: drug?.name,
+                                }))}
+                                onChange={(value, option) => {
+                                    const opt = option as any;
+                                    form.setFieldValue('drug_name', opt?.label);
+                                }}
+                            />
+                        </Form.Item>
+                        <Form.Item name="drug_name" hidden>
+                            <Input />
+                        </Form.Item>
+                    </>
                 ) : (
                     record.drug_name
                 ),
@@ -118,7 +166,7 @@ const SectionPrescription = ({ record, isHistory }) => {
             dataIndex: 'dosage',
             render: (_, record) =>
                 isEditing(record) ? (
-                    <Form.Item name="dosage">
+                    <Form.Item name="dosage" className="mb-0">
                         <InputNumber min={1} />
                     </Form.Item>
                 ) : (
@@ -130,12 +178,24 @@ const SectionPrescription = ({ record, isHistory }) => {
             dataIndex: 'unit_dosage_id',
             render: (_, record) =>
                 isEditing(record) ? (
-                    <Form.Item name="unit_dosage_id">
-                        <Select
-                            style={{ width: 100 }}
-                            options={units.map((u) => ({ value: u.unit_id, label: u.name }))}
-                        />
-                    </Form.Item>
+                    <>
+                        <Form.Item name="unit_dosage_id" className="mb-0">
+                            <Select
+                                style={{ width: 100 }}
+                                options={unitsList?.data?.map((unit) => ({
+                                    value: unit?.unitId,
+                                    label: unit?.name,
+                                }))}
+                                onChange={(value, option) => {
+                                    const opt = option as any;
+                                    form.setFieldValue('unit_dosage_name', opt?.label);
+                                }}
+                            />
+                        </Form.Item>
+                        <Form.Item name="unit_dosage_name" hidden>
+                            <Input />
+                        </Form.Item>
+                    </>
                 ) : (
                     record.unit_dosage_name
                 ),
@@ -145,7 +205,7 @@ const SectionPrescription = ({ record, isHistory }) => {
             dataIndex: 'duration',
             render: (_, record) =>
                 isEditing(record) ? (
-                    <Form.Item name="duration">
+                    <Form.Item name="duration" className="mb-0">
                         <InputNumber min={1} />
                     </Form.Item>
                 ) : (
@@ -157,11 +217,13 @@ const SectionPrescription = ({ record, isHistory }) => {
             dataIndex: 'dosage_time',
             render: (_, record) =>
                 isEditing(record) ? (
-                    <Form.Item name="dosage_time">
+                    <Form.Item name="dosage_time" className="mb-0" style={{ width: 130 }}>
                         <Checkbox.Group options={dosageOptions} />
                     </Form.Item>
                 ) : (
-                    record.dosage_time?.join(', ')
+                    record.dosage_time
+                        ?.map((id) => dosageTimesList?.data?.find((d) => d.timeId === id)?.name)
+                        ?.join(', ')
                 ),
         },
         {
@@ -169,27 +231,64 @@ const SectionPrescription = ({ record, isHistory }) => {
             dataIndex: 'meal_time',
             render: (_, record) =>
                 isEditing(record) ? (
-                    <Form.Item name="meal_time">
-                        <Select style={{ width: 120 }} options={mealTimeOptions} />
-                    </Form.Item>
+                    <>
+                        <Form.Item name="meal_time" className="mb-0">
+                            <Select
+                                style={{ width: 100 }}
+                                options={mealRelationsList?.data?.map((m) => ({
+                                    value: m?.relationsId,
+                                    label: m?.name,
+                                }))}
+                                onChange={(value, option) => {
+                                    const opt = option as any;
+                                    form.setFieldValue('meal_time_name', opt?.label);
+                                }}
+                            />
+                        </Form.Item>
+                        <Form.Item name="meal_time_name" hidden>
+                            <Input />
+                        </Form.Item>
+                    </>
                 ) : (
-                    mealTimeOptions.find((m) => m.value === record.meal_time)?.label
+                    record.meal_time_name
                 ),
         },
         {
             title: 'Hướng dẫn thêm',
-            dataIndex: 'note',
+            dataIndex: 'instructions',
             render: (_, record) =>
                 isEditing(record) ? (
-                    <Form.Item name="note">
-                        <Input placeholder="Nhập hướng dẫn thêm..." />
+                    <Form.Item name="instructions" className="mb-0" style={{ width: 120 }}>
+                        <Input placeholder="Nhập hướng dẫn..." />
                     </Form.Item>
                 ) : (
-                    record.note
+                    record.instructions
                 ),
         },
     ];
 
+    // ========== CỘT DÙNG KHI HIỂN THỊ LỊCH SỬ ==========
+    const historyColumns: ColumnsType<any> = [
+        { title: 'Thuốc', dataIndex: 'customDrugName' },
+        { title: 'Liều dùng', dataIndex: 'dosage' },
+        {
+            title: 'Đơn vị',
+            dataIndex: ['unitDosageId', 'name'],
+        },
+        { title: 'Số ngày', dataIndex: 'duration' },
+        {
+            title: 'Thời gian uống',
+            dataIndex: ['dosageTimeDtos'],
+            render: (dosageTimeDtos) => dosageTimeDtos?.map((time) => time?.name)?.join(', ') || '',
+        },
+        {
+            title: 'So với bữa ăn',
+            dataIndex: ['mealRelation', 'name'],
+        },
+        { title: 'Hướng dẫn', dataIndex: 'instructions' },
+    ];
+
+    // ========== CỘT ACTION ==========
     const actionColumn = {
         title: 'Thao tác',
         dataIndex: 'actions',
@@ -219,54 +318,57 @@ const SectionPrescription = ({ record, isHistory }) => {
         },
     };
 
-    const columns = record ? baseColumns : [...baseColumns, actionColumn];
+    const columns = isHistory ? historyColumns : [...baseColumns, actionColumn];
 
+    // ========== GỬI DỮ LIỆU LÊN API ==========
     const savePrescription = () => {
-        console.log(dataAdd);
-        dispatch(prescription.actions.setAddNewPrescription(dataAdd));
+        const perscriptionCreates = dataAdd.map((item) => ({
+            drugId: item.drug_id,
+            customDrugName: item.drug_name,
+            dosage: item.dosage,
+            frequency: item.dosage_time?.join(', ') || '',
+            duration: item.duration,
+            unitDosageId: item.unit_dosage_id,
+            instructions: item.instructions,
+            mealRelation: item.meal_time,
+            dosageTimeDtos: item.dosage_time?.map((d) => d) || [],
+        }));
+
+        // console.log('Gửi payload:', perscriptionCreates);
+        dispatch(
+            prescription.actions.setAddNewPrescription({ perscriptionCreates: perscriptionCreates })
+        );
     };
 
     return (
         <Card title="Kê đơn thuốc" bodyStyle={{ padding: '10px 22px' }}>
             <Form form={form} component={false}>
-                {!record && (
-                    <Button
-                        variant="dashed"
-                        color="primary"
-                        onClick={addRow}
-                        style={{ marginBottom: 16 }}
-                    >
+                {!isHistory && (
+                    <Button onClick={addRow} style={{ marginBottom: 16 }}>
                         + Thêm thuốc
                     </Button>
                 )}
 
-                {isHistory && !record?.prescriptions?.length ? (
+                {isHistory && !dataAdd.length ? (
                     <Empty description="Không có đơn thuốc được kê" />
                 ) : (
                     <Table
                         bordered
-                        dataSource={isHistory ? record?.prescriptions || [] : dataAdd}
+                        dataSource={dataAdd}
                         columns={columns}
                         pagination={false}
                         rowClassName="editable-row"
                     />
                 )}
             </Form>
-            {!isHistory ? (
-                newPrescription ? (
-                    <div className="flex justify-start">
-                        <Button type="primary" onClick={savePrescription} className="mt-3">
-                            Cập nhật đơn thuốc
-                        </Button>
-                    </div>
-                ) : (
-                    <div className="flex justify-start">
-                        <Button type="primary" onClick={savePrescription} className="mt-3">
-                            Lưu đơn thuốc
-                        </Button>
-                    </div>
-                )
-            ) : null}
+
+            {!isHistory && (
+                <div className="flex justify-start">
+                    <Button type="primary" onClick={savePrescription} className="mt-3">
+                        {newPrescription ? 'Cập nhật đơn thuốc' : 'Lưu đơn thuốc'}
+                    </Button>
+                </div>
+            )}
         </Card>
     );
 };

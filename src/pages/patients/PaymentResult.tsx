@@ -1,14 +1,27 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { Card, Result, Button } from 'antd';
+import { useDispatch } from 'react-redux';
+import { verifyPaymentAppointment } from '@/stores/actions/appointments/appointment.action';
 
 const PaymentResult: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
+    const dispatch = useDispatch();
+
     const queryParams = new URLSearchParams(location.search);
-    const vnp_ResponseCode = queryParams.get('status');
-    const isSuccess = vnp_ResponseCode === 'success';
+    const vnp_ResponseCode = queryParams.get('vnp_ResponseCode');
+    const isSuccess = vnp_ResponseCode === '00';
+
+    const paramsObject = {};
+    for (const [key, value] of queryParams.entries()) {
+        paramsObject[key] = value;
+    }
+
+    useEffect(() => {
+        dispatch(verifyPaymentAppointment({ params: paramsObject }));
+    }, []);
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-gray-50 mt-6">

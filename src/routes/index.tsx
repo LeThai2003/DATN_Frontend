@@ -31,6 +31,7 @@ const PatientDetail = lazy(() => import('../pages/manager/patients/PatientDetail
 const AccountEmployee = lazy(() => import('../pages/manager/accounts/AccountEmployee'));
 const Dashboard = lazy(() => import('../pages/manager/dashboards/Dashboard'));
 const Schedule = lazy(() => import('../pages/manager/schedules/Schedule'));
+const Shift = lazy(() => import('../pages/manager/shifts/Shift'));
 
 const Home = lazy(() => import('../pages/patients/Home'));
 const ServicePatient = lazy(() => import('../pages/patients/Service'));
@@ -40,6 +41,7 @@ const AccountPatient = lazy(() => import('../pages/patients/Account'));
 const AppointmentHistory = lazy(() => import('../pages/patients/AppointmentHistory'));
 const AboutPage = lazy(() => import('../pages/patients/About'));
 const PaymentResult = lazy(() => import('../pages/patients/PaymentResult'));
+const RelativeInformation = lazy(() => import('../pages/patients/RelativeInformation'));
 
 const Unauthorized = lazy(() => import('../pages/errors/Unauthenticated403'));
 
@@ -140,6 +142,14 @@ function AppRoutes() {
                     element: (
                         <TitleRouter title="Lịch làm việc">
                             <Schedule />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    path: 'shifts',
+                    element: (
+                        <TitleRouter title="Lịch làm việc">
+                            <Shift />
                         </TitleRouter>
                     ),
                 },
@@ -290,6 +300,17 @@ function AppRoutes() {
                 },
                 {
                     index: true,
+                    path: '/relatives-information',
+                    element: (
+                        <PrivateRoute roles={['ROLE_PATIENT']}>
+                            <TitleRouter title="Thông tin người thân">
+                                <RelativeInformation />
+                            </TitleRouter>
+                        </PrivateRoute>
+                    ),
+                },
+                {
+                    index: true,
                     path: '/about',
                     element: (
                         <TitleRouter title="Giới thiệu">
@@ -299,7 +320,7 @@ function AppRoutes() {
                 },
                 {
                     index: true,
-                    path: '/payment-result',
+                    path: '/payment/result',
                     element: (
                         <PrivateRoute roles={['ROLE_PATIENT']}>
                             <TitleRouter title="Kết quả thanh toán">

@@ -1,18 +1,32 @@
 import type { MenuProps } from 'antd';
 import { Button, Dropdown, Space } from 'antd';
 import { Link, useNavigate } from 'react-router';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { FaRegUser } from 'react-icons/fa';
-import { deleteAllCookies } from '@/utils/cookies/cookies';
+import { deleteAllCookies, getCookies } from '@/utils/cookies/cookies';
+import { selectEmployeeInfo } from '@/stores/selectors/employees/employee.selector';
+import { useEffect } from 'react';
+import { getInfo } from '@/stores/actions/managers/employees/employee.action';
+import { logoutAction } from '@/stores/actions/auth/auth.action';
 
 const Account = () => {
     // dispatch
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    const infoEmployee = useSelector(selectEmployeeInfo);
+
+    const user = JSON.parse(getCookies('user') || null);
+
+    useEffect(() => {
+        if (user && user?.authorities[0]?.authority == 'ROLE_ADMIN') {
+            dispatch(getInfo({ username: user?.username }));
+        }
+    }, []);
+
     // event handling
     const handleLogout = () => {
-        deleteAllCookies();
+        dispatch(logoutAction());
         navigate('/auths/login');
     };
 
@@ -21,7 +35,7 @@ const Account = () => {
         {
             label: (
                 <Link to="/manager/account" className="menu-item-link">
-                    Quản lý
+                    <span className="font-medium">QL. {infoEmployee?.fullName}</span>
                 </Link>
             ),
             key: '0',

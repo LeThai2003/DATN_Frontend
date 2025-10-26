@@ -1,12 +1,17 @@
 import FormField from '@/components/forms/FormField';
-import { appointment_record } from '@/stores/reducers';
+import LableField from '@/components/forms/LableField';
+import LazyICD10Select from '@/components/forms/LazyICD10Select';
+import { getAppointmentRecord } from '@/stores/actions/appointmentRecord.s/appointmentRecord.action';
+import { appointment_record, prescription } from '@/stores/reducers';
 import { selectNewAppointmentRecord } from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
 import { appointmentRecordSchema } from '@/validations/appointmentRecord.validate';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Card, Empty, Popconfirm } from 'antd';
-import React, { useEffect } from 'react';
+import { Card, Empty, Popconfirm, Select } from 'antd';
+import dayjs from 'dayjs';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
+import { string } from 'yup';
 
 const icd10Options = [
     { value: 'J02.9', label: 'J02.9 - Viêm họng cấp, không xác định' },
@@ -15,51 +20,196 @@ const icd10Options = [
     { value: 'J06.9', label: 'J06.9 - Viêm đường hô hấp trên cấp' },
 ];
 
-const SectionAppointmentRecord = ({ record, isHistory }) => {
+export const suggestedPrescriptions = [
+    {
+        doctor_id: 1,
+        icd10: 'J02.9',
+        name: 'Phác đồ viêm họng cấp - BS. An',
+        drugs: [
+            {
+                drug_id: 1,
+                dosage: 1,
+                unit_dosage_id: 2,
+                duration: 5,
+                dosage_time: ['Sáng', 'Tối'],
+                meal_time: 'after',
+                note: 'Uống với nước ấm',
+            },
+            {
+                drug_id: 2,
+                dosage: 1,
+                unit_dosage_id: 1,
+                duration: 5,
+                dosage_time: ['Trưa'],
+                meal_time: 'after',
+                note: 'Giảm đau họng',
+            },
+        ],
+    },
+    {
+        doctor_id: 1,
+        icd10: 'R51',
+        name: 'Phác đồ đau đầu nhẹ - BS. An',
+        drugs: [
+            {
+                drug_id: 3,
+                dosage: 1,
+                unit_dosage_id: 2,
+                duration: 3,
+                dosage_time: ['Sáng', 'Chiều'],
+                meal_time: 'after',
+                note: 'Nếu đau nặng có thể tăng liều',
+            },
+        ],
+    },
+    {
+        doctor_id: 2,
+        icd10: 'D50.9',
+        name: 'Phác đồ thiếu máu - BS. Bình',
+        drugs: [
+            {
+                drug_id: 4,
+                dosage: 1,
+                unit_dosage_id: 2,
+                duration: 10,
+                dosage_time: ['Sáng'],
+                meal_time: 'before',
+                note: 'Uống trước ăn sáng',
+            },
+        ],
+    },
+];
+
+const SectionAppointmentRecord = ({ appointment, record, isHistory, appointmentRecordData }) => {
     // console.log(record);
 
     const newAppointment = useSelector(selectNewAppointmentRecord);
 
     const dispatch = useDispatch();
 
+    const [suggestions, setSuggestions] = useState([]);
+    const [selectedPrescription, setSelectedPrescription] = useState(null);
+
+    // console.log(appointmentRecordData);
+
+    const currentDoctorId = 1;
+
     const defaultAppointmentRecordValues = {
-        record_id: record?.record_id || 0,
-        appointment_id: record?.appointment_id || 0,
-        height: record?.height || 0,
-        weight: record?.weight || 0,
-        blood_pressure: record?.blood_pressure || '',
-        temperature: record?.temperature || 0,
-        heart_rate: record?.heart_rate || 0,
-        symptoms: record?.symptoms || '',
+        height: appointmentRecordData?.height || 0,
+        weight: appointmentRecordData?.weight || 0,
+        blood_pressure: appointmentRecordData?.bloodPressure || '',
+        temperature: appointmentRecordData?.temperature || 0,
+        heart_rate: appointmentRecordData?.heartRate || 0,
+        symptoms: appointmentRecordData?.symptoms || '',
         // initial_diagnosis: record?.initial_diagnosis || '',
-        icd10: record?.icd10 || '',
-        icd10_value: record?.icd10_value || '',
-        notes: record?.notes || '',
-        date: record?.date || '',
+        icd10: appointmentRecordData
+            ? `${appointmentRecordData?.icd10?.code} - ${appointmentRecordData?.icd10?.description}`
+            : null,
+        notes: appointmentRecordData?.notes || '',
+        date: appointmentRecordData?.date || '',
+        followUpVisit: {
+            isFollowUp: appointmentRecordData?.followUpVisit?.followUpId ? true : false,
+            followUpDate: appointmentRecordData?.followUpVisit?.followUpDate || '',
+            notes: appointmentRecordData?.followUpVisit?.instruction || '',
+        },
     };
 
     const {
         control,
         handleSubmit,
         reset,
+        setValue,
         watch,
         formState: { errors, isSubmitting },
     } = useForm({
         defaultValues: defaultAppointmentRecordValues,
-        resolver: yupResolver(appointmentRecordSchema),
+        resolver: yupResolver(appointmentRecordSchema) as any,
     });
+
+    useEffect(() => {
+        if (appointmentRecordData) {
+            reset({
+                height: appointmentRecordData.height || 0,
+                weight: appointmentRecordData.weight || 0,
+                blood_pressure: appointmentRecordData.bloodPressure || '',
+                temperature: appointmentRecordData.temperature || 0,
+                heart_rate: appointmentRecordData.heartRate || 0,
+                symptoms: appointmentRecordData.symptoms || '',
+                icd10: appointmentRecordData.icd10
+                    ? `${appointmentRecordData.icd10.code} - ${appointmentRecordData.icd10.description}`
+                    : '',
+                notes: appointmentRecordData.notes || '',
+                date: appointmentRecordData.date || '',
+                followUpVisit: {
+                    isFollowUp: !!appointmentRecordData?.followUpVisit?.followUpId,
+                    followUpDate: appointmentRecordData?.followUpVisit?.followUpDate || '',
+                    notes: appointmentRecordData?.followUpVisit?.instruction || '',
+                },
+            });
+        }
+    }, [appointmentRecordData, reset]);
+
+    useEffect(() => {
+        const icd = watch('icd10');
+
+        if (icd) {
+            const filtered = suggestedPrescriptions.filter(
+                (s) => s.icd10 === icd && s.doctor_id === currentDoctorId
+            );
+            setSuggestions(filtered);
+
+            // Nếu không có gợi ý thuốc nào thì reset luôn đơn thuốc
+            if (filtered.length === 0) {
+                dispatch(prescription.actions.setAddNewPrescription([]));
+            }
+        } else {
+            // Khi ICD-10 bị xoá hoặc chưa chọn
+            setSuggestions([]);
+            dispatch(prescription.actions.setAddNewPrescription([]));
+        }
+    }, [watch('icd10')]);
+
+    useEffect(() => {
+        if (watch('followUpVisit.isFollowUp')) {
+            const defaultDate = dayjs().add(2, 'week').format('YYYY-MM-DD');
+            setValue('followUpVisit.followUpDate', defaultDate);
+        }
+    }, [watch('followUpVisit.isFollowUp')]);
 
     useEffect(() => {
         reset(defaultAppointmentRecordValues);
     }, [record, reset]);
 
-    console.log(newAppointment);
+    // console.log(newAppointment);
 
     const onSubmit = (data) => {
+        console.log(errors);
         // console.log(data);
         data.icd10_value = icd10Options.find((icd) => icd.value == data.icd10)?.label || '';
-        data.date = '01-10-2025';
-        dispatch(appointment_record.actions.setAddNewAppointmentRecord(data));
+
+        const dataRecord = {
+            appointment: appointment?.appointmentId || '',
+            height: data?.height || null,
+            weight: data?.weight || null,
+            bloodPressure: 120.5,
+            // bloodPressure: data?.blood_pressure || null,
+            temperature: data?.temperature || null,
+            heartRate: data?.heart_rate || null,
+            spo2: 98,
+            symptoms: 'test',
+            initialDiagnosis: 'test',
+            treatmentPlan: 'test',
+            finalDiagnosis: 'test',
+            icd10: data?.icd10 || '',
+            followUpVisit: {
+                followUpDate: data?.followUpVisit?.followUpDate || '',
+                notes: data?.followUpVisit?.notes || '',
+            },
+            notes: data?.notes || '',
+        };
+
+        dispatch(appointment_record.actions.setAddNewAppointmentRecord({ ...dataRecord }));
+        console.log(dataRecord);
     };
 
     return (
@@ -70,7 +220,7 @@ const SectionAppointmentRecord = ({ record, isHistory }) => {
             >
                 <form
                     onSubmit={handleSubmit(onSubmit)}
-                    className="space-y-4 h-[92%] overflow-y-auto p-3 bg-slate-50 rounded-md"
+                    className="space-y-4 h-[92%] overflow-y-auto p-3  rounded-md"
                 >
                     <div className="grid grid-cols-5 gap-3">
                         <FormField
@@ -150,18 +300,91 @@ const SectionAppointmentRecord = ({ record, isHistory }) => {
                         helperText={errors.initial_diagnosis?.message as string}
                     /> */}
 
-                    {/* ICD-10 Select */}
                     <FormField
                         name="icd10"
                         control={control}
                         label="Mã ICD-10"
-                        type={record ? 'text' : 'select'}
-                        options={icd10Options}
-                        placeholder="Chọn mã ICD-10"
-                        required
+                        placeholder="Chọn hoặc tìm mã ICD-10..."
+                        required={!isHistory}
+                        type={isHistory ? 'text' : 'icd10'}
                         error={!!errors.icd10}
                         helperText={errors.icd10?.message as string}
                     />
+
+                    {suggestions.length > 0 && (
+                        <div>
+                            <label className="font-medium text-gray-700">Đơn thuốc gợi ý</label>
+                            <Select
+                                placeholder="Chọn đơn thuốc gợi ý..."
+                                options={suggestions.map((s) => ({ value: s.name, label: s.name }))}
+                                onChange={(val) => {
+                                    const selected = suggestions.find((s) => s.name === val);
+                                    setSelectedPrescription(selected);
+                                    // Gửi qua Redux cho SectionPrescription
+                                    dispatch(
+                                        prescription.actions.setAddNewPrescription(selected.drugs)
+                                    );
+                                }}
+                                style={{ width: '100%', marginTop: 4 }}
+                            />
+                        </div>
+                    )}
+
+                    {isHistory ? (
+                        <>
+                            {appointmentRecordData?.followUpVisit?.followUpId ? (
+                                <div>
+                                    <div>
+                                        <span className="text-sm text-gray-700 tracking-normal">
+                                            Tái khám:{' '}
+                                        </span>
+                                        <span className="font-medium">
+                                            {dayjs(
+                                                appointmentRecordData?.followUpVisit?.followUpDate
+                                            ).format('DD/MM/YYYY')}{' '}
+                                            {appointmentRecordData?.followUpVisit?.instruction}
+                                        </span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div>
+                                    <span className="text-sm text-gray-700 tracking-normal">
+                                        Tái khám:{' '}
+                                    </span>
+                                    <span className="font-medium">Không có lịch hẹn</span>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <>
+                            <FormField
+                                name="followUpVisit.isFollowUp"
+                                control={control}
+                                type="checkbox"
+                                label="Tái khám"
+                            />
+
+                            {watch('followUpVisit.isFollowUp') && (
+                                <div className="p-3 border border-gray-300 rounded-md flex flex-col gap-3 bg-white">
+                                    <FormField
+                                        name="followUpVisit.followUpDate"
+                                        control={control}
+                                        type="datepicker"
+                                        label="Ngày tái khám"
+                                        placeholder="Chọn ngày tái khám"
+                                    />
+
+                                    <FormField
+                                        name="followUpVisit.notes"
+                                        control={control}
+                                        type="textarea"
+                                        label="Ghi chú tái khám"
+                                        placeholder="Nhập ghi chú (nếu có)"
+                                    />
+                                </div>
+                            )}
+                        </>
+                    )}
 
                     <FormField
                         name="notes"

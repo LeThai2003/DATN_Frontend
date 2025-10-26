@@ -2,25 +2,34 @@ import ButtonTurnBack from '@/components/buttons/ButtonTurnBack';
 import {
     selectDoctorAppointment,
     selectNewAppointment,
+    selectShiftAppointment,
+    selectTimeBookingAppointment,
 } from '@/stores/selectors/appointments/appointment.selector';
 import { selectSelectedService } from '@/stores/selectors/services/service.selector';
+import { getCookies } from '@/utils/cookies/cookies';
 import { Card, Image } from 'antd';
 import React from 'react';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router';
 
 const Checkout = () => {
     const selectedService = useSelector(selectSelectedService);
     const selectedDoctorAppointment = useSelector(selectDoctorAppointment);
-    const selectedNewAppointment = useSelector(selectNewAppointment);
+    const shiftAppointment = useSelector(selectShiftAppointment);
+    const newAppointment = useSelector(selectNewAppointment);
 
-    console.log(selectedService);
+    const token = getCookies('access_token');
+
+    const navigate = useNavigate();
+
+    // console.log(selectedService);
 
     return (
         <div className="relative">
             <div className="container">
                 <div className="absolute top-[80px] left-0 px-[15px]">
                     <div className="flex items-center justify-start gap-3">
-                        <ButtonTurnBack link="/appointment?edit" />
+                        <ButtonTurnBack link="/appointment" />
                     </div>
                 </div>
                 <section className="py-10 ">
@@ -151,7 +160,7 @@ const Checkout = () => {
                                 <p>
                                     <strong>Thời gian:</strong>{' '}
                                     <span className="bg-slate-200 inline-block px-2 py-1 rounded-md">
-                                        {selectedNewAppointment?.appointment_hour as string}
+                                        {`${shiftAppointment?.startTime} - ${shiftAppointment?.endTime}`}
                                     </span>
                                 </p>
                             </Card>
@@ -171,23 +180,29 @@ const Checkout = () => {
                                                 return alert('Chưa có giá dịch vụ!');
                                             try {
                                                 const response = await fetch(
-                                                    'http://localhost:3000/payment/create/vnpay',
+                                                    `${
+                                                        import.meta.env.VITE_BACKEND_URL
+                                                    }/api/payment/create`,
+                                                    // 'http://localhost:3000/payment/create/vnpay',
                                                     {
                                                         method: 'POST',
                                                         headers: {
                                                             'Content-Type': 'application/json',
+                                                            Authorization: `Bearer ${token}`,
                                                         },
                                                         body: JSON.stringify({
                                                             amount: selectedService.price,
-                                                            orderId: `ORDER_${Date.now()}`,
+                                                            // orderId: `ORDER_${Date.now()}`,
                                                             orderInfo: `Thanh toán dịch vụ khám: ${selectedService.name}`,
                                                         }),
                                                     }
                                                 );
 
                                                 const data = await response.json();
+
                                                 if (data.paymentUrl) {
-                                                    window.location.href = data.paymentUrl; // Chuyển sang trang VNPay
+                                                    // window.open(data.paymentUrl, '_blank'); // Chuyển sang trang VNPay
+                                                    window.location.href = data.paymentUrl;
                                                 } else {
                                                     alert('Không tạo được link thanh toán!');
                                                 }

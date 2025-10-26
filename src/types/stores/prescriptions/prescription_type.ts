@@ -47,6 +47,6 @@ export interface PrescriptionSlice {
     prescriptions: PageObject<Prescription>;
     filter: FilterPrescription;
     selectedPrescription: Prescription;
-    newPrescription: Prescription;
+    newPrescription: any[];
     loadingComponent: boolean;
 }

@@ -19,4 +19,5 @@ export const initAppointmentRecordSlice: AppointmentRecordSlice = {
     selectedAppointmentRecord: null,
     newAppointmentRecord: null,
     loadingComponent: false,
+    type: 'history',
 };

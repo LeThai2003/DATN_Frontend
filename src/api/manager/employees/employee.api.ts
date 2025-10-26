@@ -20,6 +20,10 @@ class EmployeeApi extends HttpService {
     updatePassword = (data, id) => {
         return this.put(id, data, 'update/password');
     };
+
+    getInfo = (username) => {
+        return this.get(`get/username/${username}`);
+    };
 }
 
 export const employeeApi = new EmployeeApi('employee');

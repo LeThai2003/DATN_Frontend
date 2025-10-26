@@ -1,12 +1,19 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ModalBase from '../ModalBase';
-import { ModalState } from '@/types/stores/common';
-import { Descriptions, Divider, Image, Tag } from 'antd';
+import { ModalState, ModalType } from '@/types/stores/common';
+import { Button, Descriptions, Divider, Image, Tag } from 'antd';
 import Table, { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
-import { useSelector } from 'react-redux';
-import { selectSelectedAppointment } from '@/stores/selectors/appointments/appointment.selector';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+    selectLoadingComponent,
+    selectSelectedAppointment,
+} from '@/stores/selectors/appointments/appointment.selector';
+import { selectLoadingComponent as selectLoadingComponentRecord } from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
 import { selectSelectedAppointmentRecord } from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
+import { getAppointmentRecord } from '@/stores/actions/appointmentRecord.s/appointmentRecord.action';
+import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
+import { getAppointmentByIdAndOpenModal } from '@/stores/actions/appointments/appointment.action';
 
 const prescriptionColumns: ColumnsType<any> = [
     {
@@ -49,24 +56,42 @@ const prescriptionColumns: ColumnsType<any> = [
 ];
 
 const ModalAppointmentPatient: React.FC<ModalState> = ({ data, type, variant }) => {
-    const appointmentData = useSelector(selectSelectedAppointment);
-    const appointmentRecordData = useSelector(selectSelectedAppointmentRecord);
+    const appointmentRecord = useSelector(selectSelectedAppointmentRecord); // sau khi fetch api và nhận được apointemnt record
+    const loadingComponentAppointment = useSelector(selectLoadingComponent);
+    const loadingComponentAppointmentRecord = useSelector(selectLoadingComponentRecord);
 
-    console.log(appointmentData);
-    console.log(appointmentRecordData);
+    const [appointmentRecordData, setAppointmentRecordData] = useState(null);
 
-    // const renderTag = (status) => {
-    //     const color = status === 'completed' ? 'green' : status === 'pending' ? 'orange' : 'red';
-    //     const label =
-    //         status === 'completed' ? 'Hoàn thành' : status === 'pending' ? 'Đang xử lý' : 'Đã hủy';
-    //     return <Tag color={color}>{label}</Tag>;
-    // };
+    const dispatch = useDispatch();
+
+    const renderTag = (status) => {
+        const color = status === 'COMPLETE' ? 'green' : status === 'CREATE' ? 'orange' : 'red';
+        const label =
+            status === 'COMPLETE'
+                ? 'Hoàn thành'
+                : status === 'CREATE'
+                ? 'Đang xử lý'
+                : 'Đã thanh toán';
+        return <Tag color={color}>{label}</Tag>;
+    };
+
+    useEffect(() => {
+        dispatch(getAppointmentRecord({ id: data?.appointmentId, setAppointmentRecordData }));
+    }, [data?.appointmentId]);
+
+    const handleRecordFollow = (id) => {
+        dispatch(getAppointmentByIdAndOpenModal({ id }));
+    };
 
     return (
-        <ModalBase type={type} size="xl">
+        <ModalBase type={type} size="xl" bgTransparent={variant == 'follow-up' ? true : false}>
+            {(loadingComponentAppointment || loadingComponentAppointmentRecord) && (
+                <LoadingSpinAntD />
+            )}
             <div className="flex flex-col max-h-[80vh]">
                 <h2 className="font-semibold mb-4 pb-2 text-lg text-center border-b border-gray-200 text-gray-700">
-                    Chi tiết buổi khám
+                    {variant == 'follow-up' ? 'Chi tiết tái khám' : 'Chi tiết buổi khám'} -{' '}
+                    {dayjs(data?.appointmentDate).format('DD/MM/YYYY')}
                 </h2>
                 <div className="overflow-y-auto px-2 flex flex-col gap-2 custom-scrollbar">
                     <p className="inline-block bg-slate-200 px-2 py-1 rounded-md font-semibold">
@@ -74,36 +99,59 @@ const ModalAppointmentPatient: React.FC<ModalState> = ({ data, type, variant }) 
                     </p>
                     <Descriptions bordered size="small" column={2}>
                         <Descriptions.Item label="Tên người khám" span={2}>
-                            {appointmentData?.patientId?.fullName}
+                            {data?.patientId?.fullName}
                         </Descriptions.Item>
                         <Descriptions.Item label="Tên dịch vụ">
-                            {appointmentData?.serviceId?.name}
+                            {data?.serviceId?.name}
                         </Descriptions.Item>
                         <Descriptions.Item label="Giá dịch vụ">
-                            {appointmentData?.price.toLocaleString()} ₫
+                            {data?.price?.toLocaleString()} ₫
                         </Descriptions.Item>
                         <Descriptions.Item label="Bác sĩ khám">
-                            {appointmentData?.employeeId?.fullName}
+                            {data?.shiftId?.employeeDto?.fullName}
                         </Descriptions.Item>
                         <Descriptions.Item label="Chuyên khoa">
-                            {appointmentData?.employeeId?.specialization?.name}
+                            {data?.shiftId?.employeeDto?.specialization?.name}
                         </Descriptions.Item>
-                        <Descriptions.Item label="Ngày khám">
-                            {dayjs(appointmentData?.appointmentDate).format('DD/MM/YYYY')}
+                        <Descriptions.Item label="Phòng khám">
+                            {data?.shiftId?.employeeDto?.roomDto?.name}
                         </Descriptions.Item>
                         <Descriptions.Item label="Giờ khám">
-                            {appointmentData?.appointmentTime}
+                            {data?.shiftId?.shift?.startTime}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Ngày khám">
+                            {dayjs(data?.shiftId?.date).format('DD/MM/YYYY')}
                         </Descriptions.Item>
                         <Descriptions.Item label="Tái khám">
-                            {appointmentRecordData?.followUpVisit?.followUpDate
-                                ? dayjs(appointmentRecordData?.followUpVisit?.followUpDate).format(
-                                      'DD/MM/YYYY'
-                                  )
-                                : 'Không có'}
+                            {appointmentRecordData?.followUpVisit?.followUpDate ? (
+                                <div>
+                                    {dayjs(
+                                        appointmentRecordData?.followUpVisit?.followUpDate
+                                    ).format('DD/MM/YYYY')}
+                                    {appointmentRecordData?.followUpVisit?.appointment
+                                        ?.appointmentId && (
+                                        <Button
+                                            variant="link"
+                                            color="primary"
+                                            onClick={() =>
+                                                handleRecordFollow(
+                                                    appointmentRecordData?.followUpVisit
+                                                        ?.appointment?.appointmentId
+                                                )
+                                            }
+                                        >
+                                            {' '}
+                                            Kết quả tái khám
+                                        </Button>
+                                    )}
+                                </div>
+                            ) : (
+                                'Không có'
+                            )}
                         </Descriptions.Item>
-                        {/* <Descriptions.Item label="Trạng thái" span={2}>
+                        <Descriptions.Item label="Trạng thái" span={2}>
                             {renderTag(data?.status)}
-                        </Descriptions.Item> */}
+                        </Descriptions.Item>
                     </Descriptions>
 
                     <Divider />

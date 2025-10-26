@@ -3,6 +3,7 @@ import { patientApi } from '@/api/patients/patient.api';
 import { smsApi } from '@/api/sms/sms.api';
 import {
     loginAction,
+    logoutAction,
     registerAction,
     signUpPhoneNumber,
     verifyOtp,
@@ -10,11 +11,10 @@ import {
 import { auth, common } from '@/stores/reducers';
 import { deleteCookies, setCookies } from '@/utils/cookies/cookies';
 import { PayloadAction } from '@reduxjs/toolkit';
-import { all, call, fork, put, takeLatest } from 'typed-redux-saga';
+import { all, call, delay, fork, put, takeLatest } from 'typed-redux-saga';
 
 function* handleLogin({ payload }) {
     const { username, password, from } = payload;
-
 
     try {
         yield put(auth.actions.setLoading(true));
@@ -30,7 +30,7 @@ function* handleLogin({ payload }) {
             return;
         }
 
-        console.log(data);
+        // console.log(data);
 
         const user: any = data.data;
         yield put(
@@ -40,9 +40,18 @@ function* handleLogin({ payload }) {
             })
         );
 
-        setCookies('access_token', data?.access_token, 7);
-        setCookies('refresh_token', data?.refresh_token, 30);
-        setCookies('user', JSON.stringify(user), 7);
+        yield put(common.actions.setSuccessMessage('Đăng nhập thành công'));
+
+        if (user?.authorities[0]?.authority == 'ROLE_DOCTOR') {
+            localStorage.setItem('access_token', data?.access_token);
+            localStorage.setItem('refresh_token', data?.refresh_token);
+            localStorage.setItem('user', JSON.stringify(user));
+        } else {
+            setCookies('access_token', data?.access_token, 7);
+            setCookies('refresh_token', data?.refresh_token, 30);
+            setCookies('user', JSON.stringify(user), 7);
+        }
+
         if (from && from.includes('appointment')) {
             payload.action(from);
         } else if (user?.authorities[0]?.authority == 'ROLE_ADMIN') {
@@ -120,8 +129,31 @@ function* handleregister({ payload }) {
     }
 }
 
+function* handleLogout() {
+    try {
+        yield put(auth.actions.setLoading(true));
+        const { error } = yield call(authApi.logout);
+        if (error) {
+            yield put(common.actions.setErrorMessage(error.message));
+            return;
+        }
+        deleteCookies('access_token');
+        deleteCookies('refresh_token');
+        deleteCookies('user');
+    } catch (error) {
+        console.log(error);
+        yield put(common.actions.setErrorMessage(error?.message));
+    } finally {
+        yield put(auth.actions.setLoading(false));
+    }
+}
+
 function* watchLogin() {
     yield takeLatest(loginAction, handleLogin);
+}
+
+function* watchLogout() {
+    yield takeLatest(logoutAction, handleLogout);
 }
 
 function* watchSignUpPhoneNumber() {
@@ -139,6 +171,7 @@ function* watchRegister() {
 function* watchAuth() {
     yield all([
         fork(watchLogin),
+        fork(watchLogout),
         fork(watchSignUpPhoneNumber),
         fork(watchVerifyOTP),
         fork(watchRegister),

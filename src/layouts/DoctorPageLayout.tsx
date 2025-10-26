@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { common } from '@/stores/reducers';
 import { ModalType } from '@/types/stores/common';
 import TitleRouter from '@/routes/TitleRouter';
+import dayjs from 'dayjs';
 
 const DoctorPageLayout = () => {
     const [tabs, setTabs] = useState([
@@ -65,7 +66,10 @@ const DoctorPageLayout = () => {
             setCurrentPatient(patient);
         }
         // Nếu chọn bệnh nhân khác
-        else if (currentPatient.patient_id !== patient.patient_id) {
+        else if (
+            `${currentPatient?.patientId?.patientId}-${currentPatient?.serviceId?.serviceId}-${currentPatient?.shiftId?.id}` !==
+            `${patient?.patientId?.patientId}-${patient?.serviceId?.serviceId}-${patient?.shiftId?.id}`
+        ) {
             handleConfirmChangePatient({
                 title: 'Chuyển bệnh nhân?',
                 content:
@@ -112,13 +116,15 @@ const DoctorPageLayout = () => {
             setActiveKey('new-exam');
         } else {
             // Lịch sử khám
-            const newKey = `history-${patient.patient_id}-${record?.date}`;
+            const newKey = `${record?.fullname || record?.patientId?.fullName} - ${dayjs(
+                record?.shiftId?.date
+            ).format('DD/MM/YYYY')} - ${record?.serviceId?.name}`;
             if (tabs?.find((tab) => tab.key == newKey)) return;
             setTabs((prev) => [
                 ...prev,
                 {
                     key: newKey,
-                    label: `KQ khám - ${record?.date}`,
+                    label: `KQ - ${dayjs(record?.shiftId?.date).format('DD/MM/YYYY')}`,
                     content: (
                         <Doctor2
                             key={newKey}

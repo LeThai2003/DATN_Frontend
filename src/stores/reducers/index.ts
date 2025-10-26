@@ -13,3 +13,5 @@ export * as specialization from './specializations/specialization.reducer';
 export * as service from './services/service.reducer';
 export * as appointment from './appointments/appointment.reducer';
 export * as auth from './auth/auth.reducer';
+export * as icd10 from './icd10/icd10.reducer';
+export * as shift from './shifts/shift.reducer';

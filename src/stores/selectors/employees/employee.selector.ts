@@ -23,3 +23,5 @@ export const selectLoadingPage = createSelector(
     selectState,
     (state) => state.employees.loadingPage
 );
+
+export const selectEmployeeInfo = createSelector(selectState, (state) => state.employeeInfo);

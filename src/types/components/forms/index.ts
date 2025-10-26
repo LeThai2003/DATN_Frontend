@@ -9,6 +9,9 @@ export type FieldType =
     | 'text'
     | 'textarea'
     | 'upload'
+    | 'timepicker'
+    | 'checkbox'
+    | 'icd10'
     | 'image';
 
 export type FormFieldProps<T extends Record<string, any> = any> = {

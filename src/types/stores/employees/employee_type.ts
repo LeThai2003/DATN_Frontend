@@ -35,4 +35,5 @@ export interface EmployeeSlice {
     filter: FilterEmployee;
     selectedEmployee: Employee;
     loadingComponent: boolean;
+    employeeInfo: Employee;
 }

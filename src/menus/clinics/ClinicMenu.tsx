@@ -49,8 +49,13 @@ export const clinicMenu = {
             label: 'Quản lý bệnh nhân',
             icon: <FaUserInjured />,
         },
+        // {
+        //     key: 'schedules',
+        //     label: 'Quản lý lịch làm',
+        //     icon: <MdCalendarMonth />,
+        // },
         {
-            key: 'schedules',
+            key: 'shifts',
             label: 'Quản lý lịch làm',
             icon: <MdCalendarMonth />,
         },
