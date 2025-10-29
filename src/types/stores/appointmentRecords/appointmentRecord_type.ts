@@ -60,4 +60,5 @@ export interface AppointmentRecordSlice {
     selectedAppointmentRecord: AppointmentRecord;
     newAppointmentRecord: NewAppointmentRecord;
     loadingComponent: boolean;
+    resetDoctorTabs?: boolean;
 }

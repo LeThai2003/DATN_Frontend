@@ -41,6 +41,7 @@ export enum ModalType {
     RELATIVE_PATIENT = 'RELATIVE_PATIENT',
     SHIFT_TIME = 'SHIFT_TIME',
     SHIFT_EMPLOYEE = 'SHIFT_EMPLOYEE',
+    CONFIRM_SAVE_RECORD = 'CONFIRM_SAVE_RECORD',
 }
 
 export interface CommonType {

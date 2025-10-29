@@ -26,6 +26,7 @@
     "install": "^0.13.0",
     "js-cookie": "^3.0.5",
     "npm": "^11.6.0",
+    "pdfmake": "^0.2.20",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-hook-form": "^7.63.0",

@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Tabs } from 'antd';
 import SiderDoctor from '@/menus/doctors/SiderDoctor';
 import Doctor2 from '@/pages/doctor/Doctor2';
-import { useDispatch } from 'react-redux';
-import { common } from '@/stores/reducers';
+import { useDispatch, useSelector } from 'react-redux';
+import { appointment_record, common } from '@/stores/reducers';
 import { ModalType } from '@/types/stores/common';
 import TitleRouter from '@/routes/TitleRouter';
 import dayjs from 'dayjs';
+import { selectResetDoctorTabs } from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
 
 const DoctorPageLayout = () => {
+    const resetDoctorTabs = useSelector(selectResetDoctorTabs);
+
     const [tabs, setTabs] = useState([
         {
             key: 'new-exam',
@@ -26,6 +29,34 @@ const DoctorPageLayout = () => {
             closable: false,
         },
     ]);
+
+    useEffect(() => {
+        if (resetDoctorTabs) {
+            // Reset về mặc định
+            setTabs([
+                {
+                    key: 'new-exam',
+                    label: 'Khám mới',
+                    content: (
+                        <TitleRouter title="Khám bệnh">
+                            <Doctor2
+                                isNewExam={true}
+                                patient={undefined}
+                                record={undefined}
+                                isHistory={undefined}
+                            />
+                        </TitleRouter>
+                    ),
+                    closable: false,
+                },
+            ]);
+            setActiveKey('new-exam');
+            setCurrentPatient(null);
+
+            dispatch(appointment_record.actions.setResetDoctorTabs(false));
+        }
+    }, [resetDoctorTabs]);
+
     const [activeKey, setActiveKey] = useState('new-exam');
     const [currentPatient, setCurrentPatient] = useState(null);
 

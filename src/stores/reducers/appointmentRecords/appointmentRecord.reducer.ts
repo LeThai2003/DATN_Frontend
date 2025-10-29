@@ -32,6 +32,9 @@ const AppointmentRecordSlice = createSlice({
         setUpdateNewAppointmentRecord(state, { payload }: PayloadAction<any>) {
             state.newAppointmentRecord = payload;
         },
+        setResetDoctorTabs: (state, { payload }: PayloadAction<any>) => {
+            state.resetDoctorTabs = payload;
+        },
     },
 });
 

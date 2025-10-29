@@ -6,11 +6,15 @@ import {
     createAppointmentRecord,
     getAppointmentRecord,
 } from '@/stores/actions/appointmentRecord.s/appointmentRecord.action';
+import { common } from '@/stores/reducers';
 import { selectNewAppointmentRecord } from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
 import { selectNewPrescription } from '@/stores/selectors/prescriptions/prescription.selector';
+import { NewAppointmentRecord } from '@/types/stores/appointmentRecords/appointmentRecord_type';
+import { Appointment } from '@/types/stores/appointments/appointment_type';
+import { ModalType } from '@/types/stores/common';
 import { Button } from 'antd';
 import dayjs from 'dayjs';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 interface Doctor2Props {
@@ -30,6 +34,8 @@ const Doctor: React.FC<Doctor2Props> = ({ patient, record, isHistory, isNewExam 
     const newPrescription = useSelector(selectNewPrescription);
     const newRecord = useSelector(selectNewAppointmentRecord);
 
+    const recordFormRef = useRef<any>(null);
+
     useEffect(() => {
         if (record?.appointmentId) {
             dispatch(getAppointmentRecord({ id: record.appointmentId, setAppointmentRecordData }));
@@ -44,15 +50,35 @@ const Doctor: React.FC<Doctor2Props> = ({ patient, record, isHistory, isNewExam 
         );
     }
 
-    const handleSaveAppointmentRecord = () => {
-        // console.log(newPrescription);
-        // console.log(newRecord);
+    const handleSaveAppointmentRecord = async () => {
+        const recordData = await recordFormRef.current.submitForm();
+
+        if (!recordData) {
+            dispatch(common.actions.setWarningMessage('Chưa điền kết quả khám.'));
+            return;
+        }
+
+        if (!(newPrescription as any)?.perscriptionCreates?.length) {
+            dispatch(common.actions.setWarningMessage('Chưa kê đơn thuốc.'));
+            return;
+        }
+
         const data = {
             ...newRecord,
             ...newPrescription,
         };
-        console.log(data);
-        dispatch(createAppointmentRecord({ data }));
+
+        dispatch(
+            common.actions.setShowModal({
+                type: ModalType.CONFIRM_SAVE_RECORD,
+                data: {
+                    dataRecord: { ...(data as NewAppointmentRecord) },
+                    dataAppointment: { ...(patient as Appointment) },
+                    dataPrescriptions: { ...newPrescription },
+                },
+                variant: 'confirm',
+            })
+        );
     };
 
     return (
@@ -83,6 +109,7 @@ const Doctor: React.FC<Doctor2Props> = ({ patient, record, isHistory, isNewExam 
                         record={record}
                         isHistory={isHistory}
                         appointmentRecordData={appointmentRecordData}
+                        ref={recordFormRef}
                     />
                     <SectionPrescription
                         record={record}

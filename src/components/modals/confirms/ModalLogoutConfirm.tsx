@@ -7,8 +7,6 @@ import { useNavigate } from 'react-router';
 import { deleteAllCookies } from '@/utils/cookies/cookies';
 
 const ModalLogoutConfirm: React.FC<ModalState> = ({ data, type, variant }) => {
-    console.log(data);
-
     const dispatch = useDispatch();
 
     const navigate = useNavigate();

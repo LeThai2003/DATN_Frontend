@@ -135,8 +135,8 @@ const SiderDoctor = ({ onOpenTab }) => {
 
     const user = JSON.parse(localStorage.getItem('user') || null);
 
-    console.log(appointmentsListDoctor?.data);
-    console.log(appointmentsListPatient?.data);
+    // console.log(appointmentsListDoctor?.data);
+    // console.log(appointmentsListPatient?.data);
 
     useEffect(() => {
         if (user && user?.authorities[0]?.authority == 'ROLE_DOCTOR') {
@@ -150,7 +150,7 @@ const SiderDoctor = ({ onOpenTab }) => {
                 appointment.actions.setFilterAppointment({
                     ...initFilterAppointment,
                     employeeId: [infoEmployee.employeeId],
-                    statuses: ['COMPLETE', 'CREATE'],
+                    statuses: ['CREATE'],
                 })
             );
             dispatch(fetchAppointmentListDoctor());
@@ -163,23 +163,39 @@ const SiderDoctor = ({ onOpenTab }) => {
         }
     }, [appointmentFilter]);
 
-    const filteredToday = useMemo(
-        () =>
-            patientsToday.filter((p) =>
-                p.fullname.toLowerCase().includes(searchToday.toLowerCase())
-            ),
-        [patientsToday, searchToday]
-    );
+    useEffect(() => {
+        if (infoEmployee?.employeeId) {
+            const timer = setTimeout(() => {
+                dispatch(
+                    appointment.actions.setFilterAppointment({
+                        ...initFilterAppointment,
+                        employeeId: [infoEmployee.employeeId],
+                        statuses: ['CREATE'],
+                        search: searchToday,
+                    })
+                );
+                dispatch(fetchAppointmentListDoctor());
+            }, 400);
+            return () => clearTimeout(timer);
+        }
+    }, [searchToday]);
 
-    const filteredHistory = useMemo(
-        () =>
-            selectedPatient && appointmentRecords[selectedPatient.patientId]
-                ? appointmentRecords[selectedPatient.patientId].filter((r) =>
-                      r.icd10_value.toLowerCase().includes(searchHistory.toLowerCase())
-                  )
-                : [],
-        [appointmentRecords, selectedPatient, searchHistory]
-    );
+    // Khi search trong "Lịch sử tái khám"
+    useEffect(() => {
+        if (appointmentFilter?.patientId?.length) {
+            const timer = setTimeout(() => {
+                dispatch(
+                    appointment.actions.setFilterAppointment({
+                        ...appointmentFilter,
+                        statuses: ['COMPLETE'],
+                        search: searchHistory,
+                    })
+                );
+                dispatch(fetchAppointmentListPatient());
+            }, 400);
+            return () => clearTimeout(timer);
+        }
+    }, [searchHistory]);
 
     return (
         <div className="h-[calc(100vh-65px)] overflow-y-auto bg-gray-50 flex flex-col gap-4 relative">
@@ -297,7 +313,7 @@ const SiderDoctor = ({ onOpenTab }) => {
                                                     },
                                                 });
                                         }}
-                                        className={`px-3 py-1 h-[68px] flex items-center justify-start rounded-lg cursor-pointer text-sm transition line-clamp-2
+                                        className={`px-3 py-1 h-[70px] flex items-center justify-start rounded-lg cursor-pointer text-sm transition
                                             ${
                                                 selectedHistoryIdx ===
                                                 `${v?.fullname || v?.patientId?.fullName} - ${dayjs(

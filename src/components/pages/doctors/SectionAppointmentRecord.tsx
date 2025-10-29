@@ -1,14 +1,19 @@
 import FormField from '@/components/forms/FormField';
 import LableField from '@/components/forms/LableField';
 import LazyICD10Select from '@/components/forms/LazyICD10Select';
+import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 import { getAppointmentRecord } from '@/stores/actions/appointmentRecord.s/appointmentRecord.action';
 import { appointment_record, prescription } from '@/stores/reducers';
-import { selectNewAppointmentRecord } from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
+import {
+    selectAppointmentRecords,
+    selectLoadingComponent,
+    selectNewAppointmentRecord,
+} from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
 import { appointmentRecordSchema } from '@/validations/appointmentRecord.validate';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Card, Empty, Popconfirm, Select } from 'antd';
 import dayjs from 'dayjs';
-import React, { useEffect, useState } from 'react';
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { string } from 'yup';
@@ -80,10 +85,23 @@ export const suggestedPrescriptions = [
     },
 ];
 
-const SectionAppointmentRecord = ({ appointment, record, isHistory, appointmentRecordData }) => {
-    // console.log(record);
+export interface SectionAppointmentRecordRef {
+    submitForm: () => Promise<unknown>;
+}
 
+interface SectionAppointmentRecordProps {
+    appointment: any;
+    record: any;
+    isHistory?: boolean;
+    appointmentRecordData?: any;
+}
+
+const SectionAppointmentRecord = forwardRef<
+    SectionAppointmentRecordRef,
+    SectionAppointmentRecordProps
+>(({ appointment, record, isHistory, appointmentRecordData }, ref) => {
     const newAppointment = useSelector(selectNewAppointmentRecord);
+    const loading = useSelector(selectLoadingComponent);
 
     const dispatch = useDispatch();
 
@@ -185,35 +203,52 @@ const SectionAppointmentRecord = ({ appointment, record, isHistory, appointmentR
     const onSubmit = (data) => {
         console.log(errors);
         // console.log(data);
-        data.icd10_value = icd10Options.find((icd) => icd.value == data.icd10)?.label || '';
-
-        const dataRecord = {
-            appointment: appointment?.appointmentId || '',
-            height: data?.height || null,
-            weight: data?.weight || null,
-            bloodPressure: 120.5,
-            // bloodPressure: data?.blood_pressure || null,
-            temperature: data?.temperature || null,
-            heartRate: data?.heart_rate || null,
-            spo2: 98,
-            symptoms: 'test',
-            initialDiagnosis: 'test',
-            treatmentPlan: 'test',
-            finalDiagnosis: 'test',
-            icd10: data?.icd10 || '',
-            followUpVisit: {
-                followUpDate: data?.followUpVisit?.followUpDate || '',
-                notes: data?.followUpVisit?.notes || '',
-            },
-            notes: data?.notes || '',
-        };
-
-        dispatch(appointment_record.actions.setAddNewAppointmentRecord({ ...dataRecord }));
-        console.log(dataRecord);
     };
 
+    // expose submit() ra ngoài để cha gọi
+    useImperativeHandle(ref, () => ({
+        submitForm: () => {
+            return new Promise((resolve) => {
+                handleSubmit(
+                    (data) => {
+                        const dataRecord = {
+                            appointment: appointment?.appointmentId || '',
+                            height: data?.height || null,
+                            weight: data?.weight || null,
+                            bloodPressure: 120.5,
+                            // bloodPressure: data?.blood_pressure || null,
+                            temperature: data?.temperature || null,
+                            heartRate: data?.heart_rate || null,
+                            spo2: 98,
+                            symptoms: 'test',
+                            initialDiagnosis: 'test',
+                            treatmentPlan: 'test',
+                            finalDiagnosis: 'test',
+                            icd10: data?.icd10 || '',
+                            followUpVisit: {
+                                followUpDate: data?.followUpVisit?.followUpDate || '',
+                                notes: data?.followUpVisit?.notes || '',
+                            },
+                            notes: data?.notes || '',
+                        };
+
+                        dispatch(
+                            appointment_record.actions.setAddNewAppointmentRecord({ ...dataRecord })
+                        );
+                        resolve(data);
+                    },
+                    (err) => {
+                        console.warn('Validation errors:', err);
+                        resolve(null);
+                    }
+                )();
+            });
+        },
+    }));
+
     return (
-        <div className="">
+        <div className="relative">
+            {loading && <LoadingSpinAntD />}
             <Card
                 title={isHistory ? 'Kết quả khám' : 'Khám bệnh'}
                 bodyStyle={{ padding: '8px 12px' }}
@@ -316,7 +351,10 @@ const SectionAppointmentRecord = ({ appointment, record, isHistory, appointmentR
                             <label className="font-medium text-gray-700">Đơn thuốc gợi ý</label>
                             <Select
                                 placeholder="Chọn đơn thuốc gợi ý..."
-                                options={suggestions.map((s) => ({ value: s.name, label: s.name }))}
+                                options={suggestions.map((s) => ({
+                                    value: s.name,
+                                    label: s.name,
+                                }))}
                                 onChange={(val) => {
                                     const selected = suggestions.find((s) => s.name === val);
                                     setSelectedPrescription(selected);
@@ -396,7 +434,7 @@ const SectionAppointmentRecord = ({ appointment, record, isHistory, appointmentR
                         helperText={errors.notes?.message as string}
                     />
 
-                    {!record ? (
+                    {/* {!record ? (
                         !newAppointment ? (
                             <div className="flex justify-end gap-2 mt-2">
                                 <Popconfirm
@@ -432,11 +470,11 @@ const SectionAppointmentRecord = ({ appointment, record, isHistory, appointmentR
                                 </button>
                             </div>
                         )
-                    ) : null}
+                    ) : null} */}
                 </form>
             </Card>
         </div>
     );
-};
+});
 
 export default SectionAppointmentRecord;

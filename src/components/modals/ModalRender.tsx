@@ -19,6 +19,7 @@ import ModalDoctorByThem from './employees/ModalDoctorByThem';
 import ModalRelativePatient from './relativePatients/ModalRelativePatient';
 import ModalShiftTime from './shifts/ModalShiftTime';
 import ModalShiftEmployee from './shifts/ModalShiftEmployee';
+import ModalConfirmSaveRecord from './appointmentRecords/ModalConfirmSaveRecord';
 
 const ModalRender = () => {
     const modals = useSelector(selectModal);
@@ -61,6 +62,8 @@ const ModalRender = () => {
                 return <ModalShiftTime key={modal.type} {...modal} />;
             case ModalType.SHIFT_EMPLOYEE:
                 return <ModalShiftEmployee key={modal.type} {...modal} />;
+            case ModalType.CONFIRM_SAVE_RECORD:
+                return <ModalConfirmSaveRecord key={modal.type} {...modal} />;
         }
     });
     return <div>{renderModal}</div>;

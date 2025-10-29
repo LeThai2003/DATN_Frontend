@@ -1,14 +1,18 @@
+import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
+import { selectLoadingComponent } from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
 import { Card, Descriptions } from 'antd';
 import dayjs from 'dayjs';
 import React from 'react';
+import { useSelector } from 'react-redux';
 
 const SectionInfoPatient = ({ appointment }) => {
     if (!appointment) return null;
 
-    console.log(appointment);
+    const loading = useSelector(selectLoadingComponent);
 
     return (
-        <>
+        <div className="relative">
+            {loading && <LoadingSpinAntD />}
             <Card title="Thông tin bệnh nhân">
                 <Descriptions bordered column={3}>
                     <Descriptions.Item label="Họ tên">{appointment?.fullname}</Descriptions.Item>
@@ -31,7 +35,7 @@ const SectionInfoPatient = ({ appointment }) => {
                     <Descriptions.Item label="Địa chỉ">{appointment?.address}</Descriptions.Item>
                 </Descriptions>
             </Card>
-        </>
+        </div>
     );
 };
 
