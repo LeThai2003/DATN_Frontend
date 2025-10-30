@@ -16,6 +16,12 @@ ol {
     padding: 0;
 }
 
+.chat-window-wrapper .chat-window-toggle {
+    background: #0275ff !important
+}
+
+.chat-window-wrapper .chat-header {}
+
 @layer base {
     body {
         @apply w-full h-full overflow-x-hidden font-sans bg-gray-50 text-gray-800;

@@ -31,15 +31,17 @@ const AppointmentHistory = () => {
     const appointmentsList = useSelector(selectAppointmentsPatient);
 
     useEffect(() => {
-        dispatch(
-            appointment.actions.setFilterAppointment({
-                ...initFilterAppointment,
-                patientId: [infoPatient?.patientId],
-                statuses: ['COMPLETE', 'CREATE', 'PAYMENT'],
-            })
-        );
-        dispatch(fetchAppointmentListPatient());
-    }, []);
+        if (infoPatient?.patientId) {
+            dispatch(
+                appointment.actions.setFilterAppointment({
+                    ...initFilterAppointment,
+                    patientId: [infoPatient?.patientId],
+                    statuses: ['COMPLETE', 'CREATE', 'PAYMENT'],
+                })
+            );
+            dispatch(fetchAppointmentListPatient());
+        }
+    }, [infoPatient]);
 
     const [isOpenAppointmentFilter, setIsOpenAppointmentFilter] = useState(false);
 
@@ -53,9 +55,11 @@ const AppointmentHistory = () => {
         );
     };
 
-    const sortedData = appointmentsList?.data
-        ?.slice()
-        .sort((a, b) => new Date(b.shiftId.date).getTime() - new Date(a.shiftId.date).getTime());
+    const sortedData = appointmentsList?.data;
+
+    // const sortedData = appointmentsList?.data
+    //     ?.slice()
+    //     .sort((a, b) => new Date(b.shiftId.date).getTime() - new Date(a.shiftId.date).getTime());
 
     const appointmentColumns: ColumnsType<any> = [
         // {
@@ -116,7 +120,7 @@ const AppointmentHistory = () => {
                     status === 'COMPLETE'
                         ? 'Hoàn thành'
                         : status === 'CREATE'
-                        ? 'Đang xử lý'
+                        ? 'Chưa thanh toán'
                         : 'Đã thanh toán';
                 return <Tag color={color}>{label}</Tag>;
             },

@@ -64,7 +64,7 @@ const Doctor: React.FC<Doctor2Props> = ({ patient, record, isHistory, isNewExam 
         }
 
         const data = {
-            ...newRecord,
+            ...recordData,
             ...newPrescription,
         };
 
@@ -72,8 +72,8 @@ const Doctor: React.FC<Doctor2Props> = ({ patient, record, isHistory, isNewExam 
             common.actions.setShowModal({
                 type: ModalType.CONFIRM_SAVE_RECORD,
                 data: {
-                    dataRecord: { ...(data as NewAppointmentRecord) },
-                    dataAppointment: { ...(patient as Appointment) },
+                    dataRecord: { ...data },
+                    dataAppointment: { ...patient },
                     dataPrescriptions: { ...newPrescription },
                 },
                 variant: 'confirm',

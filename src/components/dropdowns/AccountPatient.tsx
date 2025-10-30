@@ -49,17 +49,17 @@ const AccountPatient = ({ scrolled }) => {
         {
             type: 'divider',
         },
-        {
-            label: (
-                <Link to="/relatives-information" className="menu-item-link">
-                    Thông tin người thân
-                </Link>
-            ),
-            key: '2',
-        },
-        {
-            type: 'divider',
-        },
+        // {
+        //     label: (
+        //         <Link to="/relatives-information" className="menu-item-link">
+        //             Thông tin người thân
+        //         </Link>
+        //     ),
+        //     key: '2',
+        // },
+        // {
+        //     type: 'divider',
+        // },
         {
             label: (
                 <Button

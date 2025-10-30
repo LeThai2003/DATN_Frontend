@@ -5,7 +5,11 @@ class PaymentApi extends HttpService {
         return this.post(payload, 'create');
     };
 
-    verifyPayment = ({ apointment_id, params }) => {
+    verifyPayment = (payload) => {
+        console.log(payload);
+        const { apointment_id, params } = payload;
+        console.log(apointment_id);
+        console.log(params);
         return this.get(`ipn/${apointment_id}`, params);
     };
 

@@ -84,6 +84,19 @@ interface Shift {
     endTime?: string;
 }
 
+interface CountAppointment {
+    date: string;
+    count: number;
+}
+interface CountService {
+    name: string;
+    value: number;
+}
+interface FollowUpVisits {
+    completedFollowUpVisits: number;
+    totalFollowUpVisits: number;
+}
+
 export interface AppointmentSlice {
     appointments_doctor: PageObject<Appointment>;
     appointments_patient: PageObject<Appointment>;
@@ -95,4 +108,7 @@ export interface AppointmentSlice {
     timeBookingAppointment?: TimeBooking;
     shift: Shift;
     loadingComponent: boolean;
+    countAppointmentByDate?: CountAppointment[];
+    countServiceByDate?: CountService[];
+    countFollowUpVisitsByDate?: FollowUpVisits;
 }

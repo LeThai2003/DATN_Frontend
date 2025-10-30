@@ -16,13 +16,13 @@ const InfoPatient = forwardRef((props, ref) => {
 
     const dispatch = useDispatch();
 
-    const user = JSON.parse(getCookies('user') || null);
+    // const user = JSON.parse(getCookies('user') || null);
 
-    useEffect(() => {
-        if (user && user?.authorities[0]?.authority == 'ROLE_PATIENT') {
-            dispatch(fetchInfoPatient({ phone_number: user?.username }));
-        }
-    }, []);
+    // useEffect(() => {
+    //     if (user && user?.authorities[0]?.authority == 'ROLE_PATIENT') {
+    //         dispatch(fetchInfoPatient({ phone_number: user?.username }));
+    //     }
+    // }, []);
 
     const {
         control,

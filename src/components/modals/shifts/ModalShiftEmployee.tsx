@@ -20,85 +20,6 @@ import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 import { selectEmployeeInfo } from '@/stores/selectors/employees/employee.selector';
 import { common } from '@/stores/reducers';
 
-const dataShifts = {
-    date: '2025-10-20',
-    employeeId: '1',
-    data: [
-        {
-            id: '1',
-            shiftId: {
-                id: '1',
-                startTime: '07:00',
-                endTime: '08:00',
-            },
-            patientSlot: 5,
-        },
-        {
-            id: '2',
-            shiftId: {
-                id: '2',
-                startTime: '08:00',
-                endTime: '09:00',
-            },
-            patientSlot: 5,
-        },
-        {
-            id: '3',
-            shiftId: {
-                id: '3',
-                startTime: '09:00',
-                endTime: '10:00',
-            },
-            patientSlot: 5,
-        },
-        {
-            id: '4',
-            shiftId: {
-                id: '4',
-                startTime: '10:00',
-                endTime: '11:00',
-            },
-            patientSlot: 5,
-        },
-        {
-            id: '5',
-            shiftId: {
-                id: '5',
-                startTime: '13:00',
-                endTime: '14:00',
-            },
-            patientSlot: 5,
-        },
-        {
-            id: '6',
-            shiftId: {
-                id: '6',
-                startTime: '14:00',
-                endTime: '15:00',
-            },
-            patientSlot: 5,
-        },
-        {
-            id: '7',
-            shiftId: {
-                id: '7',
-                startTime: '15:00',
-                endTime: '16:00',
-            },
-            patientSlot: 5,
-        },
-        {
-            id: '8',
-            shiftId: {
-                id: '8',
-                startTime: '16:00',
-                endTime: '17:00',
-            },
-            patientSlot: 5,
-        },
-    ],
-};
-
 const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
     const dispatch = useDispatch();
 
@@ -111,10 +32,8 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
     // console.log(shiftTimes?.data);
     // console.log(dataShiftEmployee);
 
-    const [selectedIds, setSelectedIds] = useState<string[]>([
-        ...dataShifts?.data?.map((item) => item?.id),
-    ]);
-    const [shiftData, setShiftData] = useState(dataShifts.data);
+    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [shiftData, setShiftData] = useState<any>();
 
     useEffect(() => {
         dispatch(getShifts());
@@ -132,7 +51,7 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
             if (dataShiftEmployee?.length > 0) {
                 const newShiftData = shiftTimes.data.map((shift) => {
                     // Tìm ca tương ứng trong dataShiftEmployee
-                    const match = dataShiftEmployee.find((d) => d.shift.id === shift.id);
+                    const match = dataShiftEmployee.find((d) => d?.shift?.id === shift.id);
 
                     return {
                         id: shift.id, // ID của shiftTime
@@ -141,7 +60,7 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
                             startTime: shift.startTime,
                             endTime: shift.endTime,
                         },
-                        patientSlot: match ? match.patientSlot : 5, // nếu có thì lấy, nếu không có thì mặc định
+                        patientSlot: match ? match.patientSlot : 1, // nếu có thì lấy, nếu không có thì mặc định
                         patientSlotBooked: match ? match.patientSlotBooked : 0,
                     };
                 });
@@ -160,7 +79,7 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
                         startTime: shift.startTime,
                         endTime: shift.endTime,
                     },
-                    patientSlot: 5, // mặc định
+                    patientSlot: 1, // mặc định
                     patientSlotBooked: 0,
                 }));
 
@@ -294,6 +213,7 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
     if (variant == 'edit') {
         return (
             <ModalBase type={type} size="xl">
+                {loadingComponent && <LoadingSpinAntD />}
                 <div>
                     <div className="mb-3 text-center font-semibold flex flex-col gap-1">
                         <h2>Lịch khám bệnh</h2>

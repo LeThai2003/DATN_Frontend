@@ -1,7 +1,21 @@
+import {
+    getCountAppointmentByDate,
+    getCountServiceByDate,
+    getFollowUpVisitsByDate,
+} from '@/stores/actions/appointments/appointment.action';
+import { getTotalRoom } from '@/stores/actions/managers/rooms/room.action';
+import {
+    selectCountAppointmentByDate,
+    selectCountFollowUpVisitsByDate,
+    selectCountServiceByDate,
+    selectLoadingComponent,
+} from '@/stores/selectors/appointments/appointment.selector';
+import { selectTotalRooms } from '@/stores/selectors/rooms/room.selector';
 import { UserOutlined, RedoOutlined, TeamOutlined } from '@ant-design/icons';
 import { Row, Col, Card, Statistic, DatePicker, Spin, Empty } from 'antd';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
     Bar,
     BarChart,
@@ -20,12 +34,14 @@ import {
 const { RangePicker } = DatePicker;
 
 const Dashboard = () => {
-    const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
-    const [filteredData, setFilteredData] = useState<any[]>([]);
-    const [departmentStats, setDepartmentStats] = useState<any[]>([]);
-    const [loading, setLoading] = useState(false);
+    const dispatch = useDispatch();
+    const totalRooms = useSelector(selectTotalRooms);
+    const countAppointmentsByDate = useSelector(selectCountAppointmentByDate);
+    const countServicesByDate = useSelector(selectCountServiceByDate);
+    const countFollowUpVisitsByDate = useSelector(selectCountFollowUpVisitsByDate);
+    const loadingComponent = useSelector(selectLoadingComponent);
 
-    const departments = ['Nội tổng quát', 'Tai mũi họng', 'Da liễu', 'Tim mạch', 'Nhi'];
+    const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
 
     // mặc định từ đầu tháng đến hôm nay
     useEffect(() => {
@@ -36,50 +52,59 @@ const Dashboard = () => {
 
     // đổi khoảng ngày -> load dữ liệu
     useEffect(() => {
-        if (dateRange) generateData();
+        if (!dateRange) return;
+
+        // Gọi API khi có dateRange hợp lệ
+        dispatch(getTotalRoom());
+        dispatch(
+            getCountAppointmentByDate({
+                params: {
+                    startDate: dayjs(dateRange[0]).format('YYYY-MM-DD'),
+                    endDate: dayjs(dateRange[1]).format('YYYY-MM-DD'),
+                },
+            })
+        );
+
+        dispatch(
+            getCountServiceByDate({
+                params: {
+                    startDate: dayjs(dateRange[0]).format('YYYY-MM-DD'),
+                    endDate: dayjs(dateRange[1]).format('YYYY-MM-DD'),
+                },
+            })
+        );
+
+        dispatch(
+            getFollowUpVisitsByDate({
+                params: {
+                    startDate: dayjs(dateRange[0]).format('YYYY-MM-DD'),
+                    endDate: dayjs(dateRange[1]).format('YYYY-MM-DD'),
+                },
+            })
+        );
     }, [dateRange]);
 
-    const generateData = () => {
-        setLoading(true);
-        const timer = setTimeout(() => {
-            const [start, end] = dateRange!;
-            const days = end.diff(start, 'day') + 1;
+    const TotalAppointment = countAppointmentsByDate.reduce((sum, item) => sum + item.count, 0);
 
-            // giả lập không có dữ liệu nếu khoảng > 20 ngày
-            if (days > 20) {
-                setFilteredData([]);
-                setDepartmentStats([]);
-                setLoading(false);
-                return;
-            }
+    const COLORS = [
+        '#0088FE', // xanh dương sáng
+        '#00C49F', // xanh ngọc
+        '#FFBB28', // vàng tươi
+        '#FF8042', // cam
+        '#AA00FF', // tím đậm
+        '#FF4C4C', // đỏ tươi
+        '#4CAF50', // xanh lá cây
+        '#FF66B2', // hồng pastel
+        '#33CCCC', // xanh cyan
+        '#9966FF', // tím nhạt
+        '#FF9933', // cam nhạt
+        '#0099CC', // xanh biển
+        '#66CC66', // xanh lá nhạt
+        '#CC3366', // hồng đậm
+        '#999999', // xám trung tính
+    ];
 
-            const barData = Array.from({ length: days }, (_, i) => {
-                const date = start.add(i, 'day');
-                return {
-                    date: date.format('DD/MM/YYYY'),
-                    count: Math.floor(Math.random() * 25 + 5),
-                };
-            });
-
-            const pieData = departments.map((name) => ({
-                name,
-                value: Math.floor(Math.random() * 100 + 10),
-            }));
-
-            setFilteredData(barData);
-            setDepartmentStats(pieData);
-            setLoading(false);
-            clearTimeout(timer);
-        }, 800); // giả lập API call
-    };
-
-    const stats = {
-        total: filteredData.reduce((sum, item) => sum + item.count, 0),
-        reExamRate: 22,
-        departments: departments.length,
-    };
-
-    const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AA00FF'];
+    console.log(countFollowUpVisitsByDate);
 
     return (
         <div className="flex flex-col gap-4">
@@ -100,7 +125,7 @@ const Dashboard = () => {
                         <Card className="border border-blue-200" style={{ background: '#e6f7ff' }}>
                             <Statistic
                                 title="Tổng ca khám"
-                                value={stats.total}
+                                value={TotalAppointment || 0}
                                 prefix={<UserOutlined style={{ color: '#1890ff' }} />}
                                 valueStyle={{ color: '#1890ff' }}
                             />
@@ -111,7 +136,15 @@ const Dashboard = () => {
                         <Card className="border border-green-200" style={{ background: '#f6ffed' }}>
                             <Statistic
                                 title="Tỷ lệ tái khám"
-                                value={stats.reExamRate}
+                                value={
+                                    (countFollowUpVisitsByDate &&
+                                        Math.ceil(
+                                            (countFollowUpVisitsByDate?.completedFollowUpVisits /
+                                                countFollowUpVisitsByDate?.totalFollowUpVisits) *
+                                                100
+                                        )) ||
+                                    0
+                                }
                                 suffix="%"
                                 prefix={<RedoOutlined style={{ color: '#52c41a' }} />}
                                 valueStyle={{ color: '#52c41a' }}
@@ -123,7 +156,7 @@ const Dashboard = () => {
                         <Card className="border border-pink-200" style={{ background: '#fff0f6' }}>
                             <Statistic
                                 title="Phòng ban hoạt động"
-                                value={stats.departments}
+                                value={totalRooms}
                                 prefix={<TeamOutlined style={{ color: '#eb2f96' }} />}
                                 valueStyle={{ color: '#eb2f96' }}
                             />
@@ -132,18 +165,24 @@ const Dashboard = () => {
                 </Row>
             </div>
 
-            <Spin spinning={loading} tip="Đang tải dữ liệu...">
+            <Spin spinning={loadingComponent} tip="Đang tải dữ liệu...">
                 <Row gutter={[16, 16]}>
                     {/* Biểu đồ cột */}
-                    <Col span={24} xl={16}>
+                    <Col span={24} xl={24}>
                         <Card title="Số ca khám theo ngày">
-                            {filteredData.length === 0 && !loading ? (
+                            {countAppointmentsByDate?.length === 0 && !loadingComponent ? (
                                 <Empty description="Không có dữ liệu để hiển thị" />
                             ) : (
                                 <ResponsiveContainer width="100%" height={310}>
-                                    <BarChart data={filteredData}>
+                                    <BarChart data={countAppointmentsByDate}>
                                         <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="date">
+                                        <XAxis
+                                            dataKey="date"
+                                            tickFormatter={(date) => {
+                                                const [y, m, d] = date.split('-');
+                                                return `${d}-${m}-${y}`;
+                                            }}
+                                        >
                                             <Label
                                                 value="Ngày"
                                                 offset={0}
@@ -157,7 +196,13 @@ const Dashboard = () => {
                                                 position: 'insideLeft',
                                             }}
                                         />
-                                        <Tooltip />
+                                        <Tooltip
+                                            formatter={(value) => [`${value}`, 'Lượt khám']}
+                                            labelFormatter={(label) => {
+                                                const [y, m, d] = label.split('-');
+                                                return `${d}-${m}-${y}`;
+                                            }}
+                                        />
                                         <Bar
                                             dataKey="count"
                                             fill="#1890ff"
@@ -171,15 +216,15 @@ const Dashboard = () => {
                     </Col>
 
                     {/* Biểu đồ tròn */}
-                    <Col span={24} xl={8}>
+                    <Col span={24} xl={24}>
                         <Card title="Phân bố ca khám theo phòng ban">
-                            {departmentStats.length === 0 && !loading ? (
+                            {countServicesByDate?.length === 0 && !loadingComponent ? (
                                 <Empty description="Không có dữ liệu để hiển thị" />
                             ) : (
                                 <ResponsiveContainer width="100%" height={310}>
                                     <PieChart>
                                         <Pie
-                                            data={departmentStats}
+                                            data={countServicesByDate as { [key: string]: any }[]}
                                             dataKey="value"
                                             nameKey="name"
                                             outerRadius={90}
@@ -189,7 +234,7 @@ const Dashboard = () => {
                                                 )}%)`
                                             }
                                         >
-                                            {departmentStats.map((_, i) => (
+                                            {countServicesByDate?.map((_, i) => (
                                                 <Cell
                                                     key={`cell-${i}`}
                                                     fill={COLORS[i % COLORS.length]}

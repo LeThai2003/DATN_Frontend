@@ -53,6 +53,15 @@ const AppointmentSlice = createSlice({
         setShiftAppointment(state, { payload }: PayloadAction<any>) {
             state.shift = payload;
         },
+        setCountAppointmentByDate(state, { payload }: PayloadAction<any>) {
+            state.countAppointmentByDate = payload;
+        },
+        setCountServiceByDate(state, { payload }: PayloadAction<any>) {
+            state.countServiceByDate = payload;
+        },
+        setCountFollowUpVisitsByDate(state, { payload }: PayloadAction<any>) {
+            state.countFollowUpVisitsByDate = payload;
+        },
     },
 });
 

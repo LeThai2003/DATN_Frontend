@@ -17,8 +17,8 @@ class ServiceApi extends HttpService {
         return this.delete(id, 'delete');
     };
 
-    getServiceById = (id) => {
-        return this.get(`get/${id}`);
+    getServiceById = ({ id, params }) => {
+        return this.get(`get/${id}`, params);
     };
 }
 

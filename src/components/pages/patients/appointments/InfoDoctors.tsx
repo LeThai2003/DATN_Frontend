@@ -62,8 +62,8 @@ const InfoDoctors = () => {
         dispatch(getShifts());
     }, []);
 
-    console.log(shiftTimes?.data);
-    console.log(dataShiftEmployee);
+    // console.log(shiftTimes?.data);
+    // console.log(dataShiftEmployee);
 
     const [searchParams] = useSearchParams();
 
@@ -96,7 +96,7 @@ const InfoDoctors = () => {
     };
 
     const handleCheckEmployee = (data) => {
-        console.log(data);
+        // console.log(data);
 
         const newFilter = {
             ...filterShift,
@@ -219,70 +219,47 @@ const InfoDoctors = () => {
                 scroll={{ x: 'max-content', y: '400px' }}
             />
 
-            <Form
-                form={form}
-                style={{ marginTop: 30 }}
-                className="bg-slate-100 p-2 rounded-md pl-4"
-            >
-                <Form.Item
-                    label={
-                        <>
-                            <span className="text-red-600 mr-1 font-semibold">*</span>{' '}
-                            <b>Giờ khám mong muốn</b>
-                        </>
-                    }
+            {selectedDoctorAppointment?.employeeId && (
+                <Form
+                    form={form}
+                    style={{ marginTop: 30 }}
+                    className="bg-slate-100 p-2 rounded-md pl-4"
                 >
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mt-2 relative">
-                        {/* {timeSlots.map((slot) => {
-                            const isBooked = bookedSlots.includes(slot);
-                            const isSelected =
-                                selectedTimeBokingAppointment?.appointmentHour === slot;
-
-                            return (
-                                <Button
-                                    key={slot}
-                                    type={isSelected ? 'primary' : 'default'}
-                                    disabled={isBooked}
-                                    onClick={() =>
-                                        handleTimeBooking({
-                                            appointmentHour: slot,
-                                        })
-                                    }
-                                    className={`w-full ${
-                                        isBooked
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                            : ''
-                                    }`}
-                                >
-                                    {slot}
-                                </Button>
-                            );
-                        })} */}
-                        {loadingComponentShift && <LoadingSpinAntD />}
-                        {availableShifts?.map((shift) => {
-                            const isSelected = selectedShiftId === shift.id;
-                            return (
-                                <Button
-                                    key={shift.id}
-                                    disabled={!shift.isAvailable}
-                                    className={`w-full ${
-                                        !shift.isAvailable
-                                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                            : isSelected
-                                            ? 'bg-blue-500 text-white border-blue-600'
-                                            : 'bg-white border-gray-300 hover:border-blue-400 hover:text-blue-500'
-                                    }`}
-                                    onClick={() => {
-                                        handleClickShift(shift);
-                                    }}
-                                >
-                                    {shift.startTime} - {shift.endTime}
-                                </Button>
-                            );
-                        })}
-                    </div>
-                </Form.Item>
-            </Form>
+                    <Form.Item
+                        label={
+                            <>
+                                <span className="text-red-600 mr-1 font-semibold">*</span>{' '}
+                                <b>Giờ khám mong muốn</b>
+                            </>
+                        }
+                    >
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mt-2 relative">
+                            {loadingComponentShift && <LoadingSpinAntD />}
+                            {availableShifts?.map((shift) => {
+                                const isSelected = selectedShiftId === shift.id;
+                                return (
+                                    <Button
+                                        key={shift.id}
+                                        disabled={!shift.isAvailable}
+                                        className={`w-full ${
+                                            !shift.isAvailable
+                                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                                : isSelected
+                                                ? 'bg-blue-500 text-white border-blue-600'
+                                                : 'bg-white border-gray-300 hover:border-blue-400 hover:text-blue-500'
+                                        }`}
+                                        onClick={() => {
+                                            handleClickShift(shift);
+                                        }}
+                                    >
+                                        {shift.startTime} - {shift.endTime}
+                                    </Button>
+                                );
+                            })}
+                        </div>
+                    </Form.Item>
+                </Form>
+            )}
         </Card>
     );
 };

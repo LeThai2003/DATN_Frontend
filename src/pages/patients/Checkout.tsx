@@ -1,6 +1,8 @@
 import ButtonTurnBack from '@/components/buttons/ButtonTurnBack';
+import { createAppointment } from '@/stores/actions/appointments/appointment.action';
 import {
     selectDoctorAppointment,
+    selectLoadingComponent,
     selectNewAppointment,
     selectShiftAppointment,
     selectTimeBookingAppointment,
@@ -9,20 +11,24 @@ import { selectSelectedService } from '@/stores/selectors/services/service.selec
 import { getCookies } from '@/utils/cookies/cookies';
 import { Card, Image } from 'antd';
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 
 const Checkout = () => {
+    const dispatch = useDispatch();
+
     const selectedService = useSelector(selectSelectedService);
     const selectedDoctorAppointment = useSelector(selectDoctorAppointment);
     const shiftAppointment = useSelector(selectShiftAppointment);
     const newAppointment = useSelector(selectNewAppointment);
+    const loadingComponent = useSelector(selectLoadingComponent);
 
     const token = getCookies('access_token');
 
     const navigate = useNavigate();
 
     // console.log(selectedService);
+    const apointment_id = getCookies('apointment_id');
 
     return (
         <div className="relative">
@@ -175,37 +181,17 @@ const Checkout = () => {
                                     </p>
 
                                     <button
+                                        disabled={loadingComponent}
                                         onClick={async () => {
                                             if (!selectedService?.price)
                                                 return alert('Chưa có giá dịch vụ!');
                                             try {
-                                                const response = await fetch(
-                                                    `${
-                                                        import.meta.env.VITE_BACKEND_URL
-                                                    }/api/payment/create`,
-                                                    // 'http://localhost:3000/payment/create/vnpay',
-                                                    {
-                                                        method: 'POST',
-                                                        headers: {
-                                                            'Content-Type': 'application/json',
-                                                            Authorization: `Bearer ${token}`,
-                                                        },
-                                                        body: JSON.stringify({
-                                                            amount: selectedService.price,
-                                                            // orderId: `ORDER_${Date.now()}`,
-                                                            orderInfo: `Thanh toán dịch vụ khám: ${selectedService.name}`,
-                                                        }),
-                                                    }
+                                                dispatch(
+                                                    createAppointment({
+                                                        dataCreate: newAppointment,
+                                                        dataService: selectedService,
+                                                    })
                                                 );
-
-                                                const data = await response.json();
-
-                                                if (data.paymentUrl) {
-                                                    // window.open(data.paymentUrl, '_blank'); // Chuyển sang trang VNPay
-                                                    window.location.href = data.paymentUrl;
-                                                } else {
-                                                    alert('Không tạo được link thanh toán!');
-                                                }
                                             } catch (error) {
                                                 console.error(error);
                                                 alert('Lỗi khi gọi API thanh toán!');

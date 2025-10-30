@@ -17,3 +17,5 @@ export const selectLoadingComponent = createSelector(
 );
 
 export const selectLoadingPage = createSelector(selectState, (state) => state.rooms.loadingPage);
+
+export const selectTotalRooms = createSelector(selectState, (state) => state.totalRooms);

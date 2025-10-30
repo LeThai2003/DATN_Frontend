@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { Card, Result, Button } from 'antd';
 import { useDispatch } from 'react-redux';
 import { verifyPaymentAppointment } from '@/stores/actions/appointments/appointment.action';
+import axios from 'axios';
 
 const PaymentResult: React.FC = () => {
     const location = useLocation();

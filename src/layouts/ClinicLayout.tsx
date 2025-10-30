@@ -4,6 +4,7 @@ import { AiOutlineMenuUnfold, AiOutlineMenuFold } from 'react-icons/ai';
 import { Outlet } from 'react-router';
 import ClinicSidebar from '@/menus/clinics/ClinicSidebar';
 import Account from '@/components/dropdowns/Account';
+import { createChat } from '@n8n/chat';
 const { Sider, Content } = Layout;
 
 const ClinicLayout = () => {
@@ -23,6 +24,20 @@ const ClinicLayout = () => {
         window.addEventListener('resize', checkMobile);
 
         return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    useEffect(() => {
+        createChat({
+            webhookUrl: '',
+        });
+
+        // Cleanup khi layout bị unmount
+        return () => {
+            const chatEl = document.querySelector('#n8n-chat, .n8n-chat, iframe[src*="n8n"]');
+            if (chatEl && chatEl.parentNode) {
+                chatEl.parentNode.removeChild(chatEl);
+            }
+        };
     }, []);
 
     return (

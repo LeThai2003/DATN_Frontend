@@ -64,4 +64,19 @@ export const selectLoadingComponent = createSelector(
     (state) => state.loadingComponent
 );
 
+export const selectCountAppointmentByDate = createSelector(
+    selectState,
+    (state) => state.countAppointmentByDate
+);
+
+export const selectCountServiceByDate = createSelector(
+    selectState,
+    (state) => state.countServiceByDate
+);
+
+export const selectCountFollowUpVisitsByDate = createSelector(
+    selectState,
+    (state) => state.countFollowUpVisitsByDate
+);
+
 export const selectShiftAppointment = createSelector(selectState, (state) => state.shift);

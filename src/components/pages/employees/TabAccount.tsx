@@ -21,113 +21,6 @@ import { CiLock } from 'react-icons/ci';
 import { MdOutlineSettingsBackupRestore } from 'react-icons/md';
 import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 
-export const roles: Role[] = [
-    { role_id: 1, name: 'Admin', description: 'Quản trị hệ thống' },
-    { role_id: 2, name: 'Manager', description: 'Quản lý nhân sự' },
-    { role_id: 3, name: 'Employee', description: 'Nhân viên' },
-];
-
-export const rooms = [
-    { room_id: 1, name: 'Phòng khám nội', location: 'Tầng 3' },
-    { room_id: 2, name: 'Phòng khám da liễu', location: 'Tầng 2' },
-];
-
-export const specializations = [
-    {
-        specialization_id: 1,
-        name: 'Chuyên khoa nội',
-        description: 'Chuyên khoa nội',
-    },
-    { specialization_id: 2, name: 'Chuyên khoa ngoại', description: 'Chuyên khoa ngoại' },
-];
-
-export const accounts = [
-    {
-        account_id: 1,
-        role_id: 1,
-        phone_number: '0987654321',
-        password: 'hashed_password_1',
-        created_at: '2025-01-10T09:30:00Z',
-        updated_at: '2025-02-01T12:00:00Z',
-        status: 'active',
-    },
-    {
-        account_id: 2,
-        role_id: 2,
-        phone_number: '0912345678',
-        password: 'hashed_password_2',
-        created_at: '2025-01-15T14:00:00Z',
-        updated_at: '2025-02-02T08:45:00Z',
-        status: 'active',
-    },
-    {
-        account_id: 3,
-        role_id: 3,
-        phone_number: '0901122334',
-        password: 'hashed_password_3',
-        created_at: '2025-01-20T11:15:00Z',
-        updated_at: '2025-02-05T10:20:00Z',
-        status: 'inactive',
-    },
-];
-
-export const employees = [
-    {
-        employee_id: 1,
-        account_id: 1,
-        room_id: 1,
-        fullname: 'Nguyen Van A',
-        citizen_id: '123456789',
-        dob: '1990-05-20',
-        gender: 'male',
-        address: 'Hà Nội',
-        specialization_id: 1,
-        hired_date: '2020-03-01',
-        email: 'admin01@example.com',
-        avatar: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-        account: accounts[0],
-        room: rooms[0],
-        specialization: specializations[0],
-        role: roles[0],
-    },
-    {
-        employee_id: 2,
-        account_id: 2,
-        room_id: 2,
-        fullname: 'Tran Thi B',
-        citizen_id: '987654321',
-        dob: '1995-08-12',
-        gender: 'female',
-        address: 'TP. Hồ Chí Minh',
-        specialization_id: 2,
-        hired_date: '2021-06-15',
-        email: 'manager01@example.com',
-        avatar: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-        account: accounts[1],
-        room: rooms[1],
-        specialization: specializations[1],
-        role: roles[1],
-    },
-    {
-        employee_id: 3,
-        account_id: 3,
-        room_id: 1,
-        fullname: 'Le Van C',
-        citizen_id: '1122334455',
-        dob: '1998-02-10',
-        gender: 'male',
-        address: 'Đà Nẵng',
-        specialization_id: 1,
-        hired_date: '2022-09-10',
-        email: 'employee01@example.com',
-        avatar: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
-        account: accounts[2],
-        room: rooms[0],
-        specialization: specializations[0],
-        role: roles[2],
-    },
-];
-
 const TabAccount = () => {
     const dispatch = useDispatch();
 
@@ -138,7 +31,7 @@ const TabAccount = () => {
     const employeesList = useSelector(selectEmployees);
     const loadingPage = useSelector(selectLoadingPage);
 
-    console.log(employeesList);
+    // console.log(employeesList);
 
     useEffect(() => {
         dispatch(fetchFirst());

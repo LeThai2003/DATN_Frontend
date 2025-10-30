@@ -5,6 +5,9 @@ import {
     fetchAppointmentListDoctor,
     fetchAppointmentListPatient,
     getAppointmentByIdAndOpenModal,
+    getCountAppointmentByDate,
+    getCountServiceByDate,
+    getFollowUpVisitsByDate,
     loadPageDoctor,
     loadPagePatient,
     verifyPaymentAppointment,
@@ -91,9 +94,86 @@ function* handleGetAppointmentById({ payload }) {
     }
 }
 
+function* handleCountAppointmentByDate({ payload }) {
+    try {
+        const { params } = payload;
+
+        yield* put(appointment.actions.setLoadingComponent(true));
+
+        const { data, error } = yield call(appointmentApi.getCountAppointmentByDate, params);
+
+        if (error) {
+            yield put(common.actions.setErrorMessage(error?.message));
+            return;
+        }
+
+        const formattedData = Object.entries(data?.data).map(([date, count]) => ({
+            date,
+            count,
+        }));
+
+        yield put(appointment.actions.setCountAppointmentByDate(formattedData));
+    } catch (error) {
+        console.error(error);
+        yield put(common.actions.setErrorMessage(error?.message));
+    } finally {
+        yield put(appointment.actions.setLoadingComponent(false));
+    }
+}
+
+function* handleCountServiceByDate({ payload }) {
+    try {
+        const { params } = payload;
+
+        yield* put(appointment.actions.setLoadingComponent(true));
+
+        const { data, error } = yield call(appointmentApi.getCountServiceByDate, params);
+
+        if (error) {
+            yield put(common.actions.setErrorMessage(error?.message));
+            return;
+        }
+
+        const formattedData = Object.entries(data?.data).map(([id, serviceCount]) => ({
+            name: (serviceCount as any)?.service?.name,
+            value: (serviceCount as any)?.count,
+        }));
+
+        yield put(appointment.actions.setCountServiceByDate(formattedData));
+    } catch (error) {
+        console.error(error);
+        yield put(common.actions.setErrorMessage(error?.message));
+    } finally {
+        yield put(appointment.actions.setLoadingComponent(false));
+    }
+}
+
+function* handleFollowUpVisitsByDate({ payload }) {
+    try {
+        const { params } = payload;
+
+        yield* put(appointment.actions.setLoadingComponent(true));
+
+        const { data, error } = yield call(appointmentApi.getFollowUpVisitsByDate, params);
+
+        if (error) {
+            yield put(common.actions.setErrorMessage(error?.message));
+            return;
+        }
+
+        console.log(data);
+        yield put(appointment.actions.setCountFollowUpVisitsByDate(data?.data));
+    } catch (error) {
+        console.error(error);
+        yield put(common.actions.setErrorMessage(error?.message));
+    } finally {
+        yield put(appointment.actions.setLoadingComponent(false));
+    }
+}
+
 function* handleCreateAppointment({ payload }) {
     try {
-        const { dataCreate } = payload;
+        const { dataCreate, dataService } = payload;
 
         yield* put(appointment.actions.setLoadingComponent(true));
 
@@ -105,6 +185,30 @@ function* handleCreateAppointment({ payload }) {
         }
 
         setCookies('apointment_id', data?.data?.appointmentId, 1);
+
+        const response = yield call(
+            fetch,
+            `${import.meta.env.VITE_BACKEND_URL}/api/payment/create`,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    amount: dataService.price,
+                    orderInfo: `DICH_VU_${dataService?.serviceId}`,
+                }),
+            }
+        );
+
+        const dataCreatePayment = yield call([response, 'json']);
+
+        if (dataCreatePayment?.paymentUrl) {
+            // Chuyển hướng sang trang thanh toán
+            window.location.href = dataCreatePayment.paymentUrl;
+        } else {
+            yield put(common.actions.setWarningMessage('Không tạo được link thanh toán!'));
+        }
     } catch (error) {
         console.error(error);
         yield put(common.actions.setErrorMessage(error?.message));
@@ -118,6 +222,8 @@ function* handleVerifyPaymentAppointment({ payload }) {
         const apointment_id = getCookies('apointment_id');
         const { params } = payload;
 
+        console.log(apointment_id);
+
         yield* put(appointment.actions.setLoadingComponent(true));
 
         const { data, error } = yield call(paymentApi.verifyPayment, { apointment_id, params });
@@ -127,7 +233,7 @@ function* handleVerifyPaymentAppointment({ payload }) {
             return;
         }
 
-        deleteCookies('apointment_id');
+        // deleteCookies('apointment_id');
     } catch (error) {
         console.error(error);
         yield put(common.actions.setErrorMessage(error?.message));
@@ -164,6 +270,18 @@ function* watchVerifyPaymentAppointment() {
     yield takeLatest(verifyPaymentAppointment, handleVerifyPaymentAppointment);
 }
 
+function* watchCountAppointmentByDate() {
+    yield takeLatest(getCountAppointmentByDate, handleCountAppointmentByDate);
+}
+
+function* watchCountServiceByDate() {
+    yield takeLatest(getCountServiceByDate, handleCountServiceByDate);
+}
+
+function* watchFollowUpVisitsByDate() {
+    yield takeLatest(getFollowUpVisitsByDate, handleFollowUpVisitsByDate);
+}
+
 export function* watchAppointment() {
     yield all([
         fork(watchFetchAppointmentsPatient),
@@ -173,5 +291,8 @@ export function* watchAppointment() {
         fork(watchGetAppointmentById),
         fork(watchCreateAppointment),
         fork(watchVerifyPaymentAppointment),
+        fork(watchCountAppointmentByDate),
+        fork(watchCountServiceByDate),
+        fork(watchFollowUpVisitsByDate),
     ]);
 }

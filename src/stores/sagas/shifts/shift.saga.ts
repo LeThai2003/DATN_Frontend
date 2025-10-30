@@ -6,6 +6,7 @@ import {
 } from '@/stores/actions/shifts/shift.action';
 import { common, shift } from '@/stores/reducers';
 import { selectFilter } from '@/stores/selectors/shifts/shift.selector';
+import { ModalType } from '@/types/stores/common';
 import { all, call, fork, put, select, takeLatest } from 'typed-redux-saga';
 
 function* handleFetchListShifts() {
@@ -79,6 +80,11 @@ function* handleUpdateShiftEmployee({ payload }) {
         }
 
         yield put(common.actions.setSuccessMessage('Cập nhật lịch khám thành công'));
+        yield put(
+            common.actions.setHiddenModal({
+                type: ModalType.SHIFT_EMPLOYEE,
+            })
+        );
     } catch (error: any) {
         console.error(error);
         yield put(common.actions.setErrorMessage(error?.message));

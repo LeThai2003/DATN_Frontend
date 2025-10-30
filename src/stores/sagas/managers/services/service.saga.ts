@@ -86,9 +86,11 @@ function* handleDeleteService({ payload }) {
 function* handleGetServiceById({ payload }: PayloadAction<any>) {
     yield put(service.actions.setLoadingComponent(true));
     try {
-        const { data, error } = yield call(serviceApi.getServiceById, payload?.id);
+        const { id, params } = payload;
+        const { data, error } = yield call(serviceApi.getServiceById, { id, params });
         if (error) {
             yield put(common.actions.setErrorMessage(error?.message));
+            return;
         }
         yield put(service.actions.setSelectService(data?.data));
     } catch (error) {

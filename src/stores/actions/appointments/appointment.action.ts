@@ -35,3 +35,19 @@ export const loadPagePatient = createAction(`${name}/LOAD_PAGE_PATIENT`);
 export const loadPageDoctor = createAction(`${name}/LOAD_PAGE_DOCTOR`);
 
 export const createPayment = createAction(`${name}/CREATE_PAYMENT`);
+
+export const getCountAppointmentByDate = createAction(
+    `${name}/COUNT_APPOINTMENT_BY_DATE`,
+    (state) => ({ payload: state })
+);
+
+export const getCountServiceByDate = createAction(`${name}/COUNT_SERVICE_BY_DATE`, (state) => ({
+    payload: state,
+}));
+
+export const getFollowUpVisitsByDate = createAction(
+    `${name}/FOLLOW_UP_VISITS_BY_DATE`,
+    (state) => ({
+        payload: state,
+    })
+);

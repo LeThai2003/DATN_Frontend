@@ -235,7 +235,7 @@ const SectionAppointmentRecord = forwardRef<
                         dispatch(
                             appointment_record.actions.setAddNewAppointmentRecord({ ...dataRecord })
                         );
-                        resolve(data);
+                        resolve(dataRecord);
                     },
                     (err) => {
                         console.warn('Validation errors:', err);

@@ -1,14 +1,22 @@
 import { getServiceById } from '@/stores/actions/managers/services/service.action';
-import { common, service as serviceSlice } from '@/stores/reducers';
+import { fetchInfoPatient } from '@/stores/actions/patients/patient.action';
+import { appointment, common, service as serviceSlice, shift } from '@/stores/reducers';
+import { selectInfoPatient } from '@/stores/selectors/patients/patient.selector';
 import { ModalType } from '@/types/stores/common';
+import { getCookies } from '@/utils/cookies/cookies';
 import { Button } from 'antd';
-import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 
 const ServiceCard = ({ service }) => {
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
+
+    const infoPatient = useSelector(selectInfoPatient);
+
+    let params = { patientId: infoPatient?.patientId };
 
     const handleOpenViewService = (data) => {
         dispatch(serviceSlice.actions.setSelectService(data));
@@ -25,6 +33,14 @@ const ServiceCard = ({ service }) => {
         dispatch(serviceSlice.actions.setSelectService(service));
         navigate(`/appointment`);
     };
+
+    const user = JSON.parse(getCookies('user') || null);
+
+    useEffect(() => {
+        if (user && user?.authorities[0]?.authority == 'ROLE_PATIENT') {
+            dispatch(fetchInfoPatient({ phone_number: user?.username }));
+        }
+    }, []);
 
     return (
         <div className="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">
@@ -44,7 +60,7 @@ const ServiceCard = ({ service }) => {
                     type="primary"
                     onClick={() => {
                         handleOpenViewService(service);
-                        dispatch(getServiceById({ id: service.serviceId }));
+                        dispatch(getServiceById({ id: service.serviceId, params }));
                     }}
                     className=""
                 >
@@ -56,7 +72,10 @@ const ServiceCard = ({ service }) => {
                     variant="outlined"
                     onClick={() => {
                         handleBookAppointment();
-                        dispatch(getServiceById({ id: service.serviceId }));
+                        dispatch(getServiceById({ id: service.serviceId, params }));
+                        dispatch(appointment.actions.setNewDoctorAppointment(null));
+                        dispatch(appointment.actions.setShiftAppointment(null));
+                        dispatch(shift.actions.setShiftEmployee([]));
                     }}
                     className=""
                 >

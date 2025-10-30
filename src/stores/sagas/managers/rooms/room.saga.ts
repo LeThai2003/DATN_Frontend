@@ -3,6 +3,7 @@ import {
     createRoom,
     deleteRoom,
     fetchFirst,
+    getTotalRoom,
     loadPage,
     updateRoom,
 } from '@/stores/actions/managers/rooms/room.action';
@@ -88,6 +89,24 @@ function* handleDeleteRoom({ payload }) {
     }
 }
 
+function* handleGetTotalRooms() {
+    yield put(room.actions.setLoadingComponent(true));
+    try {
+        const { data, error } = yield call(roomApi.getTotalRoom);
+        if (error) {
+            console.log(error?.message);
+            return;
+        }
+        yield put(room.actions.setTotalRooms(data?.data?.totalRooms || 0));
+        yield handleFetchFirst();
+    } catch (error) {
+        console.log(error);
+        yield put(common.actions.setErrorMessage(error?.message || 'Xóa phòng khám thất bại'));
+    } finally {
+        yield put(room.actions.setLoadingComponent(false));
+    }
+}
+
 function* watchFetchFirst() {
     yield takeLatest(fetchFirst, handleFetchFirst);
 }
@@ -108,6 +127,10 @@ function* watchCreateRoom() {
     yield takeLatest(createRoom, handleCreateRoom);
 }
 
+function* watchgetTotalRooms() {
+    yield takeLatest(getTotalRoom, handleGetTotalRooms);
+}
+
 export function* watchRoom() {
     yield all([
         fork(watchFetchFirst),
@@ -115,5 +138,6 @@ export function* watchRoom() {
         fork(watchCreateRoom),
         fork(watchLoadPage),
         fork(watchDeleteRoom),
+        fork(watchgetTotalRooms),
     ]);
 }

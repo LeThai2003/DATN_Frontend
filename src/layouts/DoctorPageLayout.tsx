@@ -8,9 +8,24 @@ import { ModalType } from '@/types/stores/common';
 import TitleRouter from '@/routes/TitleRouter';
 import dayjs from 'dayjs';
 import { selectResetDoctorTabs } from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
+import { createChat } from '@n8n/chat';
 
 const DoctorPageLayout = () => {
     const resetDoctorTabs = useSelector(selectResetDoctorTabs);
+
+    useEffect(() => {
+        createChat({
+            webhookUrl: 'https://example.com/webhook',
+        });
+
+        // Cleanup khi layout bị unmount
+        return () => {
+            const chatEl = document.querySelector('#n8n-chat, .n8n-chat, iframe[src*="n8n"]');
+            if (chatEl && chatEl.parentNode) {
+                chatEl.parentNode.removeChild(chatEl);
+            }
+        };
+    }, []);
 
     const [tabs, setTabs] = useState([
         {

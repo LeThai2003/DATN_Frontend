@@ -9,13 +9,11 @@ import { useNavigate } from 'react-router';
 import {
     selectDoctorAppointment,
     selectShiftAppointment,
-    selectTimeBookingAppointment,
 } from '@/stores/selectors/appointments/appointment.selector';
 import InfoPatient from '@/components/pages/patients/appointments/InfoPatient';
 import InstructionText from '@/components/pages/patients/appointments/InstructionText';
 import InfoService from '@/components/pages/patients/appointments/InfoService';
 import InfoDoctors from '@/components/pages/patients/appointments/InfoDoctors';
-import { createAppointment } from '@/stores/actions/appointments/appointment.action';
 
 const Appointment = () => {
     const selectedService = useSelector(selectSelectedService);
@@ -47,7 +45,7 @@ const Appointment = () => {
         }
 
         if (!shiftAppointment) {
-            dispatch(common.actions.setErrorMessage('Vui lòng chọn giờ khám mong muốn!'));
+            dispatch(common.actions.setWarningMessage('Vui lòng chọn giờ khám mong muốn!'));
             return;
         }
 
@@ -60,7 +58,6 @@ const Appointment = () => {
         };
 
         dispatch(appointment.actions.setNewAppointment(dataAppointment));
-        dispatch(createAppointment({ dataCreate: dataAppointment }));
         navigate('/checkout');
     };
 
@@ -87,16 +84,18 @@ const Appointment = () => {
 
                             <InfoDoctors />
 
-                            <div className="flex items-center justify-end border-t border-gray-200 mt-4">
-                                <Button
-                                    type="primary"
-                                    size="large"
-                                    className="mt-5 px-10"
-                                    onClick={handleConfirmBookAppointment}
-                                >
-                                    Xác nhận
-                                </Button>
-                            </div>
+                            {selectedDoctorAppointment?.employeeId && shiftAppointment?.shiftId && (
+                                <div className="flex items-center justify-end border-t border-gray-200 mt-4">
+                                    <Button
+                                        type="primary"
+                                        size="large"
+                                        className="mt-5 px-10"
+                                        onClick={handleConfirmBookAppointment}
+                                    >
+                                        Xác nhận
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </section>
