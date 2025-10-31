@@ -5,14 +5,10 @@ import {
     selectLoadingComponent,
     selectNewAppointment,
     selectShiftAppointment,
-    selectTimeBookingAppointment,
 } from '@/stores/selectors/appointments/appointment.selector';
 import { selectSelectedService } from '@/stores/selectors/services/service.selector';
-import { getCookies } from '@/utils/cookies/cookies';
 import { Card, Image } from 'antd';
-import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router';
 
 const Checkout = () => {
     const dispatch = useDispatch();
@@ -22,13 +18,6 @@ const Checkout = () => {
     const shiftAppointment = useSelector(selectShiftAppointment);
     const newAppointment = useSelector(selectNewAppointment);
     const loadingComponent = useSelector(selectLoadingComponent);
-
-    const token = getCookies('access_token');
-
-    const navigate = useNavigate();
-
-    // console.log(selectedService);
-    const apointment_id = getCookies('apointment_id');
 
     return (
         <div className="relative">
@@ -204,7 +193,7 @@ const Checkout = () => {
                                             alt="VNPay"
                                             className="w-6 h-6"
                                         />
-                                        Thanh toán qua VNPay
+                                        {loadingComponent ? 'Loading...' : 'Thanh toán qua VNPay'}
                                     </button>
                                 </div>
                             </Card>

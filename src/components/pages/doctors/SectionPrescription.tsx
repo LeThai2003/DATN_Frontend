@@ -155,7 +155,11 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
             render: (_, record) =>
                 isEditing(record) ? (
                     <>
-                        <Form.Item name="drug_id" className="mb-0">
+                        <Form.Item
+                            name="drug_id"
+                            className="mb-0"
+                            rules={[{ required: true, message: '* Thuốc!' }]}
+                        >
                             <Select
                                 showSearch
                                 optionFilterProp="label"
@@ -201,7 +205,11 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
             dataIndex: 'dosage',
             render: (_, record) =>
                 isEditing(record) ? (
-                    <Form.Item name="dosage" className="mb-0">
+                    <Form.Item
+                        name="dosage"
+                        className="mb-0"
+                        rules={[{ required: true, message: '* Liều dùng!' }]}
+                    >
                         <InputNumber min={1} />
                     </Form.Item>
                 ) : (
@@ -214,7 +222,11 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
             render: (_, record) =>
                 isEditing(record) ? (
                     <>
-                        <Form.Item name="unit_dosage_id" className="mb-0">
+                        <Form.Item
+                            name="unit_dosage_id"
+                            className="mb-0"
+                            rules={[{ required: true, message: '* Đơn vị!' }]}
+                        >
                             <Select
                                 style={{ width: 100 }}
                                 options={unitsList?.data?.map((unit) => ({
@@ -252,7 +264,12 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
             dataIndex: 'dosage_time',
             render: (_, record) =>
                 isEditing(record) ? (
-                    <Form.Item name="dosage_time" className="mb-0" style={{ width: 130 }}>
+                    <Form.Item
+                        name="dosage_time"
+                        className="mb-0"
+                        style={{ width: 130 }}
+                        rules={[{ required: true, message: '* Thời gian!' }]}
+                    >
                         <Checkbox.Group options={dosageOptions} />
                     </Form.Item>
                 ) : (
@@ -267,7 +284,11 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
             render: (_, record) =>
                 isEditing(record) ? (
                     <>
-                        <Form.Item name="meal_time" className="mb-0">
+                        <Form.Item
+                            name="meal_time"
+                            className="mb-0"
+                            rules={[{ required: true, message: '* Thời điểm!' }]}
+                        >
                             <Select
                                 style={{ width: 100 }}
                                 options={mealRelationsList?.data?.map((m) => ({

@@ -39,4 +39,5 @@ export type FormFieldProps<T extends Record<string, any> = any> = {
     rows?: number;
     maxLength?: number;
     lengthNumberOtp?: number;
+    disablePast?: boolean;
 };

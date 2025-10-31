@@ -14,6 +14,8 @@ function* handleGetIcd10(action: PayloadAction<FilterIcd10 | undefined>) {
             filter: select(selectFilter),
         });
 
+        // console.log('FILTER----------------', filter);
+
         const { data, error } = yield call(icd10Api.getIcd10, filter);
 
         if (error) {

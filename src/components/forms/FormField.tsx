@@ -37,6 +37,7 @@ const FormField = ({
     uploadProps,
     imageProps,
     lengthNumberOtp = 6,
+    disablePast = false,
 }: FormFieldProps) => {
     return (
         <Controller
@@ -110,8 +111,14 @@ const FormField = ({
                             placeholder={placeholder}
                             disabled={disabled}
                             value={field.value ? dayjs(field.value, 'YYYY-MM-DD') : null}
-                            onChange={(date) =>
-                                field.onChange(date ? date.format('YYYY-MM-DD') : undefined)
+                            onChange={(date) => {
+                                if (!date) return; // KHÔNG thay đổi giá trị nếu user đóng datepicker
+                                field.onChange(date.format('YYYY-MM-DD'));
+                            }}
+                            disabledDate={
+                                disablePast
+                                    ? (current) => current && current <= dayjs().endOf('day')
+                                    : undefined
                             }
                         />
                     )}

@@ -18,73 +18,6 @@ import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { string } from 'yup';
 
-const icd10Options = [
-    { value: 'J02.9', label: 'J02.9 - Viêm họng cấp, không xác định' },
-    { value: 'D50.9', label: 'D50.9 - Thiếu máu do thiếu sắt, không xác định' },
-    { value: 'R51', label: 'R51 - Đau đầu' },
-    { value: 'J06.9', label: 'J06.9 - Viêm đường hô hấp trên cấp' },
-];
-
-export const suggestedPrescriptions = [
-    {
-        doctor_id: 1,
-        icd10: 'J02.9',
-        name: 'Phác đồ viêm họng cấp - BS. An',
-        drugs: [
-            {
-                drug_id: 1,
-                dosage: 1,
-                unit_dosage_id: 2,
-                duration: 5,
-                dosage_time: ['Sáng', 'Tối'],
-                meal_time: 'after',
-                note: 'Uống với nước ấm',
-            },
-            {
-                drug_id: 2,
-                dosage: 1,
-                unit_dosage_id: 1,
-                duration: 5,
-                dosage_time: ['Trưa'],
-                meal_time: 'after',
-                note: 'Giảm đau họng',
-            },
-        ],
-    },
-    {
-        doctor_id: 1,
-        icd10: 'R51',
-        name: 'Phác đồ đau đầu nhẹ - BS. An',
-        drugs: [
-            {
-                drug_id: 3,
-                dosage: 1,
-                unit_dosage_id: 2,
-                duration: 3,
-                dosage_time: ['Sáng', 'Chiều'],
-                meal_time: 'after',
-                note: 'Nếu đau nặng có thể tăng liều',
-            },
-        ],
-    },
-    {
-        doctor_id: 2,
-        icd10: 'D50.9',
-        name: 'Phác đồ thiếu máu - BS. Bình',
-        drugs: [
-            {
-                drug_id: 4,
-                dosage: 1,
-                unit_dosage_id: 2,
-                duration: 10,
-                dosage_time: ['Sáng'],
-                meal_time: 'before',
-                note: 'Uống trước ăn sáng',
-            },
-        ],
-    },
-];
-
 export interface SectionAppointmentRecordRef {
     submitForm: () => Promise<unknown>;
 }
@@ -113,21 +46,27 @@ const SectionAppointmentRecord = forwardRef<
     const currentDoctorId = 1;
 
     const defaultAppointmentRecordValues = {
-        height: appointmentRecordData?.height || 0,
-        weight: appointmentRecordData?.weight || 0,
+        height: appointmentRecordData?.height || null,
+        weight: appointmentRecordData?.weight || null,
         blood_pressure: appointmentRecordData?.bloodPressure || '',
-        temperature: appointmentRecordData?.temperature || 0,
-        heart_rate: appointmentRecordData?.heartRate || 0,
+        temperature: appointmentRecordData?.temperature || null,
+        heart_rate: appointmentRecordData?.heartRate || null,
+        spo2: appointmentRecordData?.spo2 || null,
         symptoms: appointmentRecordData?.symptoms || '',
-        // initial_diagnosis: record?.initial_diagnosis || '',
+        initial_diagnosis: record?.initialDiagnosis || '',
+        final_diagnosis: record?.finalDiagnosis || '',
+        treatmentPlan: record?.treatmentPlan || '',
         icd10: appointmentRecordData
             ? `${appointmentRecordData?.icd10?.code} - ${appointmentRecordData?.icd10?.description}`
             : null,
         notes: appointmentRecordData?.notes || '',
         date: appointmentRecordData?.date || '',
         followUpVisit: {
-            isFollowUp: appointmentRecordData?.followUpVisit?.followUpId ? true : false,
-            followUpDate: appointmentRecordData?.followUpVisit?.followUpDate || '',
+            isFollowUp: true,
+            // isFollowUp: appointmentRecordData?.followUpVisit?.followUpId ? true : false,
+            followUpDate:
+                appointmentRecordData?.followUpVisit?.followUpDate ||
+                dayjs().add(2, 'week').format('YYYY-MM-DD'),
             notes: appointmentRecordData?.followUpVisit?.instruction || '',
         },
     };
@@ -137,6 +76,7 @@ const SectionAppointmentRecord = forwardRef<
         handleSubmit,
         reset,
         setValue,
+        getValues,
         watch,
         formState: { errors, isSubmitting },
     } = useForm({
@@ -147,60 +87,67 @@ const SectionAppointmentRecord = forwardRef<
     useEffect(() => {
         if (appointmentRecordData) {
             reset({
-                height: appointmentRecordData.height || 0,
-                weight: appointmentRecordData.weight || 0,
-                blood_pressure: appointmentRecordData.bloodPressure || '',
-                temperature: appointmentRecordData.temperature || 0,
-                heart_rate: appointmentRecordData.heartRate || 0,
-                symptoms: appointmentRecordData.symptoms || '',
-                icd10: appointmentRecordData.icd10
-                    ? `${appointmentRecordData.icd10.code} - ${appointmentRecordData.icd10.description}`
-                    : '',
-                notes: appointmentRecordData.notes || '',
-                date: appointmentRecordData.date || '',
+                height: appointmentRecordData?.height || null,
+                weight: appointmentRecordData?.weight || null,
+                // blood_pressure: appointmentRecordData?.bloodPressure || '',
+                blood_pressure: appointmentRecordData?.bloodPressure || '',
+                temperature: appointmentRecordData?.temperature || null,
+                heart_rate: appointmentRecordData?.heartRate || null,
+                spo2: appointmentRecordData?.spo2 || null,
+                symptoms: appointmentRecordData?.symptoms || '',
+                initial_diagnosis: appointmentRecordData?.initialDiagnosis || '',
+                final_diagnosis: appointmentRecordData?.finalDiagnosis || '',
+                treatmentPlan: appointmentRecordData?.treatmentPlan || '',
+                icd10: appointmentRecordData
+                    ? `${appointmentRecordData?.icd10?.code} - ${appointmentRecordData?.icd10?.description}`
+                    : null,
+                notes: appointmentRecordData?.notes || '',
+                date: appointmentRecordData?.date || '',
                 followUpVisit: {
-                    isFollowUp: !!appointmentRecordData?.followUpVisit?.followUpId,
-                    followUpDate: appointmentRecordData?.followUpVisit?.followUpDate || '',
+                    isFollowUp: true,
+                    // isFollowUp: appointmentRecordData?.followUpVisit?.followUpId ? true : false,
+                    followUpDate:
+                        appointmentRecordData?.followUpVisit?.followUpDate ||
+                        dayjs().add(2, 'week').format('YYYY-MM-DD'),
                     notes: appointmentRecordData?.followUpVisit?.instruction || '',
                 },
             });
         }
-    }, [appointmentRecordData, reset]);
+    }, [appointmentRecordData]);
+
+    // useEffect(() => {
+    //     const icd = watch('icd10');
+
+    //     if (icd) {
+    //         const filtered = suggestedPrescriptions.filter(
+    //             (s) => s.icd10 === icd && s.doctor_id === currentDoctorId
+    //         );
+    //         setSuggestions(filtered);
+
+    //         // Nếu không có gợi ý thuốc nào thì reset luôn đơn thuốc
+    //         if (filtered.length === 0) {
+    //             dispatch(prescription.actions.setAddNewPrescription([]));
+    //         }
+    //     } else {
+    //         // Khi ICD-10 bị xoá hoặc chưa chọn
+    //         setSuggestions([]);
+    //         dispatch(prescription.actions.setAddNewPrescription([]));
+    //     }
+    // }, [watch('icd10')]);
 
     useEffect(() => {
-        const icd = watch('icd10');
-
-        if (icd) {
-            const filtered = suggestedPrescriptions.filter(
-                (s) => s.icd10 === icd && s.doctor_id === currentDoctorId
-            );
-            setSuggestions(filtered);
-
-            // Nếu không có gợi ý thuốc nào thì reset luôn đơn thuốc
-            if (filtered.length === 0) {
-                dispatch(prescription.actions.setAddNewPrescription([]));
-            }
-        } else {
-            // Khi ICD-10 bị xoá hoặc chưa chọn
-            setSuggestions([]);
-            dispatch(prescription.actions.setAddNewPrescription([]));
-        }
-    }, [watch('icd10')]);
-
-    useEffect(() => {
-        if (watch('followUpVisit.isFollowUp')) {
-            const defaultDate = dayjs().add(2, 'week').format('YYYY-MM-DD');
-            setValue('followUpVisit.followUpDate', defaultDate);
-        }
-    }, [watch('followUpVisit.isFollowUp')]);
+        // Luôn bật isFollowUp
+        setValue('followUpVisit.isFollowUp', true);
+    }, []);
 
     useEffect(() => {
         reset(defaultAppointmentRecordValues);
-    }, [record, reset]);
+    }, [record]);
 
     // console.log(newAppointment);
 
     const onSubmit = (data) => {
+        console.log('followUpVisit:', getValues('followUpVisit'));
         console.log(errors);
         // console.log(data);
     };
@@ -219,11 +166,11 @@ const SectionAppointmentRecord = forwardRef<
                             // bloodPressure: data?.blood_pressure || null,
                             temperature: data?.temperature || null,
                             heartRate: data?.heart_rate || null,
-                            spo2: 98,
-                            symptoms: 'test',
-                            initialDiagnosis: 'test',
-                            treatmentPlan: 'test',
-                            finalDiagnosis: 'test',
+                            spo2: data?.spo2 || null,
+                            symptoms: data?.symptoms || '',
+                            initialDiagnosis: data?.initial_diagnosis || '',
+                            treatmentPlan: data?.treatmentPlan || '',
+                            finalDiagnosis: data?.final_diagnosis || '',
                             icd10: data?.icd10 || '',
                             followUpVisit: {
                                 followUpDate: data?.followUpVisit?.followUpDate || '',
@@ -257,7 +204,28 @@ const SectionAppointmentRecord = forwardRef<
                     onSubmit={handleSubmit(onSubmit)}
                     className="space-y-4 h-[92%] overflow-y-auto p-3  rounded-md"
                 >
-                    <div className="grid grid-cols-5 gap-3">
+                    <FormField
+                        name="symptoms"
+                        control={control}
+                        label="Triệu chứng"
+                        placeholder="Nhập triệu chứng"
+                        type={record ? 'text' : 'textarea'}
+                        error={!!errors.symptoms}
+                        helperText={errors.symptoms?.message as string}
+                    />
+
+                    <FormField
+                        name="initial_diagnosis"
+                        control={control}
+                        label="Chẩn đoán ban đầu"
+                        placeholder="Nhập chẩn đoán"
+                        type={record ? 'text' : 'input'}
+                        inputType="text"
+                        error={!!errors.initial_diagnosis}
+                        helperText={errors.initial_diagnosis?.message as string}
+                    />
+
+                    <div className="grid grid-cols-3 xl:grid-cols-6 gap-3">
                         <FormField
                             name="height"
                             control={control}
@@ -312,28 +280,29 @@ const SectionAppointmentRecord = forwardRef<
                             error={!!errors.heart_rate}
                             helperText={errors.heart_rate?.message as string}
                         />
+
+                        <FormField
+                            name="spo2"
+                            control={control}
+                            label="SpO₂ (%)"
+                            placeholder="Nồng độ oxy trong máu"
+                            type={record ? 'text' : 'input'}
+                            inputType="number"
+                            error={!!errors.spo2}
+                            helperText={errors.spo2?.message as string}
+                        />
                     </div>
 
                     <FormField
-                        name="symptoms"
+                        name="final_diagnosis"
                         control={control}
-                        label="Triệu chứng"
-                        placeholder="Nhập triệu chứng"
-                        type={record ? 'text' : 'textarea'}
-                        error={!!errors.symptoms}
-                        helperText={errors.symptoms?.message as string}
-                    />
-
-                    {/* <FormField
-                        name="initial_diagnosis"
-                        control={control}
-                        label="Chẩn đoán ban đầu"
+                        label="Chẩn đoán cuối"
                         placeholder="Nhập chẩn đoán"
                         type={record ? 'text' : 'input'}
                         inputType="text"
-                        error={!!errors.initial_diagnosis}
-                        helperText={errors.initial_diagnosis?.message as string}
-                    /> */}
+                        error={!!errors.final_diagnosis}
+                        helperText={errors.final_diagnosis?.message as string}
+                    />
 
                     <FormField
                         name="icd10"
@@ -395,14 +364,15 @@ const SectionAppointmentRecord = forwardRef<
                         </>
                     ) : (
                         <>
-                            <FormField
+                            {/* <FormField
                                 name="followUpVisit.isFollowUp"
                                 control={control}
                                 type="checkbox"
                                 label="Tái khám"
-                            />
+                            /> */}
 
-                            {watch('followUpVisit.isFollowUp') && (
+                            {
+                                // watch('followUpVisit.isFollowUp') &&
                                 <div className="p-3 border border-gray-300 rounded-md flex flex-col gap-3 bg-white">
                                     <FormField
                                         name="followUpVisit.followUpDate"
@@ -410,6 +380,7 @@ const SectionAppointmentRecord = forwardRef<
                                         type="datepicker"
                                         label="Ngày tái khám"
                                         placeholder="Chọn ngày tái khám"
+                                        disablePast
                                     />
 
                                     <FormField
@@ -420,9 +391,19 @@ const SectionAppointmentRecord = forwardRef<
                                         placeholder="Nhập ghi chú (nếu có)"
                                     />
                                 </div>
-                            )}
+                            }
                         </>
                     )}
+
+                    {/* <FormField
+                        name="treatmentPlan"
+                        control={control}
+                        label="Phương án điều trị"
+                        placeholder="Nhập phương án điều trị"
+                        type={record ? 'text' : 'textarea'}
+                        error={!!errors.treatmentPlan}
+                        helperText={errors.treatmentPlan?.message as string}
+                    /> */}
 
                     <FormField
                         name="notes"

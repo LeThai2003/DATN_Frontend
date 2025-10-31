@@ -6,7 +6,7 @@ class AppointmentRecordApi extends HttpService {
     };
 
     createAppointmentRecordById = (data) => {
-        console.log(data);
+        // console.log(data);
         return this.post(data, 'create');
     };
 }

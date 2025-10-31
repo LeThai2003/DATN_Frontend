@@ -233,7 +233,7 @@ function* handleVerifyPaymentAppointment({ payload }) {
             return;
         }
 
-        // deleteCookies('apointment_id');
+        deleteCookies('apointment_id');
     } catch (error) {
         console.error(error);
         yield put(common.actions.setErrorMessage(error?.message));

@@ -14,5 +14,5 @@ export interface RoomSlice {
     filter: FilterRoom;
     selectedRoom: Room;
     loadingComponent: boolean;
-    totalRooms: number;
+    totalRooms?: number;
 }

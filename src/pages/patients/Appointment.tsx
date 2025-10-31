@@ -14,11 +14,13 @@ import InfoPatient from '@/components/pages/patients/appointments/InfoPatient';
 import InstructionText from '@/components/pages/patients/appointments/InstructionText';
 import InfoService from '@/components/pages/patients/appointments/InfoService';
 import InfoDoctors from '@/components/pages/patients/appointments/InfoDoctors';
+import { selectInfoPatient } from '@/stores/selectors/patients/patient.selector';
 
 const Appointment = () => {
     const selectedService = useSelector(selectSelectedService);
     const selectedDoctorAppointment = useSelector(selectDoctorAppointment);
     const shiftAppointment = useSelector(selectShiftAppointment);
+    const infoPatient = useSelector(selectInfoPatient);
 
     const dispatch = useDispatch();
 
@@ -84,18 +86,20 @@ const Appointment = () => {
 
                             <InfoDoctors />
 
-                            {selectedDoctorAppointment?.employeeId && shiftAppointment?.shiftId && (
-                                <div className="flex items-center justify-end border-t border-gray-200 mt-4">
-                                    <Button
-                                        type="primary"
-                                        size="large"
-                                        className="mt-5 px-10"
-                                        onClick={handleConfirmBookAppointment}
-                                    >
-                                        Xác nhận
-                                    </Button>
-                                </div>
-                            )}
+                            {selectedDoctorAppointment?.employeeId &&
+                                shiftAppointment?.shiftId &&
+                                infoPatient?.patientId && (
+                                    <div className="flex items-center justify-end border-t border-gray-200 mt-4">
+                                        <Button
+                                            type="primary"
+                                            size="large"
+                                            className="mt-5 px-10"
+                                            onClick={handleConfirmBookAppointment}
+                                        >
+                                            Xác nhận
+                                        </Button>
+                                    </div>
+                                )}
                         </div>
                     </div>
                 </section>

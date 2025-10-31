@@ -13,6 +13,7 @@ import { watchAppointment } from './appointments/appointment.saga';
 import { watchAppointmentRecord } from './appointmentRecords/appointmentRecord.saga';
 import { watchIcd10 } from './icd10/icd10.saga';
 import { watchShift } from './shifts/shift.saga';
+import { watchWeekDay } from './weekDays/weekDay.saga';
 
 export default function* rootSaga() {
     yield* fork(watchAuth);
@@ -29,4 +30,5 @@ export default function* rootSaga() {
     yield* fork(watchAppointmentRecord);
     yield* fork(watchIcd10);
     yield* fork(watchShift);
+    yield* fork(watchWeekDay);
 }

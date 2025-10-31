@@ -17,6 +17,7 @@ import {
     shift,
     specialization,
     unit,
+    week_day,
 } from '.';
 
 const rootReducers = combineReducers({
@@ -37,6 +38,7 @@ const rootReducers = combineReducers({
     [appointment.name]: appointment.default.reducer,
     [icd10.name]: icd10.default.reducer,
     [shift.name]: shift.default.reducer,
+    [week_day.name]: week_day.default.reducer,
 });
 
 export type RootReducerType = ReturnType<typeof rootReducers>;

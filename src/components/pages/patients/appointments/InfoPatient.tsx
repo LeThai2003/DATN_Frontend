@@ -16,14 +16,6 @@ const InfoPatient = forwardRef((props, ref) => {
 
     const dispatch = useDispatch();
 
-    // const user = JSON.parse(getCookies('user') || null);
-
-    // useEffect(() => {
-    //     if (user && user?.authorities[0]?.authority == 'ROLE_PATIENT') {
-    //         dispatch(fetchInfoPatient({ phone_number: user?.username }));
-    //     }
-    // }, []);
-
     const {
         control,
         handleSubmit,
@@ -45,6 +37,23 @@ const InfoPatient = forwardRef((props, ref) => {
             emergencyContact: infoPatient?.emergencyContact || '',
         },
     });
+
+    useEffect(() => {
+        if (infoPatient) {
+            reset({
+                patientId: infoPatient.patientId,
+                fullName: infoPatient.fullName || '',
+                phoneNumber: infoPatient.phoneNumber || '',
+                citizenId: infoPatient.citizenId || '',
+                insuranceCode: infoPatient.insuranceCode || '',
+                job: infoPatient.job || '',
+                dob: infoPatient.dob || null,
+                gender: infoPatient.gender ?? true,
+                address: infoPatient.address || '',
+                emergencyContact: infoPatient.emergencyContact || '',
+            });
+        }
+    }, [infoPatient, reset]);
 
     const onSubmit = (values: any) => {
         // console.log('Submit thành công:', values);

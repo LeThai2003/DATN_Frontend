@@ -186,15 +186,12 @@ const TabShiftEmployee = () => {
             <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Lịch làm việc</h3>
                 <div className="flex gap-2">
-                    {/* <Button type="primary" onClick={handleOpenModal}>
-                        + Thêm mới
-                    </Button> */}
-                    <DatePicker
+                    {/* <DatePicker
                         defaultValue={dayjs()}
                         format="DD/MM/YYYY"
                         disabledDate={disabledDate}
                         onChange={(e) => handleChangeDate(e)}
-                    />
+                    /> */}
                     {!isOpenFilter && <FilterButton onClick={() => setIsOpenFilter(true)} />}
                 </div>
             </div>

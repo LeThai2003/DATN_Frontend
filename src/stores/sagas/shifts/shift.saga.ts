@@ -4,7 +4,7 @@ import {
     getShifts,
     updateShiftEmployee,
 } from '@/stores/actions/shifts/shift.action';
-import { common, shift } from '@/stores/reducers';
+import { appointment, common, shift } from '@/stores/reducers';
 import { selectFilter } from '@/stores/selectors/shifts/shift.selector';
 import { ModalType } from '@/types/stores/common';
 import { all, call, fork, put, select, takeLatest } from 'typed-redux-saga';
@@ -58,6 +58,7 @@ function* handleFetchShiftEmployee() {
         }
 
         yield put(shift.actions.setShiftEmployee(data?.data?.data));
+        yield put(appointment.actions.setShiftAppointment(null));
     } catch (error: any) {
         console.error(error);
         yield put(common.actions.setErrorMessage(error?.message));

@@ -50,7 +50,7 @@ const LazyICD10Select = ({
                     icd10.actions.setFilterIcd10({
                         ...filter,
                         search: term,
-                        pageNo: 1,
+                        pageNo: 0,
                     })
                 );
                 dispatch(icd10.actions.resetIcd10s());

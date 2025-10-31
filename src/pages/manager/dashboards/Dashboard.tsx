@@ -168,7 +168,7 @@ const Dashboard = () => {
             <Spin spinning={loadingComponent} tip="Đang tải dữ liệu...">
                 <Row gutter={[16, 16]}>
                     {/* Biểu đồ cột */}
-                    <Col span={24} xl={24}>
+                    <Col span={24} xl={16}>
                         <Card title="Số ca khám theo ngày">
                             {countAppointmentsByDate?.length === 0 && !loadingComponent ? (
                                 <Empty description="Không có dữ liệu để hiển thị" />
@@ -216,7 +216,7 @@ const Dashboard = () => {
                     </Col>
 
                     {/* Biểu đồ tròn */}
-                    <Col span={24} xl={24}>
+                    <Col span={24} xl={8}>
                         <Card title="Phân bố ca khám theo phòng ban">
                             {countServicesByDate?.length === 0 && !loadingComponent ? (
                                 <Empty description="Không có dữ liệu để hiển thị" />

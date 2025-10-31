@@ -14,6 +14,7 @@ import { selectSelectedAppointmentRecord } from '@/stores/selectors/appointmentR
 import { getAppointmentRecord } from '@/stores/actions/appointmentRecord.s/appointmentRecord.action';
 import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 import { getAppointmentByIdAndOpenModal } from '@/stores/actions/appointments/appointment.action';
+import { setCookies } from '@/utils/cookies/cookies';
 
 const prescriptionColumns: ColumnsType<any> = [
     {
@@ -26,7 +27,7 @@ const prescriptionColumns: ColumnsType<any> = [
         title: 'Liều lượng',
         key: 'dosage',
         render: (_, record) => `${record?.dosage} ${record?.unitDosageId?.name || ''}`,
-        width: 120,
+        width: 100,
     },
     {
         title: 'Thời điểm uống',
@@ -39,16 +40,16 @@ const prescriptionColumns: ColumnsType<any> = [
         title: 'Liên quan bữa ăn',
         dataIndex: ['mealRelation', 'name'],
         key: 'meal_time',
-        width: 130,
+        width: 150,
     },
     {
         title: 'Thời gian dùng (ngày)',
         dataIndex: 'duration',
         key: 'duration',
-        width: 130,
+        width: 200,
     },
     {
-        title: 'Hướng dẫn',
+        title: 'Hướng dẫn thêm',
         dataIndex: 'instructions',
         key: 'instructions',
         width: 200,
@@ -60,9 +61,56 @@ const ModalAppointmentPatient: React.FC<ModalState> = ({ data, type, variant }) 
     const loadingComponentAppointment = useSelector(selectLoadingComponent);
     const loadingComponentAppointmentRecord = useSelector(selectLoadingComponentRecord);
 
+    console.log(data);
+
     const [appointmentRecordData, setAppointmentRecordData] = useState(null);
+    const [loadingPayment, setLoadingPayment] = useState(false);
 
     const dispatch = useDispatch();
+
+    const createPayment = async (price: number, serviceId: string, appointmentId) => {
+        try {
+            setCookies('apointment_id', appointmentId, 1);
+            setLoadingPayment(true);
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/payment/create`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    amount: price,
+                    orderInfo: `DICH_VU_${serviceId}`,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data?.paymentUrl) {
+                window.location.href = data.paymentUrl;
+            } else {
+                alert('Không tạo được link thanh toán!');
+            }
+            setLoadingPayment(false);
+        } catch (err) {
+            console.error(err);
+            alert('Lỗi khi gọi API thanh toán!');
+            setLoadingPayment(false);
+        }
+    };
+
+    const canPay = (shiftId) => {
+        const now = dayjs();
+        const shiftDate = dayjs(shiftId?.date, 'YYYY-MM-DD');
+        const shiftStart = dayjs(
+            `${shiftId?.date} ${shiftId?.shift?.startTime}`,
+            'YYYY-MM-DD HH:mm:ss'
+        );
+
+        if (shiftDate.isAfter(now, 'day')) return true;
+        if (shiftDate.isSame(now, 'day')) return shiftStart.isAfter(now);
+
+        return false;
+    };
 
     const renderTag = (status) => {
         const color = status === 'COMPLETE' ? 'green' : status === 'CREATE' ? 'orange' : 'red';
@@ -70,13 +118,45 @@ const ModalAppointmentPatient: React.FC<ModalState> = ({ data, type, variant }) 
             status === 'COMPLETE'
                 ? 'Hoàn thành'
                 : status === 'CREATE'
-                ? 'Đang xử lý'
+                ? 'Chưa thanh toán'
                 : 'Đã thanh toán';
-        return <Tag color={color}>{label}</Tag>;
+        return (
+            <div>
+                {status == 'CREATE' && canPay(data?.shiftId) ? (
+                    <div className="flex gap-3">
+                        <Tag color={color}>{label}</Tag>
+                        <button
+                            disabled={loadingPayment}
+                            onClick={async () => {
+                                if (!data?.price) return alert('Chưa có giá dịch vụ!');
+
+                                await createPayment(
+                                    data.price * 1000,
+                                    data?.serviceId?.serviceId,
+                                    data?.appointmentId
+                                );
+                            }}
+                            className="bg-red-500 hover:bg-red-600 text-white font-semibold text-xs px-4 py-1 rounded-lg shadow-md transition-all duration-200 flex items-center gap-2"
+                        >
+                            <img
+                                src="https://yt3.googleusercontent.com/JM1m2wng0JQUgSg9ZSEvz7G4Rwo7pYb4QBYip4PAhvGRyf1D_YTbL2DdDjOy0qOXssJPdz2r7Q=s900-c-k-c0x00ffffff-no-rj"
+                                alt="VNPay"
+                                className="w-4 h-4"
+                            />
+                            {loadingPayment ? 'Loading...' : 'Thanh toán'}
+                        </button>
+                    </div>
+                ) : (
+                    <Tag color={color}>{label}</Tag>
+                )}
+            </div>
+        );
     };
 
     useEffect(() => {
-        dispatch(getAppointmentRecord({ id: data?.appointmentId, setAppointmentRecordData }));
+        if (data?.status == 'COMPLETE') {
+            dispatch(getAppointmentRecord({ id: data?.appointmentId, setAppointmentRecordData }));
+        }
     }, [data?.appointmentId]);
 
     const handleRecordFollow = (id) => {
@@ -176,10 +256,19 @@ const ModalAppointmentPatient: React.FC<ModalState> = ({ data, type, variant }) 
                             <Descriptions.Item label="Nhịp tim">
                                 {appointmentRecordData?.heartRate} bpm
                             </Descriptions.Item>
+                            <Descriptions.Item label="SpO₂">
+                                {appointmentRecordData?.spo2} %
+                            </Descriptions.Item>
                             <Descriptions.Item label="Triệu chứng" span={2}>
                                 {appointmentRecordData?.symptoms}
                             </Descriptions.Item>
-                            <Descriptions.Item label="Chẩn đoán (ICD10)">
+                            <Descriptions.Item label="Chẩn đoán đầu" span={2}>
+                                {appointmentRecordData?.initialDiagnosis}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Chẩn đoán cuối" span={2}>
+                                {appointmentRecordData?.finalDiagnosis}
+                            </Descriptions.Item>
+                            <Descriptions.Item label="ICD10" span={2}>
                                 {`${appointmentRecordData?.icd10?.code} -
                                     ${appointmentRecordData?.icd10?.description}`}
                             </Descriptions.Item>

@@ -2,15 +2,18 @@ import SectionAppointmentRecord from '@/components/pages/doctors/SectionAppointm
 import SectionInfoPatient from '@/components/pages/doctors/SectionInfoPatient';
 import SectionPrescription from '@/components/pages/doctors/SectionPrescription';
 import SectionService from '@/components/pages/doctors/SectionService';
+import { generateAppointmentRecordPDF } from '@/components/pdf/generateAppointmentRecordPDF';
 import {
     createAppointmentRecord,
     getAppointmentRecord,
 } from '@/stores/actions/appointmentRecord.s/appointmentRecord.action';
 import { common } from '@/stores/reducers';
 import { selectNewAppointmentRecord } from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
+import { selectDosageTimes } from '@/stores/selectors/dosageTimes/dosageTime.selector';
+import { selectDrugs } from '@/stores/selectors/drugs/drug.selector';
+import { selectMealRealtions } from '@/stores/selectors/mealRelations/mealRelation.selector';
 import { selectNewPrescription } from '@/stores/selectors/prescriptions/prescription.selector';
-import { NewAppointmentRecord } from '@/types/stores/appointmentRecords/appointmentRecord_type';
-import { Appointment } from '@/types/stores/appointments/appointment_type';
+import { selectUnits } from '@/stores/selectors/units/unit.selector';
 import { ModalType } from '@/types/stores/common';
 import { Button } from 'antd';
 import dayjs from 'dayjs';
@@ -32,7 +35,10 @@ const Doctor: React.FC<Doctor2Props> = ({ patient, record, isHistory, isNewExam 
     const [appointmentRecordData, setAppointmentRecordData] = useState(null);
 
     const newPrescription = useSelector(selectNewPrescription);
-    const newRecord = useSelector(selectNewAppointmentRecord);
+    const drugsList = useSelector(selectDrugs);
+    const mealRelationsList = useSelector(selectMealRealtions);
+    const unitsList = useSelector(selectUnits);
+    const dosageTimesList = useSelector(selectDosageTimes);
 
     const recordFormRef = useRef<any>(null);
 
@@ -58,7 +64,10 @@ const Doctor: React.FC<Doctor2Props> = ({ patient, record, isHistory, isNewExam 
             return;
         }
 
-        if (!(newPrescription as any)?.perscriptionCreates?.length) {
+        if (
+            !(newPrescription as any)?.perscriptionCreates?.length ||
+            !(newPrescription as any)?.perscriptionCreates[0]?.drugId
+        ) {
             dispatch(common.actions.setWarningMessage('Chưa kê đơn thuốc.'));
             return;
         }
@@ -71,14 +80,54 @@ const Doctor: React.FC<Doctor2Props> = ({ patient, record, isHistory, isNewExam 
         dispatch(
             common.actions.setShowModal({
                 type: ModalType.CONFIRM_SAVE_RECORD,
-                data: {
-                    dataRecord: { ...data },
-                    dataAppointment: { ...patient },
-                    dataPrescriptions: { ...newPrescription },
-                },
+                data: data,
                 variant: 'confirm',
             })
         );
+    };
+
+    const handleDownloadPDFAppointmentRecord_NEW = async () => {
+        const recordData = await recordFormRef.current.submitForm();
+
+        if (!recordData) {
+            dispatch(common.actions.setWarningMessage('Chưa điền kết quả khám.'));
+            return;
+        }
+
+        if (
+            !(newPrescription as any)?.perscriptionCreates?.length ||
+            !(newPrescription as any)?.perscriptionCreates[0]?.drugId
+        ) {
+            dispatch(common.actions.setWarningMessage('Chưa kê đơn thuốc.'));
+            return;
+        }
+
+        generateAppointmentRecordPDF({
+            dataRecord: recordData,
+            dataAppointment: patient,
+            dataPrescriptions: { ...newPrescription },
+            drugsList,
+            mealRelationsList,
+            unitsList,
+            dosageTimesList,
+            isHistory: false,
+        });
+    };
+
+    const handleDownloadPDFAppointmentRecord_OLD = async () => {
+        // console.log(record);
+        // console.log(appointmentRecordData);
+
+        generateAppointmentRecordPDF({
+            dataRecord: appointmentRecordData,
+            dataAppointment: record,
+            dataPrescriptions: { perscriptionCreates: appointmentRecordData?.perscriptionDtos },
+            drugsList,
+            mealRelationsList,
+            unitsList,
+            dosageTimesList,
+            isHistory: true,
+        });
     };
 
     return (
@@ -93,16 +142,43 @@ const Doctor: React.FC<Doctor2Props> = ({ patient, record, isHistory, isNewExam 
                               record?.serviceId?.name
                           }`}
                 </h2>
-                {isNewExam && (
-                    <Button type="primary" onClick={handleSaveAppointmentRecord}>
-                        Lưu kết quả khám
-                    </Button>
-                )}
+
+                <div className="flex gap-3">
+                    {isNewExam ? (
+                        <>
+                            <Button
+                                onClick={handleDownloadPDFAppointmentRecord_NEW}
+                                variant="solid"
+                                color="danger"
+                            >
+                                Xuất file PDF
+                            </Button>
+                        </>
+                    ) : (
+                        <>
+                            {appointmentRecordData && (
+                                <Button
+                                    onClick={handleDownloadPDFAppointmentRecord_OLD}
+                                    variant="solid"
+                                    color="danger"
+                                >
+                                    Xuất file PDF
+                                </Button>
+                            )}
+                        </>
+                    )}
+
+                    {isNewExam && (
+                        <Button type="primary" onClick={handleSaveAppointmentRecord}>
+                            Lưu kết quả khám
+                        </Button>
+                    )}
+                </div>
             </div>
 
             <div className="h-[calc(100vh-158px)] overflow-y-auto custom-scrollbar">
                 <div className="flex flex-col gap-5 pb-3">
-                    <SectionInfoPatient appointment={patient} />
+                    <SectionInfoPatient appointment={isNewExam ? patient : record} />
                     <SectionService service={record ? record?.serviceId : patient?.serviceId} />
                     <SectionAppointmentRecord
                         appointment={patient}

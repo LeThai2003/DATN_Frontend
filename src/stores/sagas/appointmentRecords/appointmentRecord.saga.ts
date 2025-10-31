@@ -40,29 +40,30 @@ function* handleCreateAppointmentRecord({ payload }) {
     try {
         const { data, employeeId } = payload;
 
-        const { error, data: result } = yield call(
-            appointmentRecordApi.createAppointmentRecordById,
-            data
-        );
+        console.log(data);
 
-        if (error) {
-            yield put(common.actions.setErrorMessage(error?.message));
-            return;
-        }
+        yield put(appointment_record.actions.setLoadingComponent(true));
+
+        yield call(appointmentRecordApi.createAppointmentRecordById, data);
 
         yield put(
             appointment.actions.setFilterAppointment({
                 ...initFilterAppointment,
                 employeeId: [employeeId],
-                statuses: ['CREATE'],
+                statuses: ['PAYMENT'],
                 search: '',
             })
         );
         yield put(fetchAppointmentListDoctor());
-        yield put(appointment.actions.setAppointmentsPatient([]));
+        yield put(
+            appointment.actions.setAppointmentsPatient({
+                loadingPage: false,
+                totalPage: 0,
+                data: [],
+            })
+        );
         yield put(common.actions.setHiddenModal(ModalType.CONFIRM_SAVE_RECORD));
         yield put(appointment_record.actions.setResetDoctorTabs(true));
-        yield put(appointment_record.actions.setSelectedAppointmentRecord(result));
     } catch (error) {
         console.error(error);
     } finally {

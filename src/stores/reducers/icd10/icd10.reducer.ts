@@ -13,10 +13,10 @@ const Icd10Slice = createSlice({
         },
 
         setIcd10s(state, { payload }: PayloadAction<{ data: Icd10[]; totalPage: number }>) {
-            const currentPage = state.filter.pageNo ?? 1;
+            const currentPage = state.filter.pageNo ?? 0;
 
             // Nếu đang ở trang đầu (load mới hoặc search mới) => reset
-            if (currentPage <= 1) {
+            if (currentPage == 0) {
                 state.icd10s.data = payload.data;
             } else {
                 // Append thêm khi load trang sau

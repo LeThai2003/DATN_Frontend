@@ -21,6 +21,7 @@ import {
 } from '@/stores/actions/appointments/appointment.action';
 import dayjs from 'dayjs';
 import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
+import { selectResetDoctorTabs } from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
 
 // ======== DỮ LIỆU GIẢ =========
 const patientsToday = [
@@ -125,6 +126,7 @@ const SiderDoctor = ({ onOpenTab }) => {
     const appointmentsListPatient = useSelector(selectAppointmentsPatient);
     const loadingPagePatient = useSelector(selectLoadingPagePatient);
     const loadingPageDoctor = useSelector(selectLoadingPageDoctor);
+    const resetDoctorTabs = useSelector(selectResetDoctorTabs);
 
     const [searchToday, setSearchToday] = useState('');
     const [searchHistory, setSearchHistory] = useState('');
@@ -134,6 +136,11 @@ const SiderDoctor = ({ onOpenTab }) => {
     const infoEmployee = useSelector(selectEmployeeInfo);
 
     const user = JSON.parse(localStorage.getItem('user') || null);
+
+    useEffect(() => {
+        setSelectedPatientId(null);
+        setSelectedHistoryIdx(null);
+    }, [resetDoctorTabs]);
 
     // console.log(appointmentsListDoctor?.data);
     // console.log(appointmentsListPatient?.data);
@@ -150,7 +157,7 @@ const SiderDoctor = ({ onOpenTab }) => {
                 appointment.actions.setFilterAppointment({
                     ...initFilterAppointment,
                     employeeId: [infoEmployee.employeeId],
-                    statuses: ['CREATE'],
+                    statuses: ['PAYMENT'],
                 })
             );
             dispatch(fetchAppointmentListDoctor());
@@ -219,7 +226,7 @@ const SiderDoctor = ({ onOpenTab }) => {
                     />
                 </div>
 
-                <div className="flex flex-col gap-1 max-h-[180px] overflow-y-auto custom-scrollbar relative">
+                <div className="flex flex-col gap-1 max-h-[200px] overflow-y-auto custom-scrollbar relative">
                     {loadingPageDoctor && <LoadingSpinAntD />}
 
                     {appointmentsListDoctor?.data?.length === 0 ? (
@@ -269,7 +276,7 @@ const SiderDoctor = ({ onOpenTab }) => {
                         <span>Lịch sử tái khám</span>
                     </div>
 
-                    <div className="flex items-center bg-gray-100 rounded-lg px-2 py-1 mb-2">
+                    {/* <div className="flex items-center bg-gray-100 rounded-lg px-2 py-1 mb-2">
                         <div>
                             <LuSearch className="text-gray-400 h-[12px]" />
                         </div>
@@ -280,9 +287,9 @@ const SiderDoctor = ({ onOpenTab }) => {
                             onChange={(e) => setSearchHistory(e.target.value)}
                             className="bg-transparent outline-none flex-1 px-2 py-1 pl-1 text-sm"
                         />
-                    </div>
+                    </div> */}
 
-                    <div className="flex flex-col gap-1 h-[180px] overflow-y-auto custom-scrollbar relative">
+                    <div className="flex flex-col gap-1 h-[240px] overflow-y-auto custom-scrollbar relative">
                         {loadingPagePatient && <LoadingSpinAntD />}
 
                         {appointmentsListPatient?.data?.length === 0 ? (

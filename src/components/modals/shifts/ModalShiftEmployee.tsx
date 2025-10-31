@@ -19,6 +19,7 @@ import {
 import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 import { selectEmployeeInfo } from '@/stores/selectors/employees/employee.selector';
 import { common } from '@/stores/reducers';
+import { createWeekDays } from '@/stores/actions/weekDays/weekDay.action';
 
 const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
     const dispatch = useDispatch();
@@ -29,11 +30,19 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
     const shiftTimes = useSelector(selectShifts);
     const loadingPage = useSelector(selectLoadingPage);
 
-    // console.log(shiftTimes?.data);
-    // console.log(dataShiftEmployee);
-
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [shiftData, setShiftData] = useState<any>();
+
+    const [weekDays, setWeekDays] = useState([
+        { dayOfWeek: 2, shiftIds: [] },
+        { dayOfWeek: 3, shiftIds: [] },
+        { dayOfWeek: 4, shiftIds: [] },
+        { dayOfWeek: 5, shiftIds: [] },
+        { dayOfWeek: 6, shiftIds: [] },
+        { dayOfWeek: 7, shiftIds: [] },
+        { dayOfWeek: 8, shiftIds: [] },
+    ]);
+    const [activeTab, setActiveTab] = useState(2);
 
     useEffect(() => {
         dispatch(getShifts());
@@ -44,51 +53,6 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
             dispatch(getShiftByEmployee(filter));
         }
     }, [filter]);
-
-    useEffect(() => {
-        if (shiftTimes?.data?.length) {
-            // Nếu có dataShiftEmployee => map theo đó
-            if (dataShiftEmployee?.length > 0) {
-                const newShiftData = shiftTimes.data.map((shift) => {
-                    // Tìm ca tương ứng trong dataShiftEmployee
-                    const match = dataShiftEmployee.find((d) => d?.shift?.id === shift.id);
-
-                    return {
-                        id: shift.id, // ID của shiftTime
-                        shiftId: {
-                            id: shift.id,
-                            startTime: shift.startTime,
-                            endTime: shift.endTime,
-                        },
-                        patientSlot: match ? match.patientSlot : 1, // nếu có thì lấy, nếu không có thì mặc định
-                        patientSlotBooked: match ? match.patientSlotBooked : 0,
-                    };
-                });
-
-                // Những ca có trong dataShiftEmployee thì được tích chọn
-                const selected = dataShiftEmployee.map((d) => d.shift.id);
-
-                setShiftData(newShiftData);
-                setSelectedIds(selected);
-            } else {
-                // Không có dataShiftEmployee -> lấy toàn bộ shiftTimes, chọn hết
-                const newShiftData = shiftTimes.data.map((shift) => ({
-                    id: shift.id,
-                    shiftId: {
-                        id: shift.id,
-                        startTime: shift.startTime,
-                        endTime: shift.endTime,
-                    },
-                    patientSlot: 1, // mặc định
-                    patientSlotBooked: 0,
-                }));
-
-                const allIds = shiftTimes.data.map((s) => s.id);
-                setShiftData(newShiftData);
-                setSelectedIds(allIds);
-            }
-        }
-    }, [dataShiftEmployee, shiftTimes]);
 
     const handleCheck = (id: string, checked: boolean) => {
         setSelectedIds((prev) => (checked ? [...prev, id] : prev.filter((item) => item !== id)));
@@ -111,22 +75,6 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
         );
     };
 
-    const handleUpdate = () => {
-        const selected = shiftData.filter((item) => selectedIds.includes(item.id));
-        // console.log('Danh sách chọn:', selected);
-        const dataUpdate = {
-            employeeId: data?.employeeId,
-            shiftIds: selected?.map((item) => ({
-                patientSlot: item?.patientSlot,
-                date: filter?.time,
-                shiftDto: {
-                    id: item?.id,
-                },
-            })),
-        };
-        dispatch(updateShiftEmployee({ dataUpdate: dataUpdate }));
-    };
-
     const columnsView: TableProps<any>['columns'] = [
         {
             title: 'Thời gian bắt đầu',
@@ -142,93 +90,146 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
             align: 'center',
             width: 160,
         },
-        {
-            title: 'Số lượng đã đặt',
-            dataIndex: 'patientSlotBooked',
-            key: 'patient_slot_booking',
-            align: 'center',
-            width: 170,
-        },
-        {
-            title: 'Số lượng bệnh nhân tối đa',
-            dataIndex: 'patientSlot',
-            key: 'patient_slot',
-            align: 'center',
-            width: 200,
-        },
-    ];
-
-    const columnsEdit: TableProps<any>['columns'] = [
-        {
-            title: 'Làm việc',
-            dataIndex: 'id',
-            key: 'id',
-            align: 'center',
-            render: (id: string) => (
-                <Checkbox
-                    checked={selectedIds.includes(id)}
-                    onChange={(e) => handleCheck(id, e.target.checked)}
-                    className="px-4"
-                />
-            ),
-        },
-        {
-            title: 'Thời gian bắt đầu',
-            dataIndex: ['shiftId', 'startTime'],
-            key: 'start_time',
-            align: 'center',
-            width: 180,
-        },
-        {
-            title: 'Thời gian kết thúc',
-            dataIndex: ['shiftId', 'endTime'],
-            key: 'end_time',
-            align: 'center',
-            width: 180,
-        },
-        {
-            title: 'Số lượng đã đăng ký',
-            dataIndex: 'patientSlotBooked',
-            key: 'patientSlotBooked',
-            align: 'center',
-            width: 180,
-        },
-        {
-            title: 'Số lượng bệnh nhân tối đa',
-            dataIndex: 'patientSlot',
-            key: 'patient_slot',
-            align: 'center',
-            width: 220,
-            render: (value: number, record: any) => (
-                <InputNumber
-                    min={1}
-                    value={value}
-                    onChange={(val) => handleSlotChange(record, val)}
-                    disabled={!selectedIds.includes(record.id)}
-                />
-            ),
-        },
     ];
 
     if (variant == 'edit') {
+        // Khi tick shift
+        const handleCheckShift = (shiftId: string, checked: boolean) => {
+            setWeekDays((prev) =>
+                prev.map((item) =>
+                    item.dayOfWeek === activeTab
+                        ? {
+                              ...item,
+                              shiftIds: checked
+                                  ? [...item.shiftIds, shiftId]
+                                  : item.shiftIds.filter((id) => id !== shiftId),
+                          }
+                        : item
+                )
+            );
+        };
+
+        const handleUpdate = () => {
+            const dataUpdate = {
+                employeeId: data?.employeeId,
+                weekDays: weekDays?.filter((item) => item?.shiftIds.length),
+            };
+            console.log('DATA UPDATE:', dataUpdate);
+            dispatch(createWeekDays({ data: dataUpdate }));
+        };
+
+        const columnsEdit: TableProps<any>['columns'] = [
+            {
+                title: 'Làm việc',
+                dataIndex: 'id',
+                key: 'id',
+                align: 'center',
+                render: (id: string) => {
+                    const currentDay = weekDays.find((w) => w.dayOfWeek === activeTab);
+                    const checked = currentDay?.shiftIds.includes(id);
+
+                    return (
+                        <Checkbox
+                            className="scale-125 flex justify-center"
+                            checked={checked}
+                            onChange={(e) => handleCheckShift(id, e.target.checked)}
+                        />
+                    );
+                },
+            },
+            {
+                title: 'Thời gian bắt đầu',
+                dataIndex: ['startTime'],
+                key: 'start_time',
+                align: 'center',
+                // width: 180,
+            },
+            {
+                title: 'Thời gian kết thúc',
+                dataIndex: ['endTime'],
+                key: 'end_time',
+                align: 'center',
+                // width: 180,
+            },
+        ];
+
+        const dayNames = [
+            { value: 2, label: 'Thứ 2' },
+            { value: 3, label: 'Thứ 3' },
+            { value: 4, label: 'Thứ 4' },
+            { value: 5, label: 'Thứ 5' },
+            { value: 6, label: 'Thứ 6' },
+            { value: 7, label: 'Thứ 7' },
+            { value: 8, label: 'Chủ Nhật' },
+        ];
+
         return (
-            <ModalBase type={type} size="xl">
+            <ModalBase type={type} size="lg">
                 {loadingComponent && <LoadingSpinAntD />}
                 <div>
-                    <div className="mb-3 text-center font-semibold flex flex-col gap-1">
+                    <div className="mb-2 text-center font-semibold flex flex-col gap-1">
                         <h2>Lịch khám bệnh</h2>
-                        <p>
-                            BS. {data?.fullName} - ngày {dayjs(filter?.time).format('DD/MM/YYYY')}
-                        </p>
+                        <p>BS. {data?.fullName}</p>
                     </div>
+
+                    {/* Tabs 7 ngày */}
+                    <div className="flex gap-2 mb-3 p-1 rounded-md bg-slate-100 w-fit">
+                        {dayNames.map((day) => (
+                            <Button
+                                key={day.value}
+                                type={activeTab === day.value ? 'primary' : 'default'}
+                                onClick={() => setActiveTab(day.value)}
+                            >
+                                {day.label}
+                            </Button>
+                        ))}
+                    </div>
+
+                    {/* Nút chọn toàn ngày / bỏ chọn toàn ngày */}
+                    <div className="flex gap-3 mb-3 p-1 rounded-md bg-slate-100 w-fit">
+                        <Button
+                            type="default"
+                            onClick={() => {
+                                const allShiftIds = shiftTimes?.data?.map((s: any) => s.id) || [];
+                                setWeekDays((prev) =>
+                                    prev.map((item) =>
+                                        item.dayOfWeek === activeTab
+                                            ? { ...item, shiftIds: allShiftIds }
+                                            : item
+                                    )
+                                );
+                            }}
+                        >
+                            Chọn cả ngày
+                        </Button>
+
+                        <Button
+                            type="default"
+                            danger
+                            onClick={() => {
+                                setWeekDays((prev) =>
+                                    prev.map((item) =>
+                                        item.dayOfWeek === activeTab
+                                            ? { ...item, shiftIds: [] }
+                                            : item
+                                    )
+                                );
+                            }}
+                        >
+                            Bỏ chọn cả ngày
+                        </Button>
+                    </div>
+
+                    {/* Table shift của ngày hiện tại */}
                     <Table
                         columns={columnsEdit}
-                        dataSource={shiftData}
+                        dataSource={shiftTimes?.data}
                         rowKey="id"
                         bordered
                         pagination={false}
-                        scroll={{ x: 'max-content', y: window.innerHeight * 0.6 }}
+                        scroll={{ x: 'max-content', y: window.innerHeight * 0.45 }}
                     />
+
                     <div className="flex justify-end mt-4 ">
                         <Popconfirm
                             title="Xác nhận cập nhật lịch khám?"
@@ -251,9 +252,7 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
                 <div>
                     <div className="mb-3 text-center font-semibold flex flex-col gap-1">
                         <h2>Lịch khám bệnh</h2>
-                        <p>
-                            BS. {data?.fullName} - ngày {dayjs(filter?.time).format('DD/MM/YYYY')}
-                        </p>
+                        <p>BS. {data?.fullName}</p>
                     </div>
                     {dataShiftEmployee?.length ? (
                         <Table

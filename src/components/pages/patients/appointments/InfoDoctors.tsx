@@ -2,6 +2,7 @@ import {
     Avatar,
     Button,
     Card,
+    DatePicker,
     Form,
     Radio,
     Space,
@@ -71,17 +72,36 @@ const InfoDoctors = () => {
 
     const isEdit = searchParams.has('edit');
 
+    // console.log(filterShift?.time);
+
     const availableShifts = shiftTimes?.data?.map((shift) => {
         // Tìm ca làm tương ứng trong dataShiftEmployee
         const match = dataShiftEmployee?.find((s) => s.shift?.id === shift.id);
 
+        console.log(shift);
+
         // Nếu có ca làm và còn slot trống
         const isAvailable = match && match.patientSlotBooked < match.patientSlot;
+
+        const isToday =
+            dayjs(filterShift?.time).format('YYYY-MM-DD') === dayjs().format('YYYY-MM-DD');
+
+        let isTimeValid = true;
+
+        if (isToday) {
+            const now = dayjs();
+            const shiftStart = dayjs(`${filterShift?.time} ${shift.startTime}`);
+
+            // Nếu giờ bắt đầu ca < giờ hiện tại
+            if (shiftStart.isBefore(now)) {
+                isTimeValid = false;
+            }
+        }
 
         return {
             ...shift,
             shiftId: match?.id,
-            isAvailable, // true/false
+            isAvailable: isAvailable && isTimeValid, // chỉ true khi còn slot và chưa quá giờ
         };
     });
 
@@ -96,6 +116,7 @@ const InfoDoctors = () => {
     };
 
     const handleCheckEmployee = (data) => {
+        setSelectedShiftId(null);
         // console.log(data);
 
         const newFilter = {
@@ -209,8 +230,43 @@ const InfoDoctors = () => {
 
     // console.log(selectedService?.employeeDtos);
 
+    // ------------------------------
+    const disabledDate = (current: dayjs.Dayjs) => {
+        const today = dayjs().startOf('day');
+        const maxDate = dayjs().add(7, 'day').endOf('day');
+
+        return (current && current < today) || (current && current > maxDate);
+    };
+
+    const handleChangeDate = (e) => {
+        if (e) {
+            setSelectedShiftId(null);
+            dispatch(
+                shift.actions.setFilterShift({
+                    ...filterShift,
+                    time: dayjs(e).format('YYYY-MM-DD'),
+                })
+            );
+        }
+    };
+
     return (
-        <Card title={<>Chọn bác sĩ phụ trách và giờ khám mong muốn</>}>
+        <Card
+            title={
+                <div className="flex items-center justify-between">
+                    <div>Chọn bác sĩ phụ trách và giờ khám mong muốn</div>
+                    <div className="p-1 px-2 rounded-md bg-slate-100">
+                        Ngày khám:{' '}
+                        <DatePicker
+                            defaultValue={dayjs()}
+                            format="DD/MM/YYYY"
+                            disabledDate={disabledDate}
+                            onChange={(e) => handleChangeDate(e)}
+                        />
+                    </div>
+                </div>
+            }
+        >
             <Table
                 dataSource={selectedService?.employeeDtos}
                 columns={columns}
