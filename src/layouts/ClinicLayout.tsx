@@ -5,9 +5,15 @@ import { Outlet } from 'react-router';
 import ClinicSidebar from '@/menus/clinics/ClinicSidebar';
 import Account from '@/components/dropdowns/Account';
 import { createChat } from '@n8n/chat';
+import { useSelector } from 'react-redux';
+import { selectEmployeeInfo } from '@/stores/selectors/employees/employee.selector';
 const { Sider, Content } = Layout;
 
 const ClinicLayout = () => {
+    const infoEmployee = useSelector(selectEmployeeInfo);
+
+    // console.log(infoEmployee);
+
     const [collapsed, setCollapsed] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
 
@@ -28,17 +34,36 @@ const ClinicLayout = () => {
 
     useEffect(() => {
         createChat({
-            webhookUrl: '',
+            webhookUrl: import.meta.env.VITE_CHAT_URL,
+            chatInputKey: 'chatInput',
+            chatSessionKey: 'sessionId',
+            loadPreviousSession: true,
+            metadata: {
+                employeeId: infoEmployee?.employeeId,
+                fullName: infoEmployee?.fullName,
+                citizenId: infoEmployee?.citizenId,
+                dob: infoEmployee?.dob,
+                gender: infoEmployee?.gender,
+                address: infoEmployee?.address,
+                avatar: infoEmployee?.avatar,
+                hiredDate: infoEmployee?.hiredDate,
+                email: infoEmployee?.email,
+                profile: infoEmployee?.profile,
+                accountId: infoEmployee?.accountId,
+                phoneNumber: infoEmployee?.phoneNumber,
+                status: infoEmployee?.status,
+                nameRole: infoEmployee?.nameRole,
+                description: infoEmployee?.description,
+            },
         });
 
-        // Cleanup khi layout bị unmount
         return () => {
             const chatEl = document.querySelector('#n8n-chat, .n8n-chat, iframe[src*="n8n"]');
             if (chatEl && chatEl.parentNode) {
                 chatEl.parentNode.removeChild(chatEl);
             }
         };
-    }, []);
+    }, [infoEmployee]);
 
     return (
         <div>

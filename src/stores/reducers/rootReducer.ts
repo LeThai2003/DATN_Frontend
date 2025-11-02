@@ -7,6 +7,7 @@ import {
     dosageTime,
     drug,
     employee,
+    follow_up_visit,
     icd10,
     mealRelation,
     patient,
@@ -39,6 +40,7 @@ const rootReducers = combineReducers({
     [icd10.name]: icd10.default.reducer,
     [shift.name]: shift.default.reducer,
     [week_day.name]: week_day.default.reducer,
+    [follow_up_visit.name]: follow_up_visit.default.reducer,
 });
 
 export type RootReducerType = ReturnType<typeof rootReducers>;

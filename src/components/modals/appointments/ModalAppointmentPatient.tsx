@@ -15,6 +15,7 @@ import { getAppointmentRecord } from '@/stores/actions/appointmentRecord.s/appoi
 import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 import { getAppointmentByIdAndOpenModal } from '@/stores/actions/appointments/appointment.action';
 import { setCookies } from '@/utils/cookies/cookies';
+import { formatDateVi } from '@/utils/times/times';
 
 const prescriptionColumns: ColumnsType<any> = [
     {
@@ -171,7 +172,7 @@ const ModalAppointmentPatient: React.FC<ModalState> = ({ data, type, variant }) 
             <div className="flex flex-col max-h-[80vh]">
                 <h2 className="font-semibold mb-4 pb-2 text-lg text-center border-b border-gray-200 text-gray-700">
                     {variant == 'follow-up' ? 'Chi tiết tái khám' : 'Chi tiết buổi khám'} -{' '}
-                    {dayjs(data?.appointmentDate).format('DD/MM/YYYY')}
+                    {formatDateVi(data?.shiftId?.date)}
                 </h2>
                 <div className="overflow-y-auto px-2 flex flex-col gap-2 custom-scrollbar">
                     <p className="inline-block bg-slate-200 px-2 py-1 rounded-md font-semibold">

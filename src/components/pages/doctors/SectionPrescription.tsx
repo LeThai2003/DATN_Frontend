@@ -14,21 +14,26 @@ import {
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useDispatch, useSelector } from 'react-redux';
+
 import { selectNewPrescription } from '@/stores/selectors/prescriptions/prescription.selector';
 import { common, prescription } from '@/stores/reducers';
+
 import { fetchFirst as fetchFirstDrug } from '@/stores/actions/managers/drug/drug.action';
 import { fetchFirst as fetchFirstDosageTime } from '@/stores/actions/managers/drug/dosage_time.action';
-import { fetchFirstMealRelation as fetchFirstMealRelation } from '@/stores/actions/managers/drug/meal_relation.action';
+import { fetchFirstMealRelation } from '@/stores/actions/managers/drug/meal_relation.action';
 import { fetchFirst as fetchFirstUnit } from '@/stores/actions/managers/drug/unit.action';
+
 import { selectDrugs } from '@/stores/selectors/drugs/drug.selector';
 import { selectMealRealtions } from '@/stores/selectors/mealRelations/mealRelation.selector';
 import { selectUnits } from '@/stores/selectors/units/unit.selector';
 import { selectDosageTimes } from '@/stores/selectors/dosageTimes/dosageTime.selector';
 import { selectLoadingComponent } from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
+
 import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 
 const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
     const dispatch = useDispatch();
+
     const newPrescription = useSelector(selectNewPrescription);
     const drugsList = useSelector(selectDrugs);
     const mealRelationsList = useSelector(selectMealRealtions);
@@ -44,11 +49,13 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
 
     const [dataAdd, setDataAdd] = useState<any[]>([]);
     const [editingKey, setEditingKey] = useState<string>('');
+    const [isSyncingFromSuggestion, setIsSyncingFromSuggestion] = useState(false);
+
     const [form] = Form.useForm();
 
     const isEditing = (recordRow: any) => recordRow.key === editingKey;
 
-    // Lấy danh sách ban đầu
+    // load reference lists
     useEffect(() => {
         dispatch(fetchFirstDrug());
         dispatch(fetchFirstDosageTime());
@@ -56,56 +63,94 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
         dispatch(fetchFirstUnit());
     }, [dispatch]);
 
-    // Khi mở form lịch sử
+    // Xem lại kết quá khám
     useEffect(() => {
         if (isHistory && appointmentRecordData?.perscriptionDtos) {
+            // console.log(appointmentRecordData?.perscriptionDtos);
             setDataAdd(appointmentRecordData.perscriptionDtos);
         }
     }, [isHistory, appointmentRecordData]);
 
-    // // Khi có newPrescription từ redux
-    // useEffect(() => {
-    //     if ((newPrescription as any)?.perscriptionCreates?.length > 0) {
-    //         setDataAdd((newPrescription as any).perscriptionCreates);
-    //     }
-    // }, [newPrescription]);
-
-    // Mỗi khi dataAdd thay đổi → tự động dispatch
+    // Đơn thuốc gợi ý nhận từ ICD10 ( Gán khi dataAdd còn rỗng hoặc không sửa )
     useEffect(() => {
-        if (!isHistory) {
-            const perscriptionCreates = dataAdd.map((item) => ({
-                drugId: item.drug_id,
-                customDrugName: item.drug_name,
-                dosage: item.dosage,
-                frequency: item.dosage_time?.join(', ') || '',
-                duration: item.duration,
-                unitDosageId: item.unit_dosage_id,
-                instructions: item.instructions,
-                mealRelation: item.meal_time,
-                dosageTimeDtos: item.dosage_time?.map((d) => d) || [],
-            }));
+        if (isHistory) return;
+        const list = newPrescription?.perscriptionCreates || [];
+        if (!list.length) return;
+        if (editingKey) return;
+        if (dataAdd.length > 0) return;
 
-            dispatch(
-                prescription.actions.setAddNewPrescription({
-                    perscriptionCreates,
-                })
-            );
-        }
-    }, [dataAdd, isHistory, dispatch]);
+        setIsSyncingFromSuggestion(true);
 
+        const mapped = list.map((item, index) => ({
+            key: `sug-${index}`,
+            drug_id: item.drugId,
+            drug_name: item.customDrugName || '',
+            dosage: item.dosage ?? null,
+            duration: item.duration ?? null,
+            unit_dosage_id: item.unitDosageId ?? null,
+            unit_dosage_name: item.unitDosageName ?? '',
+            meal_time: item.mealRelationId ?? null,
+            meal_time_name: item.mealRelationName ?? '',
+            instructions: item.instructions || '',
+            dosage_time: item.dosageTimeDtos || [],
+        }));
+
+        setDataAdd(mapped);
+        setIsSyncingFromSuggestion(false);
+    }, [newPrescription, isHistory, dataAdd.length, editingKey]);
+
+    // helper: dispatch current persisted data (not drafts) to redux
+    const dispatchPersistedToRedux = (items: any[]) => {
+        const persisted = items.filter((item) => !item?._isDraft);
+        const perscriptionCreates = persisted.map((item) => ({
+            drugId: item.drug_id,
+            customDrugName: item.drug_name,
+            dosage: item.dosage,
+            duration: item.duration,
+            unitDosageId: item.unit_dosage_id,
+            instructions: item.instructions,
+            mealRelationId: item.meal_time,
+            dosageTimeDtos: item.dosage_time || [],
+            unitDosageName: item.unit_dosage_name,
+            mealRelationName: item.meal_time_name,
+        }));
+
+        dispatch(
+            prescription.actions.setAddNewPrescription({
+                perscriptionCreates,
+            })
+        );
+    };
+
+    // cancel
     const cancel = () => {
-        const row = dataAdd.find((d) => d.key == editingKey);
-        if (!row?.drug_id) {
-            deleteRow(row?.key);
+        const row = dataAdd.find((d) => d.key === editingKey);
+        if (row?._isDraft) {
+            setDataAdd((prev) => prev.filter((r) => r.key !== row.key));
         }
         setEditingKey('');
+        form.resetFields();
     };
 
+    // edit
     const edit = (recordRow: any) => {
-        form.setFieldsValue({ ...recordRow });
         setEditingKey(recordRow.key);
+        // set all fields (including hidden name fields)
+        form.setFieldsValue({
+            drug_id: recordRow.drug_id,
+            drug_name: recordRow.drug_name,
+            dosage: recordRow.dosage,
+            duration: recordRow.duration,
+            unit_dosage_id: recordRow.unit_dosage_id,
+            unit_dosage_name: recordRow.unit_dosage_name,
+            meal_time: recordRow.meal_time,
+            meal_time_name: recordRow.meal_time_name,
+            instructions: recordRow.instructions,
+            dosage_time: recordRow.dosage_time,
+        });
     };
 
+    // save row --> update dataAdd AND dispatch to redux
     const save = async (key: string) => {
         try {
             const row = (await form.validateFields()) as any;
@@ -113,37 +158,94 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
             const index = newData.findIndex((item) => key === item.key);
 
             if (index > -1) {
-                newData.splice(index, 1, { ...newData[index], ...row });
+                // merge
+                const merged = { ...newData[index], ...row };
+
+                // ensure display names exist: if hidden fields not returned, resolve by lookup
+                if (!merged.drug_name && merged.drug_id) {
+                    const d = drugsList?.data?.find((x) => x.drugId === merged.drug_id);
+                    merged.drug_name = d?.name ?? merged.drug_name;
+                }
+                if (!merged.unit_dosage_name && merged.unit_dosage_id) {
+                    const u = unitsList?.data?.find((x) => x.unitId === merged.unit_dosage_id);
+                    merged.unit_dosage_name = u?.name ?? merged.unit_dosage_name;
+                }
+                if (!merged.meal_time_name && merged.meal_time) {
+                    const m = mealRelationsList?.data?.find(
+                        (x) => x.relationsId === merged.meal_time
+                    );
+                    merged.meal_time_name = m?.name ?? merged.meal_time_name;
+                }
+
+                // remove draft flag if any
+                delete merged._isDraft;
+
+                newData.splice(index, 1, merged);
                 setDataAdd(newData);
                 setEditingKey('');
+                form.resetFields();
+
+                // dispatch current persisted list (after save)
+                dispatchPersistedToRedux(newData);
             }
-        } catch (errInfo) {
-            console.log('Validate Failed:', errInfo);
+        } catch (err) {
+            console.log('Validate Failed:', err);
         }
     };
 
+    // Add new ( bản nháp và không dispatch )
     const addRow = () => {
-        const newRow: any = {
-            key: Date.now().toString(),
+        const newRow = {
+            key: `draft-${Date.now().toString()}`,
             drug_id: '',
             drug_name: '',
             unit_dosage_id: null,
+            unit_dosage_name: '',
             dosage: null,
             dosage_time: [],
             duration: null,
             meal_time: '',
+            meal_time_name: '',
             instructions: '',
+            _isDraft: true,
         };
-        setDataAdd([newRow, ...dataAdd]);
+
+        setDataAdd((prev) => [newRow, ...prev]);
         setEditingKey(newRow.key);
-        form.setFieldsValue(newRow);
+
+        // populate form values for new row (including hidden fields)
+        setTimeout(() => {
+            form.setFieldsValue({
+                drug_id: newRow.drug_id,
+                drug_name: newRow.drug_name,
+                dosage: newRow.dosage,
+                duration: newRow.duration,
+                unit_dosage_id: newRow.unit_dosage_id,
+                unit_dosage_name: newRow.unit_dosage_name,
+                meal_time: newRow.meal_time,
+                meal_time_name: newRow.meal_time_name,
+                instructions: newRow.instructions,
+                dosage_time: newRow.dosage_time,
+            });
+        }, 0);
     };
 
+    // delete row --> update dataAdd AND dispatch current persisted list
     const deleteRow = (key: string) => {
-        setDataAdd(dataAdd.filter((item) => item.key !== key));
+        setDataAdd((prev) => {
+            const updated = prev.filter((item) => item.key !== key);
+            // dispatch persisted after remove
+            dispatchPersistedToRedux(updated);
+            // if deleting current editing row -> reset
+            if (editingKey === key) {
+                setEditingKey('');
+                form.resetFields();
+            }
+            return updated;
+        });
     };
 
-    // ========== CỘT DÙNG KHI TẠO MỚI (cho phép nhập) ==========
+    // columns
     const baseColumns: ColumnsType<any> = [
         {
             title: (
@@ -151,7 +253,7 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
                     Thuốc <span className="text-red-500">*</span>
                 </span>
             ),
-            dataIndex: 'drug_name',
+            dataIndex: 'drug_id',
             render: (_, record) =>
                 isEditing(record) ? (
                     <>
@@ -165,14 +267,12 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
                                 optionFilterProp="label"
                                 placeholder="Tên thuốc"
                                 style={{ width: 180 }}
-                                options={drugsList?.data?.map((drug) => ({
-                                    value: drug?.drugId,
-                                    label: drug?.name,
+                                options={drugsList?.data?.map((d) => ({
+                                    value: d.drugId,
+                                    label: d.name,
                                 }))}
                                 onChange={(value, option) => {
                                     const opt = option as any;
-
-                                    // Kiểm tra trùng ngay khi chọn
                                     const isDuplicate = dataAdd.some(
                                         (item) => item.drug_id === value && item.key !== editingKey
                                     );
@@ -182,12 +282,10 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
                                                 'Thuốc này đã có trong danh sách!'
                                             )
                                         );
-                                        form.setFieldValue('drug_id', '');
+                                        form.setFieldValue('drug_id', null);
                                         form.setFieldValue('drug_name', '');
                                         return;
                                     }
-
-                                    form.setFieldValue('drug_id', value);
                                     form.setFieldValue('drug_name', opt?.label);
                                 }}
                             />
@@ -203,8 +301,8 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
         {
             title: 'Liều dùng',
             dataIndex: 'dosage',
-            render: (_, record) =>
-                isEditing(record) ? (
+            render: (_, r) =>
+                isEditing(r) ? (
                     <Form.Item
                         name="dosage"
                         className="mb-0"
@@ -213,14 +311,14 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
                         <InputNumber min={1} />
                     </Form.Item>
                 ) : (
-                    record.dosage
+                    r.dosage
                 ),
         },
         {
             title: 'Đơn vị',
             dataIndex: 'unit_dosage_id',
-            render: (_, record) =>
-                isEditing(record) ? (
+            render: (_, r) =>
+                isEditing(r) ? (
                     <>
                         <Form.Item
                             name="unit_dosage_id"
@@ -229,9 +327,9 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
                         >
                             <Select
                                 style={{ width: 100 }}
-                                options={unitsList?.data?.map((unit) => ({
-                                    value: unit?.unitId,
-                                    label: unit?.name,
+                                options={unitsList?.data?.map((u) => ({
+                                    value: u.unitId,
+                                    label: u.name,
                                 }))}
                                 onChange={(value, option) => {
                                     const opt = option as any;
@@ -244,36 +342,35 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
                         </Form.Item>
                     </>
                 ) : (
-                    record.unit_dosage_name
+                    r.unit_dosage_name
                 ),
         },
         {
             title: 'Số ngày',
             dataIndex: 'duration',
-            render: (_, record) =>
-                isEditing(record) ? (
+            render: (_, r) =>
+                isEditing(r) ? (
                     <Form.Item name="duration" className="mb-0">
                         <InputNumber min={1} />
                     </Form.Item>
                 ) : (
-                    record.duration
+                    r.duration
                 ),
         },
         {
             title: 'Thời gian uống',
             dataIndex: 'dosage_time',
-            render: (_, record) =>
-                isEditing(record) ? (
+            render: (_, r) =>
+                isEditing(r) ? (
                     <Form.Item
                         name="dosage_time"
                         className="mb-0"
-                        style={{ width: 130 }}
                         rules={[{ required: true, message: '* Thời gian!' }]}
                     >
                         <Checkbox.Group options={dosageOptions} />
                     </Form.Item>
                 ) : (
-                    record.dosage_time
+                    r.dosage_time
                         ?.map((id) => dosageTimesList?.data?.find((d) => d.timeId === id)?.name)
                         ?.join(', ')
                 ),
@@ -281,8 +378,8 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
         {
             title: 'So với bữa ăn',
             dataIndex: 'meal_time',
-            render: (_, record) =>
-                isEditing(record) ? (
+            render: (_, r) =>
+                isEditing(r) ? (
                     <>
                         <Form.Item
                             name="meal_time"
@@ -290,10 +387,10 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
                             rules={[{ required: true, message: '* Thời điểm!' }]}
                         >
                             <Select
-                                style={{ width: 100 }}
+                                style={{ width: 120 }}
                                 options={mealRelationsList?.data?.map((m) => ({
-                                    value: m?.relationsId,
-                                    label: m?.name,
+                                    value: m.relationsId,
+                                    label: m.name,
                                 }))}
                                 onChange={(value, option) => {
                                     const opt = option as any;
@@ -306,49 +403,27 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
                         </Form.Item>
                     </>
                 ) : (
-                    record.meal_time_name
+                    r.meal_time_name
                 ),
         },
         {
             title: 'Hướng dẫn thêm',
             dataIndex: 'instructions',
-            render: (_, record) =>
-                isEditing(record) ? (
-                    <Form.Item name="instructions" className="mb-0" style={{ width: 120 }}>
+            render: (_, r) =>
+                isEditing(r) ? (
+                    <Form.Item name="instructions" className="mb-0">
                         <Input placeholder="Nhập hướng dẫn..." />
                     </Form.Item>
                 ) : (
-                    record.instructions
+                    r.instructions
                 ),
         },
     ];
 
-    // ========== CỘT DÙNG KHI HIỂN THỊ LỊCH SỬ ==========
-    const historyColumns: ColumnsType<any> = [
-        { title: 'Thuốc', dataIndex: 'customDrugName' },
-        { title: 'Liều dùng', dataIndex: 'dosage' },
-        {
-            title: 'Đơn vị',
-            dataIndex: ['unitDosageId', 'name'],
-        },
-        { title: 'Số ngày', dataIndex: 'duration' },
-        {
-            title: 'Thời gian uống',
-            dataIndex: ['dosageTimeDtos'],
-            render: (dosageTimeDtos) => dosageTimeDtos?.map((time) => time?.name)?.join(', ') || '',
-        },
-        {
-            title: 'So với bữa ăn',
-            dataIndex: ['mealRelation', 'name'],
-        },
-        { title: 'Hướng dẫn', dataIndex: 'instructions' },
-    ];
-
-    // ========== CỘT ACTION ==========
     const actionColumn = {
         title: 'Thao tác',
         dataIndex: 'actions',
-        render: (_: any, record: any) => {
+        render: (_, record) => {
             const editable = isEditing(record);
             return editable ? (
                 <Space>
@@ -374,11 +449,33 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
         },
     };
 
+    // ========== CỘT DÙNG KHI HIỂN THỊ LỊCH SỬ ==========
+    const historyColumns: ColumnsType<any> = [
+        { title: 'Thuốc', dataIndex: 'customDrugName' },
+        { title: 'Liều dùng', dataIndex: 'dosage' },
+        {
+            title: 'Đơn vị',
+            dataIndex: ['unitDosageId', 'name'],
+        },
+        { title: 'Số ngày', dataIndex: 'duration' },
+        {
+            title: 'Thời gian uống',
+            dataIndex: ['dosageTimeDtos'],
+            render: (dosageTimeDtos) => dosageTimeDtos?.map((time) => time?.name)?.join(', ') || '',
+        },
+        {
+            title: 'So với bữa ăn',
+            dataIndex: ['mealRelation', 'name'],
+        },
+        { title: 'Hướng dẫn', dataIndex: 'instructions' },
+    ];
+
     const columns = isHistory ? historyColumns : [...baseColumns, actionColumn];
 
     return (
         <div className="relative">
             {loading && <LoadingSpinAntD />}
+
             <Card title="Kê đơn thuốc" bodyStyle={{ padding: '10px 22px' }}>
                 <Form form={form} component={false}>
                     {!isHistory && (
@@ -395,7 +492,7 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
                             dataSource={dataAdd}
                             columns={columns}
                             pagination={false}
-                            rowClassName="editable-row"
+                            rowKey="key"
                         />
                     )}
                 </Form>

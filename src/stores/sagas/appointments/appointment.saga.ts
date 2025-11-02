@@ -8,11 +8,12 @@ import {
     getCountAppointmentByDate,
     getCountServiceByDate,
     getFollowUpVisitsByDate,
+    getOldAppointment,
     loadPageDoctor,
     loadPagePatient,
     verifyPaymentAppointment,
 } from '@/stores/actions/appointments/appointment.action';
-import { appointment, common } from '@/stores/reducers';
+import { appointment, common, prescription } from '@/stores/reducers';
 import { selectFilter } from '@/stores/selectors/appointments/appointment.selector';
 import { ModalType } from '@/types/stores/common';
 import { deleteCookies, getCookies, setCookies } from '@/utils/cookies/cookies';
@@ -242,6 +243,53 @@ function* handleVerifyPaymentAppointment({ payload }) {
     }
 }
 
+function* handleGetOldAppointment({ payload }) {
+    try {
+        const { params } = payload;
+
+        // console.log(params);
+
+        yield* put(appointment.actions.setLoadingComponent(true));
+
+        const { data, error } = yield call(appointmentApi.getOldAppointment, params);
+
+        if (error) {
+            yield put(common.actions.setErrorMessage(error?.message));
+            return;
+        }
+
+        const dataPrecisions = data?.data?.perscriptionDtos;
+
+        // console.log(dataPrecisions);
+
+        if (dataPrecisions) {
+            const mapped = dataPrecisions.map((p) => ({
+                drugId: p.drugId?.drugId,
+                customDrugName: p.customDrugName,
+                dosage: p.dosage,
+                duration: p.duration,
+                unitDosageId: p.unitDosageId?.unitId,
+                unitDosageName: p.unitDosageId?.name,
+                mealRelation: p.mealRelation?.relationsId,
+                mealRelationName: p.mealRelation?.name,
+                instructions: p.instructions,
+                dosageTimeDtos: p.dosageTimeDtos?.map((item) => item.timeId),
+            }));
+
+            // console.log(mapped);
+
+            yield put(prescription.actions.setAddNewPrescription({ perscriptionCreates: mapped }));
+        } else {
+            yield put(prescription.actions.setAddNewPrescription({}));
+        }
+    } catch (error) {
+        console.error(error);
+        yield put(common.actions.setErrorMessage(error?.message));
+    } finally {
+        yield put(appointment.actions.setLoadingComponent(false));
+    }
+}
+
 function* watchFetchAppointmentsPatient() {
     yield takeLatest(fetchAppointmentListPatient, handleFetchAppointmentsPatient);
 }
@@ -282,6 +330,10 @@ function* watchFollowUpVisitsByDate() {
     yield takeLatest(getFollowUpVisitsByDate, handleFollowUpVisitsByDate);
 }
 
+function* watchGetOldAppointment() {
+    yield takeLatest(getOldAppointment, handleGetOldAppointment);
+}
+
 export function* watchAppointment() {
     yield all([
         fork(watchFetchAppointmentsPatient),
@@ -294,5 +346,6 @@ export function* watchAppointment() {
         fork(watchCountAppointmentByDate),
         fork(watchCountServiceByDate),
         fork(watchFollowUpVisitsByDate),
+        fork(watchGetOldAppointment),
     ]);
 }

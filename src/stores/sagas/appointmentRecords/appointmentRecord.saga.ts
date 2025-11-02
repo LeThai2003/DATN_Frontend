@@ -40,7 +40,7 @@ function* handleCreateAppointmentRecord({ payload }) {
     try {
         const { data, employeeId } = payload;
 
-        console.log(data);
+        // console.log(data);
 
         yield put(appointment_record.actions.setLoadingComponent(true));
 
@@ -51,6 +51,7 @@ function* handleCreateAppointmentRecord({ payload }) {
                 ...initFilterAppointment,
                 employeeId: [employeeId],
                 statuses: ['PAYMENT'],
+                order: 'asc',
                 search: '',
             })
         );

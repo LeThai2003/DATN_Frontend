@@ -51,3 +51,7 @@ export const getFollowUpVisitsByDate = createAction(
         payload: state,
     })
 );
+
+export const getOldAppointment = createAction(`${name}/GET_OLD_APPOINTMENT`, (state) => ({
+    payload: state,
+}));

@@ -8,6 +8,7 @@ import {
 } from '@/stores/selectors/appointments/appointment.selector';
 import { selectSelectedService } from '@/stores/selectors/services/service.selector';
 import { Card, Image } from 'antd';
+import dayjs from 'dayjs';
 import { useDispatch, useSelector } from 'react-redux';
 
 const Checkout = () => {
@@ -152,6 +153,12 @@ const Checkout = () => {
                             </Card>
 
                             <Card title="Thời gian khám mong muốn">
+                                <p className="mb-2">
+                                    <strong>Ngày khám:</strong>{' '}
+                                    <span className="bg-slate-200 inline-block px-2 py-1 rounded-md">
+                                        {`${dayjs(shiftAppointment?.date).format('DD/MM/YYYY')}`}
+                                    </span>
+                                </p>
                                 <p>
                                     <strong>Thời gian:</strong>{' '}
                                     <span className="bg-slate-200 inline-block px-2 py-1 rounded-md">

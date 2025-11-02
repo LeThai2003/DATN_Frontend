@@ -65,6 +65,8 @@ export const appointmentRecordSchema = yup.object().shape({
 
     notes: yup.string().optional(),
 
+    follow: yup.string().optional(),
+
     followUpVisit: yup.object().shape({
         isFollowUp: yup.boolean().default(false),
         followUpDate: yup.string().when('isFollowUp', {

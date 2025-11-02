@@ -156,8 +156,10 @@ const SiderDoctor = ({ onOpenTab }) => {
             dispatch(
                 appointment.actions.setFilterAppointment({
                     ...initFilterAppointment,
+                    order: 'asc',
                     employeeId: [infoEmployee.employeeId],
                     statuses: ['PAYMENT'],
+                    search: '',
                 })
             );
             dispatch(fetchAppointmentListDoctor());

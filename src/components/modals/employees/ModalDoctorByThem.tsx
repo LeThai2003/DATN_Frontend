@@ -1,10 +1,12 @@
 import { ModalState, ModalType } from '@/types/stores/common';
 import React from 'react';
 import ModalBase from '../ModalBase';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { common } from '@/stores/reducers';
-import { Button, Card, Descriptions, Form, Image, Input, Tabs, Tooltip } from 'antd';
+import { Button, Card, Descriptions, Form, Image, Input, Tabs, Tag, Tooltip } from 'antd';
 import TabPane from 'antd/es/tabs/TabPane';
+import { selectEmployeeInfo } from '@/stores/selectors/employees/employee.selector';
+import dayjs from 'dayjs';
 
 const doctor = {
     employee_id: 1,
@@ -24,6 +26,10 @@ const doctor = {
 
 const ModalDoctorByThem: React.FC<ModalState> = ({ data, type, variant }) => {
     const dispatch = useDispatch();
+
+    const infoEmployee = useSelector(selectEmployeeInfo);
+
+    console.log(infoEmployee);
 
     const [form] = Form.useForm();
 
@@ -47,46 +53,95 @@ const ModalDoctorByThem: React.FC<ModalState> = ({ data, type, variant }) => {
                         <section className="py-2">
                             <Card title="Tài khoản cá nhân">
                                 <Tabs defaultActiveKey="1">
-                                    <TabPane tab="Thông tin tài khoản" key="1">
-                                        {doctor?.avatar && (
-                                            <div className="my-2 w-[80px] h-[80px] rounded-md overflow-hidden">
-                                                <Image
-                                                    src={doctor.avatar}
-                                                    alt={doctor.fullname}
-                                                    className="object-cover w-full h-full"
-                                                />
-                                            </div>
-                                        )}
+                                    <TabPane tab="Thông tin chi tiết" key="1">
                                         <Descriptions
+                                            // title="Thông tin chi tiết nhân viên"
                                             bordered
-                                            column={{ xs: 1, sm: 2 }}
-                                            labelStyle={{ fontWeight: 600 }}
+                                            column={2}
+                                            size="middle"
+                                            className="overflow-auto max-h-[62vh] custom-scrollbar"
                                         >
-                                            <Descriptions.Item label="Họ tên">
-                                                {doctor.fullname}
+                                            <Descriptions.Item label="Ảnh đại diện" span={2}>
+                                                <Image
+                                                    width={120}
+                                                    src={infoEmployee?.avatar}
+                                                    alt="Avatar"
+                                                    style={{ borderRadius: '8px' }}
+                                                />
                                             </Descriptions.Item>
-                                            <Descriptions.Item label="Giới tính">
-                                                {doctor.gender === 'male' ? 'Nam' : 'Nữ'}
-                                            </Descriptions.Item>
-                                            <Descriptions.Item label="Chuyên khoa">
-                                                {doctor.specialization?.name}
+
+                                            <Descriptions.Item label="Họ và tên">
+                                                {infoEmployee.fullName}
                                             </Descriptions.Item>
                                             <Descriptions.Item label="Email">
-                                                {doctor.email}
+                                                {infoEmployee?.email}
                                             </Descriptions.Item>
-                                            <Descriptions.Item label="Số CCCD">
-                                                {doctor.citizen_id}
+
+                                            <Descriptions.Item label="Số điện thoại">
+                                                {infoEmployee?.phoneNumber}
                                             </Descriptions.Item>
-                                            <Descriptions.Item label="Phòng làm việc">
-                                                {doctor.room?.name}
+                                            <Descriptions.Item label="CCCD">
+                                                {infoEmployee?.citizenId}
                                             </Descriptions.Item>
-                                            <Descriptions.Item label="Địa chỉ">
-                                                {doctor.address}
+
+                                            <Descriptions.Item label="Ngày sinh">
+                                                {dayjs(infoEmployee?.dob).format('DD/MM/YYYY')}
                                             </Descriptions.Item>
+                                            <Descriptions.Item label="Giới tính">
+                                                {infoEmployee?.gender ? 'Nam' : 'Nữ'}
+                                            </Descriptions.Item>
+
+                                            <Descriptions.Item label="Địa chỉ" span={2}>
+                                                {infoEmployee?.address}
+                                            </Descriptions.Item>
+
                                             <Descriptions.Item label="Ngày vào làm">
-                                                {new Date(doctor.hired_date).toLocaleDateString(
-                                                    'vi-VN'
+                                                {dayjs(infoEmployee?.hiredDate).format(
+                                                    'DD/MM/YYYY'
                                                 )}
+                                            </Descriptions.Item>
+                                            <Descriptions.Item label="Trạng thái">
+                                                <Tag
+                                                    color={
+                                                        infoEmployee?.status === 'ACTIVE'
+                                                            ? 'green'
+                                                            : 'red'
+                                                    }
+                                                >
+                                                    {infoEmployee?.status == 'ACTIVE'
+                                                        ? 'Hoạt động'
+                                                        : 'Xóa'}
+                                                </Tag>
+                                            </Descriptions.Item>
+
+                                            <Descriptions.Item label="Vai trò">
+                                                {infoEmployee?.nameRole == 'ROLE_DOCTOR'
+                                                    ? 'Bác sĩ'
+                                                    : 'Quản lý'}
+                                            </Descriptions.Item>
+                                            {/* <Descriptions.Item label="Mô tả">{infoEmployee?.description}</Descriptions.Item> */}
+
+                                            <Descriptions.Item label="Chuyên khoa" span={2}>
+                                                {infoEmployee?.specialization?.name}
+                                            </Descriptions.Item>
+
+                                            <Descriptions.Item label="Phòng làm việc" span={2}>
+                                                {infoEmployee?.roomDto?.name} (
+                                                {infoEmployee?.roomDto?.location})
+                                            </Descriptions.Item>
+
+                                            <Descriptions.Item label="Dịch vụ phụ trách" span={2}>
+                                                {infoEmployee?.serviceDto?.map((s) => (
+                                                    <div key={s.serviceId} className="mb-4">
+                                                        <strong>{s.name}</strong> —{' '}
+                                                        {s.price.toLocaleString()} VNĐ
+                                                        <div className="max-h-24 overflow-auto custom-scrollbar">
+                                                            <p style={{ margin: 0, color: '#555' }}>
+                                                                {s.description}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </Descriptions.Item>
                                         </Descriptions>
                                     </TabPane>

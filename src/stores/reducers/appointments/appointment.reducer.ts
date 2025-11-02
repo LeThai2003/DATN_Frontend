@@ -47,7 +47,7 @@ const AppointmentSlice = createSlice({
             state.doctorAppointment = payload;
         },
         setTimeBookingAppointment(state, { payload }: PayloadAction<any>) {
-            // console.log(payload);
+            console.log(payload);
             state.timeBookingAppointment = payload;
         },
         setShiftAppointment(state, { payload }: PayloadAction<any>) {

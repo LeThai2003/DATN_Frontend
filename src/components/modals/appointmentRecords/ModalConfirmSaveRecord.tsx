@@ -35,11 +35,26 @@ const ModalConfirmSaveRecord: React.FC<ModalState> = ({ data, type, variant }) =
     const dispatch = useDispatch();
 
     const handleConfirm = () => {
-        console.log(data);
+        // console.log(data);
+
+        let prescriptions = data?.perscriptionCreates?.map((item) => {
+            const { mealRelationName, unitDosageName, ...rest } = item;
+            return {
+                ...rest,
+                frequency: 'Twice a day',
+            };
+        });
+
+        const newData = {
+            ...data,
+            perscriptionCreates: prescriptions,
+        };
+
+        // console.log(newData);
 
         dispatch(
             createAppointmentRecord({
-                data,
+                data: newData,
                 employeeId: infoEmployee.employeeId,
             })
         );

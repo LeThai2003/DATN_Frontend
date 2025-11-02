@@ -18,7 +18,7 @@ const WeekDaySlice = createSlice({
         setTotalPage(state, { payload }: PayloadAction<any>) {
             state.weekDays.totalPage = payload;
         },
-        setFilterRoom(state, { payload }: PayloadAction<any>) {
+        setFilterWeekDay(state, { payload }: PayloadAction<any>) {
             state.filter = payload;
         },
         setLoadingComponent(state, { payload }: PayloadAction<any>) {

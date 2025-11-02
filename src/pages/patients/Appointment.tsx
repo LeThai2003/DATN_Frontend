@@ -56,7 +56,7 @@ const Appointment = () => {
             fullname: patientData?.fullName,
             shiftId: shiftAppointment?.shiftId,
             serviceId: selectedService?.serviceId,
-            price: selectedService?.price / 1000,
+            price: selectedService?.price,
         };
 
         dispatch(appointment.actions.setNewAppointment(dataAppointment));

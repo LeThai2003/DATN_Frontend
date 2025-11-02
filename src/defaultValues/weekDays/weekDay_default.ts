@@ -3,6 +3,10 @@ import { FilterWeekDay, WeekDaySlice } from '@/types/stores/weekDays/weekDay_typ
 
 export const initFilterWeekDay: FilterWeekDay = {
     ...initFilterValue,
+    sort: 'Id',
+    order: 'asc',
+    pageSize: 10,
+    employeeIds: [],
 };
 
 export const initWeekDaySlice: WeekDaySlice = {

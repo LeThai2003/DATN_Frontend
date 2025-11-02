@@ -7,7 +7,7 @@ const Shift = () => {
     return (
         <div>
             <Tabs defaultActiveKey="1">
-                <TabPane tab="Lịch làm" key="1">
+                <TabPane tab="Mẫu lịch làm" key="1">
                     <TabShiftEmployee />
                 </TabPane>
                 <TabPane tab="Thời gian" key="2">

@@ -15,8 +15,8 @@ const InstructionText = () => {
                 <li>
                     Tích chọn <span className="font-semibold">bác sĩ phụ trách</span> ở đầu dòng và
                     chọn
-                    <span className="font-semibold"> giờ khám mong muốn</span> dưới bảng bác sĩ, sau
-                    đó nhấn
+                    <span className="font-semibold"> thời gian khám mong muốn</span> dưới bảng bác
+                    sĩ, sau đó nhấn
                     {/* <span className="font-semibold text-yellow-700"> "Lưu bác sĩ và giờ khám"</span> */}
                     .
                 </li>

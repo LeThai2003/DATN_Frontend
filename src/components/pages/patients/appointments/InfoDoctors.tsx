@@ -31,18 +31,26 @@ import {
 } from '@/stores/selectors/shifts/shift.selector';
 import { getShiftByEmployee, getShifts } from '@/stores/actions/shifts/shift.action';
 import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
+import weekday from 'dayjs/plugin/weekday';
+import localeData from 'dayjs/plugin/localeData';
+import 'dayjs/locale/vi';
+import { formatDayDateVi } from '@/utils/times/times';
 
-const timeSlots = Array.from({ length: 24 }, (_, i) => i)
-    .flatMap((hour) => [
-        `${String(hour).padStart(2, '0')}:00`,
-        `${String(hour).padStart(2, '0')}:30`,
-    ])
-    .filter((t) => {
-        const h = Number(t.split(':')[0]);
-        return h >= 7 && h < 18 && h != 12; // Chỉ 7h → 17h30
-    });
+dayjs.extend(weekday);
+dayjs.extend(localeData);
+dayjs.locale('vi');
 
-const bookedSlots = ['08:00', '09:30', '13:00', '15:30'];
+// const timeSlots = Array.from({ length: 24 }, (_, i) => i)
+//     .flatMap((hour) => [
+//         `${String(hour).padStart(2, '0')}:00`,
+//         `${String(hour).padStart(2, '0')}:30`,
+//     ])
+//     .filter((t) => {
+//         const h = Number(t.split(':')[0]);
+//         return h >= 7 && h < 18 && h != 12; // Chỉ 7h → 17h30
+//     });
+
+// const bookedSlots = ['08:00', '09:30', '13:00', '15:30'];
 
 const InfoDoctors = () => {
     const dispatch = useDispatch();
@@ -58,6 +66,9 @@ const InfoDoctors = () => {
     const [selectedShiftId, setSelectedShiftId] = useState<string | null>(
         shiftAppointment?.shiftTimeId || null
     );
+    const [selectDate, setSelectDate] = useState<number | null>(
+        shiftAppointment?.indexDate || null
+    );
 
     useEffect(() => {
         dispatch(getShifts());
@@ -68,17 +79,13 @@ const InfoDoctors = () => {
 
     const [searchParams] = useSearchParams();
 
-    const [form] = Form.useForm();
-
-    const isEdit = searchParams.has('edit');
-
     // console.log(filterShift?.time);
 
     const availableShifts = shiftTimes?.data?.map((shift) => {
         // Tìm ca làm tương ứng trong dataShiftEmployee
         const match = dataShiftEmployee?.find((s) => s.shift?.id === shift.id);
 
-        console.log(shift);
+        // console.log(shift);
 
         // Nếu có ca làm và còn slot trống
         const isAvailable = match && match.patientSlotBooked < match.patientSlot;
@@ -117,6 +124,7 @@ const InfoDoctors = () => {
 
     const handleCheckEmployee = (data) => {
         setSelectedShiftId(null);
+        setSelectDate(null);
         // console.log(data);
 
         const newFilter = {
@@ -138,6 +146,17 @@ const InfoDoctors = () => {
         };
 
         dispatch(appointment.actions.setNewDoctorAppointment(dataDoctor));
+    };
+
+    const handleClickDate = (day) => {
+        setSelectDate(day.value);
+        const time = dayjs(day.date).format('YYYY-MM-DD');
+        const newFilter = {
+            ...filterShift,
+            time: time,
+        };
+
+        dispatch(shift.actions.setFilterShift(newFilter));
     };
 
     useEffect(() => {
@@ -212,63 +231,67 @@ const InfoDoctors = () => {
         },
     ];
 
+    // console.log(selectedService?.employeeDtos);
+
+    // ------------------------------
+    const today = dayjs();
+    const dayIndex = today.weekday(); // Thứ 2 = 0, Chủ nhật = 6
+    let dayNames = [];
+    if (dayIndex == 6) {
+        // Chủ nhật
+        const start = today; // Chủ nhật hiện tại
+        dayNames = Array.from({ length: 8 }, (_, i) => {
+            const date = start.add(i, 'day');
+            return {
+                value: i + 2,
+                label: formatDayDateVi(date),
+                date: date,
+            };
+        });
+    } else {
+        //  Thứ 2 -> Thứ 7
+        const start = today.weekday(0); // Thu 2 cua tuan hien tai
+        dayNames = Array.from({ length: 7 }, (_, i) => {
+            const date = start.add(i, 'day');
+            return {
+                value: i + 2,
+                label: formatDayDateVi(date),
+                date: date,
+            };
+        });
+    }
+
     const handleClickShift = (shift) => {
-        console.log(shift);
+        // console.log(shift);
         if (!shift.isAvailable) return;
 
         setSelectedShiftId(shift.id);
 
         dispatch(
             appointment.actions.setShiftAppointment({
+                ...shiftAppointment,
                 shiftId: shift?.shiftId,
                 shiftTimeId: shift?.id,
                 startTime: shift?.startTime,
                 endTime: shift?.endTime,
+                date: filterShift?.time || '',
+                indexDate: selectDate,
             })
         );
-    };
-
-    // console.log(selectedService?.employeeDtos);
-
-    // ------------------------------
-    const disabledDate = (current: dayjs.Dayjs) => {
-        const today = dayjs().startOf('day');
-        const maxDate = dayjs().add(7, 'day').endOf('day');
-
-        return (current && current < today) || (current && current > maxDate);
-    };
-
-    const handleChangeDate = (e) => {
-        if (e) {
-            setSelectedShiftId(null);
-            dispatch(
-                shift.actions.setFilterShift({
-                    ...filterShift,
-                    time: dayjs(e).format('YYYY-MM-DD'),
-                })
-            );
-        }
     };
 
     return (
         <Card
             title={
                 <div className="flex items-center justify-between">
-                    <div>Chọn bác sĩ phụ trách và giờ khám mong muốn</div>
-                    <div className="p-1 px-2 rounded-md bg-slate-100">
-                        Ngày khám:{' '}
-                        <DatePicker
-                            defaultValue={dayjs()}
-                            format="DD/MM/YYYY"
-                            disabledDate={disabledDate}
-                            onChange={(e) => handleChangeDate(e)}
-                        />
-                    </div>
+                    <div>Chọn bác sĩ phụ trách và thời gian khám</div>
                 </div>
             }
         >
             <Table
-                dataSource={selectedService?.employeeDtos}
+                dataSource={selectedService?.employeeDtos?.filter(
+                    (emp) => emp.status != 'DELETE' && emp.nameRole != 'ROLE_ADMIN'
+                )}
                 columns={columns}
                 rowKey="employee_id"
                 pagination={false}
@@ -276,45 +299,52 @@ const InfoDoctors = () => {
             />
 
             {selectedDoctorAppointment?.employeeId && (
-                <Form
-                    form={form}
-                    style={{ marginTop: 30 }}
-                    className="bg-slate-100 p-2 rounded-md pl-4"
-                >
-                    <Form.Item
-                        label={
-                            <>
-                                <span className="text-red-600 mr-1 font-semibold">*</span>{' '}
-                                <b>Giờ khám mong muốn</b>
-                            </>
-                        }
-                    >
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mt-2 relative">
-                            {loadingComponentShift && <LoadingSpinAntD />}
-                            {availableShifts?.map((shift) => {
-                                const isSelected = selectedShiftId === shift.id;
-                                return (
-                                    <Button
-                                        key={shift.id}
-                                        disabled={!shift.isAvailable}
-                                        className={`w-full ${
-                                            !shift.isAvailable
-                                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                                : isSelected
-                                                ? 'bg-blue-500 text-white border-blue-600'
-                                                : 'bg-white border-gray-300 hover:border-blue-400 hover:text-blue-500'
-                                        }`}
-                                        onClick={() => {
-                                            handleClickShift(shift);
-                                        }}
-                                    >
-                                        {shift.startTime} - {shift.endTime}
-                                    </Button>
-                                );
-                            })}
-                        </div>
-                    </Form.Item>
-                </Form>
+                <>
+                    {/* Tabs 7 ngày */}
+                    <div className="mt-4 ">
+                        <span className="text-red-600 mr-1 font-semibold">*</span> <b>Ngày khám</b>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mt-2 mb-3 p-2 rounded-md bg-slate-100">
+                        {dayNames.map((day) => (
+                            <Button
+                                key={day.value}
+                                type={selectDate === day.value ? 'primary' : 'default'}
+                                onClick={() => handleClickDate(day)}
+                                disabled={day.date.isBefore(dayjs().startOf('day'))}
+                            >
+                                {day.label}
+                            </Button>
+                        ))}
+                    </div>
+
+                    <>
+                        <span className="text-red-600 mr-1 font-semibold">*</span> <b>Giờ khám</b>
+                    </>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mt-2 relative bg-slate-100 p-2 rounded-md">
+                        {loadingComponentShift && <LoadingSpinAntD />}
+                        {availableShifts?.map((shift) => {
+                            const isSelected = selectedShiftId === shift.id;
+                            return (
+                                <Button
+                                    key={shift.id}
+                                    disabled={!shift.isAvailable}
+                                    className={`w-full ${
+                                        !shift.isAvailable
+                                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                            : isSelected
+                                            ? 'bg-blue-500 text-white border-blue-600'
+                                            : 'bg-white border-gray-300 hover:border-blue-400 hover:text-blue-500'
+                                    }`}
+                                    onClick={() => {
+                                        handleClickShift(shift);
+                                    }}
+                                >
+                                    {shift.startTime} - {shift.endTime}
+                                </Button>
+                            );
+                        })}
+                    </div>
+                </>
             )}
         </Card>
     );

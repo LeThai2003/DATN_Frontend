@@ -3,7 +3,7 @@ import React from 'react';
 
 const LoadingSpinAntD = () => {
     return (
-        <div className="absolute flex items-center justify-center z-20 inset-0 bg-white/40">
+        <div className="absolute flex items-center justify-center z-20 inset-0 bg-white/40 rounded-lg">
             <Spin />
         </div>
     );

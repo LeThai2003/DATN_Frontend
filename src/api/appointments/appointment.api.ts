@@ -24,6 +24,10 @@ class AppointmentApi extends HttpService {
     getFollowUpVisitsByDate = (params) => {
         return this.get('follow_up_visits', params);
     };
+
+    getOldAppointment = (params) => {
+        return this.get('old-appointment', params);
+    };
 }
 
 export const appointmentApi = new AppointmentApi('appointment');

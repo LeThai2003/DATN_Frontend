@@ -18,8 +18,9 @@ import ModalLogoutConfirm from './confirms/ModalLogoutConfirm';
 import ModalDoctorByThem from './employees/ModalDoctorByThem';
 import ModalRelativePatient from './relativePatients/ModalRelativePatient';
 import ModalShiftTime from './shifts/ModalShiftTime';
-import ModalShiftEmployee from './shifts/ModalShiftEmployee';
+
 import ModalConfirmSaveRecord from './appointmentRecords/ModalConfirmSaveRecord';
+import ModalShiftEmployee from './shifts/ModalShiftEmployee';
 
 const ModalRender = () => {
     const modals = useSelector(selectModal);

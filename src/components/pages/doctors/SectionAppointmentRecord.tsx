@@ -3,12 +3,16 @@ import LableField from '@/components/forms/LableField';
 import LazyICD10Select from '@/components/forms/LazyICD10Select';
 import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 import { getAppointmentRecord } from '@/stores/actions/appointmentRecord.s/appointmentRecord.action';
+import { getOldAppointment } from '@/stores/actions/appointments/appointment.action';
+import { getListFollowUpVisits } from '@/stores/actions/followUpVisits/followUpVisit.action';
 import { appointment_record, prescription } from '@/stores/reducers';
 import {
     selectAppointmentRecords,
     selectLoadingComponent,
     selectNewAppointmentRecord,
 } from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
+import { selectFollowUpVisits } from '@/stores/selectors/followUpVisits/followUpVisit.selector';
+import { formatDateVi } from '@/utils/times/times';
 import { appointmentRecordSchema } from '@/validations/appointmentRecord.validate';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Card, Empty, Popconfirm, Select } from 'antd';
@@ -33,17 +37,18 @@ const SectionAppointmentRecord = forwardRef<
     SectionAppointmentRecordRef,
     SectionAppointmentRecordProps
 >(({ appointment, record, isHistory, appointmentRecordData }, ref) => {
-    const newAppointment = useSelector(selectNewAppointmentRecord);
-    const loading = useSelector(selectLoadingComponent);
-
     const dispatch = useDispatch();
+
+    const loading = useSelector(selectLoadingComponent);
+    const listFollowUpVisits = useSelector(selectFollowUpVisits);
 
     const [suggestions, setSuggestions] = useState([]);
     const [selectedPrescription, setSelectedPrescription] = useState(null);
+    const [followUpVisitId, setFollowUpVisitId] = useState<string | null>(null);
 
-    // console.log(appointmentRecordData);
-
-    const currentDoctorId = 1;
+    // console.log(appointment);
+    // console.log(listFollowUpVisits.data);
+    // console.log(followUpVisitId);
 
     const defaultAppointmentRecordValues = {
         height: appointmentRecordData?.height || null,
@@ -115,27 +120,28 @@ const SectionAppointmentRecord = forwardRef<
         }
     }, [appointmentRecordData]);
 
-    // useEffect(() => {
-    //     const icd = watch('icd10');
-
-    //     if (icd) {
-    //         const filtered = suggestedPrescriptions.filter(
-    //             (s) => s.icd10 === icd && s.doctor_id === currentDoctorId
-    //         );
-    //         setSuggestions(filtered);
-
-    //         // Nếu không có gợi ý thuốc nào thì reset luôn đơn thuốc
-    //         if (filtered.length === 0) {
-    //             dispatch(prescription.actions.setAddNewPrescription([]));
-    //         }
-    //     } else {
-    //         // Khi ICD-10 bị xoá hoặc chưa chọn
-    //         setSuggestions([]);
-    //         dispatch(prescription.actions.setAddNewPrescription([]));
-    //     }
-    // }, [watch('icd10')]);
+    useEffect(() => {
+        const icd = watch('icd10');
+        if (!isHistory) {
+            if (icd) {
+                dispatch(
+                    getOldAppointment({
+                        params: {
+                            employeeId: appointment?.shiftId?.employeeDto?.employeeId,
+                            icd10Id: icd,
+                        },
+                    })
+                );
+            } else {
+                // Khi ICD-10 bị xoá hoặc chưa chọn
+                dispatch(prescription.actions.setAddNewPrescription({}));
+            }
+        }
+    }, [watch('icd10')]);
 
     useEffect(() => {
+        dispatch(getListFollowUpVisits({ patient: appointment?.patientId?.patientId }));
+
         // Luôn bật isFollowUp
         setValue('followUpVisit.isFollowUp', true);
     }, []);
@@ -158,8 +164,9 @@ const SectionAppointmentRecord = forwardRef<
             return new Promise((resolve) => {
                 handleSubmit(
                     (data) => {
-                        const dataRecord = {
+                        let dataRecord = {
                             appointment: appointment?.appointmentId || '',
+                            // appointment: '6ae19018-22c6-418b-a7f1-56b14e1ce6a9',
                             height: data?.height || null,
                             weight: data?.weight || null,
                             bloodPressure: 120.5,
@@ -177,6 +184,7 @@ const SectionAppointmentRecord = forwardRef<
                                 notes: data?.followUpVisit?.notes || '',
                             },
                             notes: data?.notes || '',
+                            follow: followUpVisitId || '',
                         };
 
                         dispatch(
@@ -197,7 +205,28 @@ const SectionAppointmentRecord = forwardRef<
         <div className="relative">
             {loading && <LoadingSpinAntD />}
             <Card
-                title={isHistory ? 'Kết quả khám' : 'Khám bệnh'}
+                title={
+                    isHistory ? (
+                        'Kết quả khám'
+                    ) : (
+                        <div className="flex items-center justify-between">
+                            <span>Khám bệnh</span>
+                            <Select
+                                showSearch
+                                optionFilterProp="label"
+                                placeholder={'Tái khám'}
+                                value={followUpVisitId}
+                                onChange={(value) => setFollowUpVisitId(value)}
+                                options={listFollowUpVisits.data?.map((follow) => ({
+                                    value: follow?.followUpId,
+                                    label: formatDateVi(follow?.followUpDate),
+                                }))}
+                                style={{ minWidth: 180, maxWidth: 230 }}
+                                allowClear
+                            />
+                        </div>
+                    )
+                }
                 bodyStyle={{ padding: '8px 12px' }}
             >
                 <form

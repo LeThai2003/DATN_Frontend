@@ -8,16 +8,15 @@ export const generateAppointmentRecordPDF = ({
     dataRecord,
     dataAppointment,
     dataPrescriptions,
-    drugsList,
-    unitsList,
     dosageTimesList,
-    mealRelationsList,
     isHistory,
 }) => {
     const date = dayjs(dataAppointment?.shiftId?.date);
     const day = date.format('DD');
     const month = date.format('MM');
     const year = date.year();
+
+    console.log(dataPrescriptions);
 
     const prescriptionRows = isHistory
         ? dataPrescriptions?.perscriptionCreates.map((p, i) => [
@@ -37,19 +36,22 @@ export const generateAppointmentRecordPDF = ({
           ])
         : dataPrescriptions?.perscriptionCreates.map((p, i) => [
               i + 1,
-              drugsList?.data?.find((drug) => drug.drugId === p.drugId)?.name || p?.customDrugName,
-              `${p.dosage} ${
-                  unitsList?.data?.find((unit) => unit?.unitId === p?.unitDosageId)?.name || ''
-              } / lần`,
+
+              p?.customDrugName,
+
+              `${p.dosage} ${p?.unitDosageName || ''} / lần`,
+
               p.dosageTimeDtos?.length
                   ? dosageTimesList?.data
                         ?.filter((time) => p.dosageTimeDtos.includes(time?.timeId))
                         ?.map((time) => time?.name)
                         ?.join(', ')
                   : '',
-              mealRelationsList?.data?.find((relation) => relation?.relationsId === p?.mealRelation)
-                  ?.name || '',
+
+              p?.mealRelationName || '',
+
               p.duration?.toString() || '',
+
               p?.notes || p?.instructions || '',
           ]);
 

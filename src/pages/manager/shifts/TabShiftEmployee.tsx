@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import FilterButton from '@/components/filters/FilterButton';
 import { useDispatch, useSelector } from 'react-redux';
 import FilterForm from '@/components/filters/FilterForm';
-import { common, employee, shift } from '@/stores/reducers';
+import { common, employee, shift, week_day } from '@/stores/reducers';
 import { ModalType } from '@/types/stores/common';
 import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -16,6 +16,7 @@ import { selectFilter as selectFilterShift } from '@/stores/selectors/shifts/shi
 import { fetchFirst, loadPage } from '@/stores/actions/managers/employees/employee.action';
 import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 import { initFilterEmployee } from '@/defaultValues/employees/employee_default';
+import { initFilterWeekDay } from '@/defaultValues/weekDays/weekDay_default';
 
 const TabShiftEmployee = () => {
     const [isOpenFilter, setIsOpenFilter] = useState(false);
@@ -35,8 +36,8 @@ const TabShiftEmployee = () => {
 
     const handleViewModal = (data) => {
         dispatch(
-            shift.actions.setFilterShift({
-                ...filterShift,
+            week_day.actions.setFilterWeekDay({
+                ...initFilterWeekDay,
                 employeeIds: [data?.employeeId],
             })
         );
@@ -51,8 +52,8 @@ const TabShiftEmployee = () => {
 
     const handleEditModal = (data) => {
         dispatch(
-            shift.actions.setFilterShift({
-                ...filterShift,
+            week_day.actions.setFilterWeekDay({
+                ...initFilterWeekDay,
                 employeeIds: [data?.employeeId],
             })
         );
@@ -165,33 +166,13 @@ const TabShiftEmployee = () => {
     };
 
     // ------------------------------
-    const disabledDate = (current: dayjs.Dayjs) => {
-        return current && current > dayjs().add(7, 'day').endOf('day');
-    };
-
-    const handleChangeDate = (e) => {
-        if (e) {
-            dispatch(
-                shift.actions.setFilterShift({
-                    ...filterShift,
-                    time: dayjs(e).format('YYYY-MM-DD'),
-                })
-            );
-        }
-    };
 
     return (
         <div className="p-2 bg-white rounded-lg flex flex-col gap-3 relative">
             {loadingPage && <LoadingSpinAntD />}
             <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Lịch làm việc</h3>
+                <h3 className="text-lg font-semibold">Mẫu lịch làm việc</h3>
                 <div className="flex gap-2">
-                    {/* <DatePicker
-                        defaultValue={dayjs()}
-                        format="DD/MM/YYYY"
-                        disabledDate={disabledDate}
-                        onChange={(e) => handleChangeDate(e)}
-                    /> */}
                     {!isOpenFilter && <FilterButton onClick={() => setIsOpenFilter(true)} />}
                 </div>
             </div>
@@ -208,7 +189,9 @@ const TabShiftEmployee = () => {
 
             <Table
                 columns={columns}
-                dataSource={employeesList?.data}
+                dataSource={employeesList?.data?.filter(
+                    (emp) => emp?.status != 'DELETE' && emp?.nameRole != 'ROLE_ADMIN'
+                )}
                 rowKey="id"
                 bordered
                 pagination={false}

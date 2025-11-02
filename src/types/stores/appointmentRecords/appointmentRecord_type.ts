@@ -52,6 +52,7 @@ export interface NewAppointmentRecord {
         notes?: string;
     };
     notes?: string;
+    follow?: string;
 }
 
 export interface AppointmentRecordSlice {

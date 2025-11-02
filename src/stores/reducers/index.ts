@@ -16,3 +16,4 @@ export * as auth from './auth/auth.reducer';
 export * as icd10 from './icd10/icd10.reducer';
 export * as shift from './shifts/shift.reducer';
 export * as week_day from './weekDays/weekDay.reducer';
+export * as follow_up_visit from './followUpVisits/followUpVisit.reducer';

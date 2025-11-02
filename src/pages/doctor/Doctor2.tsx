@@ -106,9 +106,6 @@ const Doctor: React.FC<Doctor2Props> = ({ patient, record, isHistory, isNewExam 
             dataRecord: recordData,
             dataAppointment: patient,
             dataPrescriptions: { ...newPrescription },
-            drugsList,
-            mealRelationsList,
-            unitsList,
             dosageTimesList,
             isHistory: false,
         });
@@ -122,9 +119,6 @@ const Doctor: React.FC<Doctor2Props> = ({ patient, record, isHistory, isNewExam 
             dataRecord: appointmentRecordData,
             dataAppointment: record,
             dataPrescriptions: { perscriptionCreates: appointmentRecordData?.perscriptionDtos },
-            drugsList,
-            mealRelationsList,
-            unitsList,
             dosageTimesList,
             isHistory: true,
         });
@@ -179,7 +173,7 @@ const Doctor: React.FC<Doctor2Props> = ({ patient, record, isHistory, isNewExam 
             <div className="h-[calc(100vh-158px)] overflow-y-auto custom-scrollbar">
                 <div className="flex flex-col gap-5 pb-3">
                     <SectionInfoPatient appointment={isNewExam ? patient : record} />
-                    <SectionService service={record ? record?.serviceId : patient?.serviceId} />
+                    <SectionService appointment={record ? record : patient} />
                     <SectionAppointmentRecord
                         appointment={patient}
                         record={record}

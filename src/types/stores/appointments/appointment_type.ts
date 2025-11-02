@@ -75,6 +75,7 @@ export interface DoctorAppointment {
 
 export interface TimeBooking {
     appointmentHour: string | Date;
+    appointmentDate: string;
 }
 
 interface Shift {
@@ -82,6 +83,8 @@ interface Shift {
     shiftTimeId?: string;
     startTime?: string;
     endTime?: string;
+    date?: string;
+    indexDate?: number;
 }
 
 interface CountAppointment {

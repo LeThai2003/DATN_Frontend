@@ -17,7 +17,6 @@ import {
     updateShiftEmployee,
 } from '@/stores/actions/shifts/shift.action';
 import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
-import { selectEmployeeInfo } from '@/stores/selectors/employees/employee.selector';
 import { common } from '@/stores/reducers';
 
 const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
