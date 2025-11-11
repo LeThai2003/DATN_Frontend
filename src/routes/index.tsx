@@ -19,6 +19,13 @@ const Login = lazy(() => import('../pages/auths/Login'));
 const SignUp = lazy(() => import('../pages/auths/SignUp'));
 const PhoneNumberOtp = lazy(() => import('../pages/auths/PhoneNumberOtp'));
 const OtpVerify = lazy(() => import('../pages/auths/OtpVerify'));
+const ForgotPasswordPhone = lazy(
+    () => import('../pages/auths/forgotPasswords/ForgotPassword_Phone')
+);
+const ForgotPasswordOTP = lazy(() => import('../pages/auths/forgotPasswords/forgotPassword_OTP'));
+const ForgotPasswordReset = lazy(
+    () => import('../pages/auths/forgotPasswords/ForgotPassword_Reset')
+);
 
 const Drug = lazy(() => import('../pages/manager/drugs/Drug'));
 const Employee = lazy(() => import('../pages/manager/employees/Employee'));
@@ -197,6 +204,30 @@ function AppRoutes() {
         {
             path: 'auths/',
             children: [
+                {
+                    path: 'forgot-password',
+                    element: (
+                        <TitleRouter title="Quên mật khẩu">
+                            <ForgotPasswordPhone />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    path: 'forgot-password/:phone_number',
+                    element: (
+                        <TitleRouter title="Nhập mã OTP">
+                            <ForgotPasswordOTP />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    path: 'forgot-password/reset/:verify_code/:phone_number',
+                    element: (
+                        <TitleRouter title="Nhập mới mật khẩu">
+                            <ForgotPasswordReset />
+                        </TitleRouter>
+                    ),
+                },
                 {
                     path: 'login',
                     element: (

@@ -58,6 +58,15 @@ function* handleFetchAppointmentsDoctor() {
             return;
         }
 
+        const appointmentList =
+            data?.data?.data?.slice().sort((a, b) => {
+                const timeA = a.shiftId?.shift?.startTime || '';
+                const timeB = b.shiftId?.shift?.startTime || '';
+                return timeA.localeCompare(timeB);
+            }) || [];
+
+        console.log(appointmentList);
+
         yield put(appointment.actions.setAppointmentsDoctor(data?.data));
     } catch (error) {
         console.error(error);
@@ -278,9 +287,9 @@ function* handleGetOldAppointment({ payload }) {
 
             // console.log(mapped);
 
-            yield put(prescription.actions.setAddNewPrescription({ perscriptionCreates: mapped }));
+            yield put(prescription.actions.setPrescriptionsIcd10({ perscriptionCreates: mapped }));
         } else {
-            yield put(prescription.actions.setAddNewPrescription({}));
+            yield put(prescription.actions.setPrescriptionsIcd10({}));
         }
     } catch (error) {
         console.error(error);

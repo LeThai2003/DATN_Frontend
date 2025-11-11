@@ -1,26 +1,21 @@
 import FormField from '@/components/forms/FormField';
-import LableField from '@/components/forms/LableField';
-import LazyICD10Select from '@/components/forms/LazyICD10Select';
 import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
-import { getAppointmentRecord } from '@/stores/actions/appointmentRecord.s/appointmentRecord.action';
 import { getOldAppointment } from '@/stores/actions/appointments/appointment.action';
 import { getListFollowUpVisits } from '@/stores/actions/followUpVisits/followUpVisit.action';
-import { appointment_record, prescription } from '@/stores/reducers';
-import {
-    selectAppointmentRecords,
-    selectLoadingComponent,
-    selectNewAppointmentRecord,
-} from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
+import { appointment_record, common, icd10, prescription } from '@/stores/reducers';
+import { selectLoadingComponent } from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
+import { selectLoadingComponent as selectLoadingComponentAppointment } from '@/stores/selectors/appointments/appointment.selector';
 import { selectFollowUpVisits } from '@/stores/selectors/followUpVisits/followUpVisit.selector';
+import { selectPrescriptionsIcd10 } from '@/stores/selectors/prescriptions/prescription.selector';
+import { ModalType } from '@/types/stores/common';
 import { formatDateVi } from '@/utils/times/times';
 import { appointmentRecordSchema } from '@/validations/appointmentRecord.validate';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Card, Empty, Popconfirm, Select } from 'antd';
+import { Card, Checkbox, Empty, Popconfirm, Select } from 'antd';
 import dayjs from 'dayjs';
 import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { string } from 'yup';
 
 export interface SectionAppointmentRecordRef {
     submitForm: () => Promise<unknown>;
@@ -41,10 +36,12 @@ const SectionAppointmentRecord = forwardRef<
 
     const loading = useSelector(selectLoadingComponent);
     const listFollowUpVisits = useSelector(selectFollowUpVisits);
+    const prescriptionsIcd10 = useSelector(selectPrescriptionsIcd10);
+    const loadingComponentApointment = useSelector(selectLoadingComponentAppointment);
 
-    const [suggestions, setSuggestions] = useState([]);
-    const [selectedPrescription, setSelectedPrescription] = useState(null);
     const [followUpVisitId, setFollowUpVisitId] = useState<string | null>(null);
+    const [confirmVisible, setConfirmVisible] = useState(false);
+    const [nextChecked, setNextChecked] = useState(false);
 
     // console.log(appointment);
     // console.log(listFollowUpVisits.data);
@@ -62,6 +59,9 @@ const SectionAppointmentRecord = forwardRef<
         final_diagnosis: record?.finalDiagnosis || '',
         treatmentPlan: record?.treatmentPlan || '',
         icd10: appointmentRecordData
+            ? `${appointmentRecordData?.icd10?.code} - ${appointmentRecordData?.icd10?.description}`
+            : null,
+        icd10_label: appointmentRecordData
             ? `${appointmentRecordData?.icd10?.code} - ${appointmentRecordData?.icd10?.description}`
             : null,
         notes: appointmentRecordData?.notes || '',
@@ -106,11 +106,14 @@ const SectionAppointmentRecord = forwardRef<
                 icd10: appointmentRecordData
                     ? `${appointmentRecordData?.icd10?.code} - ${appointmentRecordData?.icd10?.description}`
                     : null,
+                icd10_label: appointmentRecordData
+                    ? `${appointmentRecordData?.icd10?.code} - ${appointmentRecordData?.icd10?.description}`
+                    : null,
                 notes: appointmentRecordData?.notes || '',
                 date: appointmentRecordData?.date || '',
                 followUpVisit: {
-                    isFollowUp: true,
-                    // isFollowUp: appointmentRecordData?.followUpVisit?.followUpId ? true : false,
+                    // isFollowUp: true,
+                    isFollowUp: appointmentRecordData?.followUpVisit?.followUpId ? true : false,
                     followUpDate:
                         appointmentRecordData?.followUpVisit?.followUpDate ||
                         dayjs().add(2, 'week').format('YYYY-MM-DD'),
@@ -134,7 +137,7 @@ const SectionAppointmentRecord = forwardRef<
                 );
             } else {
                 // Khi ICD-10 bị xoá hoặc chưa chọn
-                dispatch(prescription.actions.setAddNewPrescription({}));
+                // dispatch(prescription.actions.setAddNewPrescription({}));
             }
         }
     }, [watch('icd10')]);
@@ -166,7 +169,7 @@ const SectionAppointmentRecord = forwardRef<
                     (data) => {
                         let dataRecord = {
                             appointment: appointment?.appointmentId || '',
-                            // appointment: '6ae19018-22c6-418b-a7f1-56b14e1ce6a9',
+                            // appointment: '6d3c0f50-3099-4cd6-9161-529b5534e514',
                             height: data?.height || null,
                             weight: data?.weight || null,
                             bloodPressure: 120.5,
@@ -200,6 +203,48 @@ const SectionAppointmentRecord = forwardRef<
             });
         },
     }));
+
+    const handleCheckboxClick = (checked) => {
+        // setNextChecked(checked); // Lưu trạng thái muốn chuyển sang
+        setConfirmVisible(true); // Mở popconfirm
+    };
+
+    const handleConfirm = () => {
+        if (!nextChecked) {
+            // từ false --> true
+            console.log(nextChecked);
+            dispatch(prescription.actions.setAddNewPrescription(prescriptionsIcd10));
+        } else {
+            // từ true --> false
+            console.log(nextChecked);
+            dispatch(prescription.actions.setAddNewPrescription({}));
+        }
+
+        setConfirmVisible(false);
+        setNextChecked((prev) => !prev);
+    };
+
+    const handleCancel = () => {
+        setConfirmVisible(false);
+    };
+
+    useEffect(() => {
+        if (
+            (prescriptionsIcd10 as any)?.perscriptionCreates?.length > 0 &&
+            !loadingComponentApointment
+        ) {
+            dispatch(
+                common.actions.setShowModal({
+                    type: ModalType.ACCEPT_PRESCRIPTION_SUGGEST,
+                    data: {
+                        icd10: watch('icd10'),
+                        icd10_label: watch('icd10_label'),
+                    },
+                    variant: 'accept',
+                })
+            );
+        }
+    }, [prescriptionsIcd10, loadingComponentApointment]);
 
     return (
         <div className="relative">
@@ -342,29 +387,35 @@ const SectionAppointmentRecord = forwardRef<
                         type={isHistory ? 'text' : 'icd10'}
                         error={!!errors.icd10}
                         helperText={errors.icd10?.message as string}
+                        setValue={setValue}
                     />
 
-                    {suggestions.length > 0 && (
-                        <div>
-                            <label className="font-medium text-gray-700">Đơn thuốc gợi ý</label>
-                            <Select
-                                placeholder="Chọn đơn thuốc gợi ý..."
-                                options={suggestions.map((s) => ({
-                                    value: s.name,
-                                    label: s.name,
-                                }))}
-                                onChange={(val) => {
-                                    const selected = suggestions.find((s) => s.name === val);
-                                    setSelectedPrescription(selected);
-                                    // Gửi qua Redux cho SectionPrescription
-                                    dispatch(
-                                        prescription.actions.setAddNewPrescription(selected.drugs)
-                                    );
-                                }}
-                                style={{ width: '100%', marginTop: 4 }}
-                            />
-                        </div>
-                    )}
+                    {/* {(prescriptionsIcd10 as any)?.perscriptionCreates?.length > 0 &&
+                    !loadingComponentApointment ? (
+                        <>
+                            <div className="bg-slate-50 p-2 rounded-md flex gap-2 w-fit relative">
+                                <label className="font-medium text-gray-700">Đơn thuốc gợi ý</label>
+                                <Popconfirm
+                                    open={confirmVisible}
+                                    onConfirm={handleConfirm}
+                                    onCancel={handleCancel}
+                                    okText="Đồng ý"
+                                    cancelText="Hủy"
+                                    title={
+                                        !nextChecked
+                                            ? 'Bạn có chắc muốn lấy đơn thuốc?'
+                                            : 'Bạn có chắc muốn hủy đơn thuốc?'
+                                    }
+                                >
+                                    <Checkbox
+                                        className="scale-110"
+                                        checked={nextChecked}
+                                        onChange={(e) => handleCheckboxClick(e.target.checked)}
+                                    />
+                                </Popconfirm>
+                            </div>
+                        </>
+                    ) : null} */}
 
                     {isHistory ? (
                         <>
@@ -393,15 +444,14 @@ const SectionAppointmentRecord = forwardRef<
                         </>
                     ) : (
                         <>
-                            {/* <FormField
+                            <FormField
                                 name="followUpVisit.isFollowUp"
                                 control={control}
                                 type="checkbox"
                                 label="Tái khám"
-                            /> */}
+                            />
 
-                            {
-                                // watch('followUpVisit.isFollowUp') &&
+                            {watch('followUpVisit.isFollowUp') && (
                                 <div className="p-3 border border-gray-300 rounded-md flex flex-col gap-3 bg-white">
                                     <FormField
                                         name="followUpVisit.followUpDate"
@@ -420,7 +470,7 @@ const SectionAppointmentRecord = forwardRef<
                                         placeholder="Nhập ghi chú (nếu có)"
                                     />
                                 </div>
-                            }
+                            )}
                         </>
                     )}
 

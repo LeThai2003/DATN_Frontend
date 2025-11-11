@@ -78,7 +78,10 @@ function* handleGetWeekDayEmployeeDetail({ payload }) {
 
         const filter = yield select(selectFilter);
 
-        const { data, error } = yield call(weekDayApi.getWeekDayEmployeeDetail, group);
+        const { data, error } = yield call(weekDayApi.getWeekDayEmployeeDetail, {
+            group,
+            employeeId,
+        });
 
         console.log(data);
 

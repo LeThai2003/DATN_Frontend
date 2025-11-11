@@ -9,8 +9,8 @@ class WeekDayApi extends HttpService {
         return this.post(filter, 'filter');
     };
 
-    getWeekDayEmployeeDetail = (group) => {
-        return this.get(`group/${group}`);
+    getWeekDayEmployeeDetail = ({ group, employeeId }) => {
+        return this.get(`group/${group}/${employeeId}`);
     };
 }
 export const weekDayApi = new WeekDayApi('weekdays');

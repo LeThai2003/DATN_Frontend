@@ -91,7 +91,7 @@ const Login = () => {
                     />
 
                     <div className="flex justify-end">
-                        <Link to={'#'} className="link">
+                        <Link to={'/auths/forgot-password'} className="link">
                             Quên mật khẩu?
                         </Link>
                     </div>

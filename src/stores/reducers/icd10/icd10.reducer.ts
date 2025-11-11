@@ -42,7 +42,7 @@ const Icd10Slice = createSlice({
 
         resetIcd10s(state) {
             state.icd10s.data = [];
-            state.filter.pageNo = 1;
+            state.filter.pageNo = 0;
             state.hasMore = true;
         },
     },

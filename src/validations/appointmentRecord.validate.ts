@@ -61,14 +61,14 @@ export const appointmentRecordSchema = yup.object().shape({
 
     icd10: yup.string().required('Vui lòng chọn mã ICD-10'),
 
-    icd10_value: yup.string().optional(),
+    icd10_label: yup.string().optional(),
 
     notes: yup.string().optional(),
 
     follow: yup.string().optional(),
 
     followUpVisit: yup.object().shape({
-        isFollowUp: yup.boolean().default(false),
+        isFollowUp: yup.boolean().default(true),
         followUpDate: yup.string().when('isFollowUp', {
             is: true,
             then: (schema) =>

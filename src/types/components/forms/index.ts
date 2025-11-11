@@ -1,5 +1,6 @@
 import React from 'react';
 import { Control, FieldError, FieldErrorsImpl, Merge } from 'react-hook-form';
+import { UseFormSetValue } from 'react-hook-form';
 
 export type FieldType =
     | 'input'
@@ -40,4 +41,5 @@ export type FormFieldProps<T extends Record<string, any> = any> = {
     maxLength?: number;
     lengthNumberOtp?: number;
     disablePast?: boolean;
+    setValue?: UseFormSetValue<T>;
 };

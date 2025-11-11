@@ -1,8 +1,9 @@
 import FormField from '@/components/forms/FormField';
 import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 import { signUpPhoneNumber, verifyOtp } from '@/stores/actions/auth/auth.action';
+import { forgotPasswordOTP, forgotPasswordPhone } from '@/stores/actions/patients/patient.action';
 import { selectLoading } from '@/stores/selectors/auth/auth.selector';
-import { otpSchema, signupSchema } from '@/validations/auth.validation';
+import { otpSchema, otpSchemaForgotPassword, signupSchema } from '@/validations/auth.validation';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button, Input, Spin } from 'antd';
 import { OTPProps } from 'antd/es/input/OTP';
@@ -11,7 +12,7 @@ import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router';
 
-const OtpVerify = () => {
+const ForgotPasswordOTP = () => {
     let params = useParams();
 
     const navigate = useNavigate();
@@ -24,12 +25,11 @@ const OtpVerify = () => {
     const [expired, setExpired] = useState(false);
 
     const onSubmit = (data) => {
-        console.log('data: ');
         console.log(data);
         dispatch(
-            verifyOtp({
-                otp_code: data?.otp,
-                phone_number: params?.phone_number,
+            forgotPasswordOTP({
+                phone: params?.phone_number,
+                otp: data?.otp,
                 action: (e) => navigate(e, { replace: true }),
             })
         );
@@ -53,9 +53,7 @@ const OtpVerify = () => {
     const handleResendOTP = () => {
         setTimeLeft(90);
         setExpired(false);
-        dispatch(
-            signUpPhoneNumber({ phone_number: params?.phone_number, action: (e) => navigate(e) })
-        );
+        dispatch(forgotPasswordPhone({ phone: params?.phone_number, action: (e) => navigate(e) }));
     };
 
     const {
@@ -63,7 +61,7 @@ const OtpVerify = () => {
         handleSubmit,
         formState: { errors, isSubmitting },
     } = useForm({
-        resolver: yupResolver(otpSchema),
+        resolver: yupResolver(otpSchemaForgotPassword),
         defaultValues: {
             otp: '',
         },
@@ -83,14 +81,8 @@ const OtpVerify = () => {
     };
 
     return (
-        <div
-            className="relative flex items-center justify-center min-h-screen bg-cover bg-center"
-            style={{
-                backgroundImage:
-                    "url('https://png.pngtree.com/thumb_back/fh260/background/20240426/pngtree-a-doctor-using-smart-phone-during-quick-a-break-in-a-image_15672091.jpg')",
-            }}
-        >
-            <div className="absolute inset-0 bg-black/40"></div>
+        <div className="relative flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300">
+            <div className="absolute inset-0 bg-white/40 backdrop-blur-sm"></div>
 
             <form
                 onSubmit={handleSubmit(onSubmit)}
@@ -114,7 +106,7 @@ const OtpVerify = () => {
                         label=""
                         type="input"
                         inputType="otp"
-                        lengthNumberOtp={4}
+                        lengthNumberOtp={6}
                         // required
                         helperText={errors.otp?.message}
                         error={!!errors.otp}
@@ -157,4 +149,4 @@ const OtpVerify = () => {
     );
 };
 
-export default OtpVerify;
+export default ForgotPasswordOTP;

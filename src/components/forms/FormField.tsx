@@ -38,6 +38,7 @@ const FormField = ({
     imageProps,
     lengthNumberOtp = 6,
     disablePast = false,
+    setValue,
 }: FormFieldProps) => {
     return (
         <Controller
@@ -176,6 +177,9 @@ const FormField = ({
                         <LazyICD10Select
                             value={field.value}
                             onChange={(val) => field.onChange(val)}
+                            onChangeLabel={(label) => {
+                                setValue('icd10_label', label);
+                            }}
                             placeholder={placeholder}
                             disabled={disabled}
                         />

@@ -49,4 +49,5 @@ export interface PrescriptionSlice {
     selectedPrescription: Prescription;
     newPrescription: {};
     loadingComponent: boolean;
+    prescriptionFromIcd10?: {};
 }

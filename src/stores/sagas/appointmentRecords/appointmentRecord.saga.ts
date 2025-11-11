@@ -44,7 +44,12 @@ function* handleCreateAppointmentRecord({ payload }) {
 
         yield put(appointment_record.actions.setLoadingComponent(true));
 
-        yield call(appointmentRecordApi.createAppointmentRecordById, data);
+        const { error } = yield call(appointmentRecordApi.createAppointmentRecordById, data);
+        if (error) {
+            console.log(error);
+            yield put(common.actions.setErrorMessage(error?.message || 'Có lỗi xảy ra'));
+            return;
+        }
 
         yield put(
             appointment.actions.setFilterAppointment({

@@ -1,19 +1,19 @@
 import FormField from '@/components/forms/FormField';
 import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 import { signUpPhoneNumber } from '@/stores/actions/auth/auth.action';
-import { selectLoading } from '@/stores/selectors/auth/auth.selector';
+import { forgotPasswordPhone } from '@/stores/actions/patients/patient.action';
+import { selectLoadingComponent } from '@/stores/selectors/patients/patient.selector';
 import { phoneNumberSignUpSchema } from '@/validations/auth.validation';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button, Spin } from 'antd';
-import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
 
-const PhoneNumberOtp = () => {
+const ForgotPasswordPhone = () => {
     const dispatch = useDispatch();
 
-    const loading = useSelector(selectLoading);
+    const loading = useSelector(selectLoadingComponent);
 
     const navigate = useNavigate();
 
@@ -28,14 +28,10 @@ const PhoneNumberOtp = () => {
 
     const onSubmit = (data) => {
         let { phone_number } = data;
+
         let formatPhone = formatPhoneNumber(phone_number);
-        // console.log(formatPhone);
-        dispatch(
-            signUpPhoneNumber({
-                phone_number: formatPhone,
-                action: (e) => navigate(e, { replace: true }),
-            })
-        );
+
+        dispatch(forgotPasswordPhone({ phone: formatPhone, action: (e) => navigate(e) }));
     };
 
     const {
@@ -50,14 +46,8 @@ const PhoneNumberOtp = () => {
     });
 
     return (
-        <div
-            className="relative flex items-center justify-center min-h-screen bg-cover bg-center"
-            style={{
-                backgroundImage:
-                    "url('https://png.pngtree.com/thumb_back/fh260/background/20240419/pngtree-stethoscope-with-red-heart-on-gray-background-heart-health-care-concept-image_15663980.jpg')",
-            }}
-        >
-            <div className="absolute inset-0 bg-black/40"></div>
+        <div className="relative flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300">
+            <div className="absolute inset-0 bg-white/40 backdrop-blur-sm"></div>
 
             <form
                 onSubmit={handleSubmit(onSubmit)}
@@ -65,10 +55,9 @@ const PhoneNumberOtp = () => {
             >
                 {loading && <LoadingSpinAntD />}
                 <div className="text-center space-y-2">
-                    <h2 className="text-2xl font-bold text-gray-800">Số điện thoại đăng ký</h2>
+                    <h2 className="text-2xl font-bold text-gray-800">Xác thực số điện thoại</h2>
                     <p className="text-gray-600 text-sm leading-relaxed">
-                        Số điện thoại này sẽ được dùng để <b>xác thực</b> và là{' '}
-                        <b>tài khoản đăng nhập</b> của bạn sau này.
+                        Nhập số điện thoại bạn đã đăng ký để nhận mã OTP xác minh
                     </p>
                 </div>
 
@@ -99,4 +88,4 @@ const PhoneNumberOtp = () => {
     );
 };
 
-export default PhoneNumberOtp;
+export default ForgotPasswordPhone;

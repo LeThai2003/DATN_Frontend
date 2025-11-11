@@ -30,6 +30,12 @@ import { selectDosageTimes } from '@/stores/selectors/dosageTimes/dosageTime.sel
 import { selectLoadingComponent } from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
 
 import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
+import LazyDrugSelect from '@/components/forms/LazyDrugSelect';
+
+type SelectDrugType = {
+    drug_id: string;
+    drug_name: string;
+};
 
 const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
     const dispatch = useDispatch();
@@ -49,7 +55,11 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
 
     const [dataAdd, setDataAdd] = useState<any[]>([]);
     const [editingKey, setEditingKey] = useState<string>('');
-    const [isSyncingFromSuggestion, setIsSyncingFromSuggestion] = useState(false);
+
+    const [selectDrug, setSelectDrug] = useState<SelectDrugType>({
+        drug_id: null,
+        drug_name: null,
+    });
 
     const [form] = Form.useForm();
 
@@ -74,12 +84,10 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
     // Đơn thuốc gợi ý nhận từ ICD10 ( Gán khi dataAdd còn rỗng hoặc không sửa )
     useEffect(() => {
         if (isHistory) return;
-        const list = newPrescription?.perscriptionCreates || [];
-        if (!list.length) return;
-        if (editingKey) return;
-        if (dataAdd.length > 0) return;
-
-        setIsSyncingFromSuggestion(true);
+        const list = (newPrescription as any)?.perscriptionCreates || [];
+        // if (!list.length) return;
+        // if (editingKey) return;
+        // if (dataAdd.length > 0) return;
 
         const mapped = list.map((item, index) => ({
             key: `sug-${index}`,
@@ -89,15 +97,16 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
             duration: item.duration ?? null,
             unit_dosage_id: item.unitDosageId ?? null,
             unit_dosage_name: item.unitDosageName ?? '',
-            meal_time: item.mealRelationId ?? null,
+            meal_time: item.mealRelation ?? null,
             meal_time_name: item.mealRelationName ?? '',
             instructions: item.instructions || '',
             dosage_time: item.dosageTimeDtos || [],
         }));
 
         setDataAdd(mapped);
-        setIsSyncingFromSuggestion(false);
-    }, [newPrescription, isHistory, dataAdd.length, editingKey]);
+    }, [newPrescription, isHistory]);
+
+    console.log(dataAdd);
 
     // helper: dispatch current persisted data (not drafts) to redux
     const dispatchPersistedToRedux = (items: any[]) => {
@@ -109,7 +118,7 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
             duration: item.duration,
             unitDosageId: item.unit_dosage_id,
             instructions: item.instructions,
-            mealRelationId: item.meal_time,
+            mealRelation: item.meal_time,
             dosageTimeDtos: item.dosage_time || [],
             unitDosageName: item.unit_dosage_name,
             mealRelationName: item.meal_time_name,
@@ -152,8 +161,18 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
 
     // save row --> update dataAdd AND dispatch to redux
     const save = async (key: string) => {
+        setSelectDrug({
+            drug_id: null,
+            drug_name: null,
+        });
         try {
             const row = (await form.validateFields()) as any;
+
+            // console.log('----save-----');
+            // console.log(key);
+            // console.log('-----------------');
+            // console.log(row);
+
             const newData = [...dataAdd];
             const index = newData.findIndex((item) => key === item.key);
 
@@ -195,6 +214,8 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
 
     // Add new ( bản nháp và không dispatch )
     const addRow = () => {
+        console.log('NEW ROW');
+
         const newRow = {
             key: `draft-${Date.now().toString()}`,
             drug_id: '',
@@ -254,49 +275,78 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
                 </span>
             ),
             dataIndex: 'drug_id',
-            render: (_, record) =>
-                isEditing(record) ? (
+            render: (_, record) => {
+                return (
                     <>
-                        <Form.Item
-                            name="drug_id"
-                            className="mb-0"
-                            rules={[{ required: true, message: '* Thuốc!' }]}
+                        <div
+                            className={`flex gap-2 items-center w-[180px] ${
+                                !(!selectDrug.drug_id && selectDrug.drug_name && isEditing(record))
+                                    ? 'hidden'
+                                    : ''
+                            }`}
                         >
-                            <Select
-                                showSearch
-                                optionFilterProp="label"
-                                placeholder="Tên thuốc"
-                                style={{ width: 180 }}
-                                options={drugsList?.data?.map((d) => ({
-                                    value: d.drugId,
-                                    label: d.name,
-                                }))}
-                                onChange={(value, option) => {
-                                    const opt = option as any;
-                                    const isDuplicate = dataAdd.some(
-                                        (item) => item.drug_id === value && item.key !== editingKey
-                                    );
-                                    if (isDuplicate) {
-                                        dispatch(
-                                            common.actions.setWarningMessage(
-                                                'Thuốc này đã có trong danh sách!'
-                                            )
-                                        );
-                                        form.setFieldValue('drug_id', null);
-                                        form.setFieldValue('drug_name', '');
-                                        return;
-                                    }
-                                    form.setFieldValue('drug_name', opt?.label);
-                                }}
-                            />
-                        </Form.Item>
-                        <Form.Item name="drug_name" hidden>
-                            <Input />
-                        </Form.Item>
+                            <span>{selectDrug.drug_name}</span>
+                            <Button
+                                size="small"
+                                onClick={() =>
+                                    setSelectDrug({
+                                        drug_id: null,
+                                        drug_name: null,
+                                    })
+                                }
+                                variant="link"
+                                color="primary"
+                            >
+                                Sửa
+                            </Button>
+                        </div>
+                        {isEditing(record) ? (
+                            <>
+                                <Form.Item
+                                    name="drug_id"
+                                    className={`mb-0 ${
+                                        !selectDrug.drug_id && selectDrug.drug_name ? 'hidden' : ''
+                                    }`}
+                                    // rules={[{ required: true, message: '* Thuốc!' }]}
+                                >
+                                    <LazyDrugSelect
+                                        value={form.getFieldValue('drug_id')}
+                                        onChange={(obj) => {
+                                            const isDuplicate = dataAdd.some(
+                                                (item) =>
+                                                    item.drug_id === obj.drugId &&
+                                                    item.key !== editingKey &&
+                                                    item.drug_id
+                                            );
+                                            if (isDuplicate) {
+                                                dispatch(
+                                                    common.actions.setWarningMessage(
+                                                        'Thuốc này đã có trong danh sách!'
+                                                    )
+                                                );
+                                                return;
+                                            }
+
+                                            form.setFieldValue('drug_id', obj.drugId);
+                                            form.setFieldValue('drug_name', obj.drugName);
+                                            // console.log('............', obj.drugName);
+                                            setSelectDrug({
+                                                drug_id: obj.drugId,
+                                                drug_name: obj.drugName,
+                                            });
+                                        }}
+                                    />
+                                </Form.Item>
+                                <Form.Item name="drug_name" hidden>
+                                    <Input />
+                                </Form.Item>
+                            </>
+                        ) : (
+                            record.drug_name
+                        )}
                     </>
-                ) : (
-                    record.drug_name
-                ),
+                );
+            },
         },
         {
             title: 'Liều dùng',

@@ -21,4 +21,6 @@ export interface DrugSlice {
     filter: FilterDrug;
     selectedDrug: Drug;
     loadingComponent: boolean;
+    hasMore?: boolean;
+    drugsSelect?: PageObject<Drug>;
 }

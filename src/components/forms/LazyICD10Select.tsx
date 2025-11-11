@@ -13,9 +13,11 @@ import { Select, Spin } from 'antd';
 const LazyICD10Select = ({
     value,
     onChange,
+    onChangeLabel,
 }: {
     value?: string;
     onChange?: (val: string) => void;
+    onChangeLabel?: (label: string | null) => void;
     placeholder?: string;
     disabled?: boolean;
 }) => {
@@ -33,7 +35,7 @@ const LazyICD10Select = ({
 
     const handleLoadMore = () => {
         if (hasMore && !loadingPage) {
-            const newFilter = { ...filter, pageNo: (filter.pageNo ?? 1) + 1 };
+            const newFilter = { ...filter, pageNo: (filter.pageNo ?? 0) + 1 };
             dispatch(icd10.actions.setFilterIcd10(newFilter));
             dispatch(getIcd10({}));
         }
@@ -43,6 +45,7 @@ const LazyICD10Select = ({
         <Select
             showSearch
             allowClear
+            optionFilterProp="label"
             placeholder="Chọn mã ICD-10"
             filterOption={false}
             onSearch={(term) => {
@@ -59,7 +62,7 @@ const LazyICD10Select = ({
             onPopupScroll={(e) => {
                 const target = e.target as HTMLDivElement;
                 if (
-                    target.scrollTop + target.offsetHeight >= target.scrollHeight - 5 &&
+                    target.scrollTop + target.offsetHeight >= target.scrollHeight - 50 &&
                     !loadingPage &&
                     hasMore
                 ) {
@@ -68,11 +71,14 @@ const LazyICD10Select = ({
             }}
             notFoundContent={loadingPage ? <Spin size="small" /> : 'Không tìm thấy'}
             options={icd10s?.data?.map((item) => ({
-                label: item?.description,
+                label: `${item?.code} - ${item?.description}`,
                 value: item?.code,
             }))}
             value={value}
-            onChange={onChange}
+            onChange={(value, option) => {
+                onChange?.(value);
+                onChangeLabel?.((option as any)?.label ?? null);
+            }}
             style={{ width: '100%' }}
         />
     );

@@ -5,13 +5,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { common } from '@/stores/reducers';
 import pdfMake from 'pdfmake/build/pdfmake';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts';
-import { NewAppointmentRecord } from '@/types/stores/appointmentRecords/appointmentRecord_type';
-import { Appointment } from '@/types/stores/appointments/appointment_type';
-import dayjs from 'dayjs';
-import { selectDrugs } from '@/stores/selectors/drugs/drug.selector';
-import { selectMealRealtions } from '@/stores/selectors/mealRelations/mealRelation.selector';
-import { selectUnits } from '@/stores/selectors/units/unit.selector';
-import { selectDosageTimes } from '@/stores/selectors/dosageTimes/dosageTime.selector';
 import { getInfo } from '@/stores/actions/managers/employees/employee.action';
 import { selectEmployeeInfo } from '@/stores/selectors/employees/employee.selector';
 import { createAppointmentRecord } from '@/stores/actions/appointmentRecord.s/appointmentRecord.action';
@@ -38,9 +31,21 @@ const ModalConfirmSaveRecord: React.FC<ModalState> = ({ data, type, variant }) =
         // console.log(data);
 
         let prescriptions = data?.perscriptionCreates?.map((item) => {
-            const { mealRelationName, unitDosageName, ...rest } = item;
+            const { mealRelationName, unitDosageName, drugId, customDrugName, ...rest } = item;
+
+            if (drugId) {
+                return {
+                    ...rest,
+                    drugId,
+                    customDrugName: '',
+                    frequency: 'Twice a day',
+                };
+            }
+
             return {
                 ...rest,
+                drugId,
+                customDrugName,
                 frequency: 'Twice a day',
             };
         });

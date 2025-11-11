@@ -40,18 +40,6 @@ dayjs.extend(weekday);
 dayjs.extend(localeData);
 dayjs.locale('vi');
 
-// const timeSlots = Array.from({ length: 24 }, (_, i) => i)
-//     .flatMap((hour) => [
-//         `${String(hour).padStart(2, '0')}:00`,
-//         `${String(hour).padStart(2, '0')}:30`,
-//     ])
-//     .filter((t) => {
-//         const h = Number(t.split(':')[0]);
-//         return h >= 7 && h < 18 && h != 12; // Chỉ 7h → 17h30
-//     });
-
-// const bookedSlots = ['08:00', '09:30', '13:00', '15:30'];
-
 const InfoDoctors = () => {
     const dispatch = useDispatch();
 
@@ -150,6 +138,7 @@ const InfoDoctors = () => {
 
     const handleClickDate = (day) => {
         setSelectDate(day.value);
+        setSelectedShiftId(null);
         const time = dayjs(day.date).format('YYYY-MM-DD');
         const newFilter = {
             ...filterShift,
@@ -300,50 +289,102 @@ const InfoDoctors = () => {
 
             {selectedDoctorAppointment?.employeeId && (
                 <>
-                    {/* Tabs 7 ngày */}
-                    <div className="mt-4 ">
-                        <span className="text-red-600 mr-1 font-semibold">*</span> <b>Ngày khám</b>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mt-2 mb-3 p-2 rounded-md bg-slate-100">
-                        {dayNames.map((day) => (
-                            <Button
-                                key={day.value}
-                                type={selectDate === day.value ? 'primary' : 'default'}
-                                onClick={() => handleClickDate(day)}
-                                disabled={day.date.isBefore(dayjs().startOf('day'))}
-                            >
-                                {day.label}
-                            </Button>
-                        ))}
+                    {/* Ngày khám Section */}
+                    <div className="mt-4 mb-3">
+                        <div className="mb-2">
+                            <span className="text-red-500 mr-1">*</span>
+                            <span className="font-semibold text-gray-800">Ngày khám</span>
+                        </div>
+
+                        <div className="flex overflow-x-auto gap-2 p-2 bg-slate-50 rounded-md custom-scrollbar">
+                            {dayNames.map((day) => {
+                                const selected = selectDate === day.value;
+                                const disabled = day.date.isBefore(dayjs().startOf('day'));
+
+                                return (
+                                    <div
+                                        key={day.value}
+                                        onClick={() => !disabled && handleClickDate(day)}
+                                        className={`
+                                            min-w-[160px] px-3 py-2 rounded-md cursor-pointer text-center 
+                                            border transition-all duration-150
+                                            ${
+                                                selected
+                                                    ? 'bg-blue-600 text-white border-blue-600'
+                                                    : 'bg-white text-gray-700 border-gray-300'
+                                            }
+                                            ${
+                                                !selected && !disabled
+                                                    ? 'hover:bg-blue-50 hover:border-blue-400'
+                                                    : ''
+                                            }
+                                            ${disabled ? 'opacity-40 cursor-not-allowed' : ''}
+                                        `}
+                                    >
+                                        <div
+                                            className={`text-sm ${
+                                                selected ? 'text-white' : 'text-gray-700'
+                                            }`}
+                                        >
+                                            {day.label}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
 
-                    <>
-                        <span className="text-red-600 mr-1 font-semibold">*</span> <b>Giờ khám</b>
-                    </>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 mt-2 relative bg-slate-100 p-2 rounded-md">
-                        {loadingComponentShift && <LoadingSpinAntD />}
-                        {availableShifts?.map((shift) => {
-                            const isSelected = selectedShiftId === shift.id;
-                            return (
-                                <Button
-                                    key={shift.id}
-                                    disabled={!shift.isAvailable}
-                                    className={`w-full ${
-                                        !shift.isAvailable
-                                            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                            : isSelected
-                                            ? 'bg-blue-500 text-white border-blue-600'
-                                            : 'bg-white border-gray-300 hover:border-blue-400 hover:text-blue-500'
-                                    }`}
-                                    onClick={() => {
-                                        handleClickShift(shift);
-                                    }}
-                                >
-                                    {shift.startTime} - {shift.endTime}
-                                </Button>
-                            );
-                        })}
-                    </div>
+                    {selectDate && (
+                        <div className="mt-4">
+                            <div className="mb-2">
+                                <span className="text-red-500 mr-1">*</span>
+                                <span className="font-semibold text-gray-800">Giờ khám</span>
+                            </div>
+
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 p-2 bg-slate-50 rounded-md relative">
+                                {loadingComponentShift && <LoadingSpinAntD />}
+
+                                {availableShifts?.map((shift) => {
+                                    const selected = selectedShiftId === shift.id;
+
+                                    return (
+                                        <div
+                                            key={shift.id}
+                                            onClick={() =>
+                                                shift.isAvailable && handleClickShift(shift)
+                                            }
+                                            className={`
+                                                px-3 py-1 rounded-md text-center border 
+                                                transition-all duration-150 text-sm
+                                                ${
+                                                    !shift.isAvailable
+                                                        ? 'bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed'
+                                                        : selected
+                                                        ? 'bg-blue-600 text-white border-blue-600'
+                                                        : 'bg-white border-gray-300 text-gray-700 hover:bg-blue-50 hover:border-blue-400 cursor-pointer'
+                                                }
+                                            `}
+                                        >
+                                            <div
+                                                className={`font-medium ${
+                                                    selected ? 'text-white' : 'text-gray-700'
+                                                }`}
+                                            >
+                                                {shift.startTime}
+                                            </div>
+                                            <div
+                                                className={`text-xs mt-0.5 ${
+                                                    selected ? 'text-blue-100' : 'text-gray-500'
+                                                }`}
+                                            >
+                                                {shift.endTime}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
                 </>
             )}
         </Card>

@@ -64,10 +64,7 @@ const Doctor: React.FC<Doctor2Props> = ({ patient, record, isHistory, isNewExam 
             return;
         }
 
-        if (
-            !(newPrescription as any)?.perscriptionCreates?.length ||
-            !(newPrescription as any)?.perscriptionCreates[0]?.drugId
-        ) {
+        if (!(newPrescription as any)?.perscriptionCreates?.length) {
             dispatch(common.actions.setWarningMessage('Chưa kê đơn thuốc.'));
             return;
         }
@@ -94,10 +91,7 @@ const Doctor: React.FC<Doctor2Props> = ({ patient, record, isHistory, isNewExam 
             return;
         }
 
-        if (
-            !(newPrescription as any)?.perscriptionCreates?.length ||
-            !(newPrescription as any)?.perscriptionCreates[0]?.drugId
-        ) {
+        if (!(newPrescription as any)?.perscriptionCreates?.length) {
             dispatch(common.actions.setWarningMessage('Chưa kê đơn thuốc.'));
             return;
         }

@@ -9,7 +9,7 @@ import { Spin } from 'antd';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router';
+import { Link, useNavigate, useParams } from 'react-router';
 
 const SignUp = () => {
     const params = useParams();
@@ -18,12 +18,14 @@ const SignUp = () => {
 
     const loading = useSelector(selectLoading);
 
+    const navigate = useNavigate();
+
     const onSubmit = (data) => {
         console.log(data);
-        const code = getCookies('code');
-        data.code = code;
-        data.phoneNumber = 84 + params?.phone_number;
-        dispatch(registerAction(data));
+        data.phoneNumber = params?.phone_number;
+        data.status = 'ACTIVE';
+        data.roleId = '51db1034-54ee-4a35-83a5-f479f430bec8';
+        dispatch(registerAction({ data, action: (e) => navigate(e) }));
     };
 
     const {
@@ -34,7 +36,7 @@ const SignUp = () => {
         resolver: yupResolver(signupSchema),
         defaultValues: {
             fullName: '',
-            phoneNumber: `0${params?.phone_number}` || '',
+            phoneNumber: `${params?.phone_number}` || '',
             password: '',
             citizenId: '',
             insuranceCode: '',

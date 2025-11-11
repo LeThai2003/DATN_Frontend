@@ -38,14 +38,6 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
     const [selectedGroup, setSelectedGroup] = useState<any>(null);
     const [activeTab, setActiveTab] = useState(2);
     const [localVariant, setLocalVariant] = useState(variant);
-
-    const [weekDays, setWeekDays] = useState(
-        Array.from({ length: 7 }, (_, i) => ({
-            dayOfWeek: i + 2,
-            shiftIds: [],
-        }))
-    );
-
     const [localWeekDays, setLocalWeekDays] = useState([]);
 
     // Khi nhận dữ liệu từ API --> set vào localWeekDays
@@ -74,27 +66,6 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
             dispatch(getWeekDaysEmployee());
         }
     }, [filter.employeeIds]);
-
-    // Đồng bộ weekDays khi click Xem chi tiết
-    const updateWeekDaysEmployee = React.useCallback(() => {
-        if (!dataWeekDayEmployeeDetail?.length) return;
-
-        const map = Object.fromEntries(
-            dataWeekDayEmployeeDetail.map((i) => [i.dayOfWeek, i.shiftDtos])
-        );
-
-        setWeekDays((prev) =>
-            prev.map((d) => ({
-                ...d,
-                shiftIds: map[d.dayOfWeek]?.map((s) => s.id) || [],
-            }))
-        );
-    }, [dataWeekDayEmployeeDetail]);
-
-    // Khi variant == edit → auto fill shiftIds
-    useEffect(() => {
-        if (variant === 'edit') updateWeekDaysEmployee();
-    }, [variant, dataWeekDayEmployeeDetail]);
 
     const dayNames = [
         { value: 2, label: 'Thứ 2' },
