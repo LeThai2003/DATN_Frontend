@@ -20,9 +20,10 @@ import { formatDateVi } from '@/utils/times/times';
 const prescriptionColumns: ColumnsType<any> = [
     {
         title: 'Tên thuốc',
-        dataIndex: ['drugId', 'name'],
         key: 'drug_name',
         width: 200,
+        dataIndex: 'drugId', // chỉ để lấy object chính
+        render: (_, record) => record.drugId?.name || record.customDrugName || '-',
     },
     {
         title: 'Liều lượng',
@@ -132,7 +133,7 @@ const ModalAppointmentPatient: React.FC<ModalState> = ({ data, type, variant }) 
                                 if (!data?.price) return alert('Chưa có giá dịch vụ!');
 
                                 await createPayment(
-                                    data.price * 1000,
+                                    data.price,
                                     data?.serviceId?.serviceId,
                                     data?.appointmentId
                                 );

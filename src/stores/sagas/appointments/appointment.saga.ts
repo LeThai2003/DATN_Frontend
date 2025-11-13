@@ -213,6 +213,8 @@ function* handleCreateAppointment({ payload }) {
 
         const dataCreatePayment = yield call([response, 'json']);
 
+        console.log(dataCreatePayment);
+
         if (dataCreatePayment?.paymentUrl) {
             // Chuyển hướng sang trang thanh toán
             window.location.href = dataCreatePayment.paymentUrl;
