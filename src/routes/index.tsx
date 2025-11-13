@@ -246,7 +246,7 @@ function AppRoutes() {
                     index: true,
                     path: '',
                     element: (
-                        <TitleRouter title="MediClinic">
+                        <TitleRouter title="Phòng khám">
                             <Home />
                         </TitleRouter>
                     ),
