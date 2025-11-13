@@ -34,3 +34,5 @@ export const selectLoadingPage = createSelector(
     selectState,
     (state) => state.appointmentRecords.loadingPage
 );
+
+export const selectResetDoctorTabs = createSelector(selectState, (state) => state.resetDoctorTabs);

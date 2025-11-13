@@ -26,26 +26,6 @@ import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
 
 type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
 
-export const roles = [
-    { role_id: 1, name: 'Admin', description: 'Quản trị hệ thống' },
-    { role_id: 2, name: 'Manager', description: 'Quản lý nhân sự' },
-    { role_id: 3, name: 'Employee', description: 'Nhân viên' },
-];
-
-export const rooms = [
-    { room_id: 1, name: 'Phòng khám nội', location: 'Tầng 3' },
-    { room_id: 2, name: 'Phòng khám da liễu', location: 'Tầng 2' },
-];
-
-export const specializations = [
-    {
-        specialization_id: 1,
-        name: 'Chuyên khoa nội',
-        description: 'Chuyên khoa nội',
-    },
-    { specialization_id: 2, name: 'Chuyên khoa ngoại', description: 'Chuyên khoa ngoại' },
-];
-
 const ModalEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
     const dispatch = useDispatch();
 

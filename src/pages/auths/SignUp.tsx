@@ -9,7 +9,7 @@ import { Spin } from 'antd';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router';
+import { Link, useNavigate, useParams } from 'react-router';
 
 const SignUp = () => {
     const params = useParams();
@@ -18,12 +18,14 @@ const SignUp = () => {
 
     const loading = useSelector(selectLoading);
 
+    const navigate = useNavigate();
+
     const onSubmit = (data) => {
         console.log(data);
-        const code = getCookies('code');
-        data.code = code;
-        data.phoneNumber = 84 + params?.phone_number;
-        dispatch(registerAction(data));
+        data.phoneNumber = params?.phone_number;
+        data.status = 'ACTIVE';
+        data.roleId = '51db1034-54ee-4a35-83a5-f479f430bec8';
+        dispatch(registerAction({ data, action: (e) => navigate(e) }));
     };
 
     const {
@@ -34,7 +36,7 @@ const SignUp = () => {
         resolver: yupResolver(signupSchema),
         defaultValues: {
             fullName: '',
-            phoneNumber: `0${params?.phone_number}` || '',
+            phoneNumber: `${params?.phone_number}` || '',
             password: '',
             citizenId: '',
             insuranceCode: '',
@@ -74,7 +76,7 @@ const SignUp = () => {
                         <p className="inline-block px-2 rounded-md bg-blue-200 mb-2">Tài khoản</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <FormField
-                                name="phone_number"
+                                name="phoneNumber"
                                 control={control}
                                 label="Số điện thoại"
                                 placeholder="Nhập số điện thoại"
@@ -105,7 +107,7 @@ const SignUp = () => {
                         </p>
                         <div className="grid grid-cols-3 gap-4">
                             <FormField
-                                name="fullname"
+                                name="fullName"
                                 control={control}
                                 label="Họ và tên"
                                 placeholder="Nhập họ và tên"
@@ -142,7 +144,7 @@ const SignUp = () => {
                                 required
                             />
                             <FormField
-                                name="citizen_id"
+                                name="citizenId"
                                 control={control}
                                 label="CCCD/CMND"
                                 placeholder="Nhập số CCCD/CMND"
@@ -154,7 +156,7 @@ const SignUp = () => {
                             />
 
                             <FormField
-                                name="insurance_code"
+                                name="insuranceCode"
                                 control={control}
                                 label="Mã bảo hiểm y tế"
                                 placeholder="Nhập mã BHYT"
@@ -186,7 +188,7 @@ const SignUp = () => {
                         <div className="flex gap-4">
                             <div className="flex-[1]">
                                 <FormField
-                                    name="emergency_contact"
+                                    name="emergencyContact"
                                     control={control}
                                     label="SĐT liên hệ khẩn cấp"
                                     placeholder="Nhập số điện thoại khẩn cấp"

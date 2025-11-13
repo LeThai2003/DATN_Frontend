@@ -8,6 +8,7 @@ interface ModalBaseProps {
     children: React.ReactNode;
     type: ModalType;
     size?: 'sm' | 'md' | 'lg' | 'xl';
+    bgTransparent?: boolean;
 }
 
 const sizeClasses = {
@@ -17,7 +18,7 @@ const sizeClasses = {
     xl: 'w-full sm:max-w-5xl',
 };
 
-const ModalBase = ({ children, type, size = 'md' }: ModalBaseProps) => {
+const ModalBase = ({ children, type, size = 'md', bgTransparent = false }: ModalBaseProps) => {
     const dispatch = useDispatch();
     const modals = useSelector(selectModal);
 
@@ -30,7 +31,11 @@ const ModalBase = ({ children, type, size = 'md' }: ModalBaseProps) => {
     }
 
     return (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-65 flex items-center justify-center">
+        <div
+            className={`fixed inset-0 z-50 ${
+                bgTransparent ? 'bg-transparent' : 'bg-black bg-opacity-65'
+            } flex items-center justify-center`}
+        >
             <div className="container flex items-center justify-center">
                 <div
                     className={`bg-white rounded-lg p-6 relative 

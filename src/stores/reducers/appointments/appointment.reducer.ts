@@ -8,15 +8,26 @@ const AppointmentSlice = createSlice({
     name,
     initialState: initAppointmentSlice,
     reducers: {
-        setLoadingPage(state, { payload }: PayloadAction<any>) {
-            state.appointments.loadingPage = payload;
+        setLoadingPagePatient(state, { payload }: PayloadAction<any>) {
+            state.appointments_patient.loadingPage = payload;
         },
-        setAppointments(state, { payload }: PayloadAction<any>) {
-            state.appointments = payload;
+        setAppointmentsPatient(state, { payload }: PayloadAction<any>) {
+            state.appointments_patient = payload;
         },
-        setTotalPage(state, { payload }: PayloadAction<any>) {
-            state.appointments.totalPage = payload;
+        setTotalPagePatient(state, { payload }: PayloadAction<any>) {
+            state.appointments_patient.totalPage = payload;
         },
+
+        setLoadingPageDoctor(state, { payload }: PayloadAction<any>) {
+            state.appointments_doctor.loadingPage = payload;
+        },
+        setAppointmentsDoctor(state, { payload }: PayloadAction<any>) {
+            state.appointments_doctor = payload;
+        },
+        setTotalPageDoctor(state, { payload }: PayloadAction<any>) {
+            state.appointments_doctor.totalPage = payload;
+        },
+
         setFilterAppointment(state, { payload }: PayloadAction<any>) {
             state.filter = payload;
         },
@@ -38,6 +49,18 @@ const AppointmentSlice = createSlice({
         setTimeBookingAppointment(state, { payload }: PayloadAction<any>) {
             console.log(payload);
             state.timeBookingAppointment = payload;
+        },
+        setShiftAppointment(state, { payload }: PayloadAction<any>) {
+            state.shift = payload;
+        },
+        setCountAppointmentByDate(state, { payload }: PayloadAction<any>) {
+            state.countAppointmentByDate = payload;
+        },
+        setCountServiceByDate(state, { payload }: PayloadAction<any>) {
+            state.countServiceByDate = payload;
+        },
+        setCountFollowUpVisitsByDate(state, { payload }: PayloadAction<any>) {
+            state.countFollowUpVisitsByDate = payload;
         },
     },
 });

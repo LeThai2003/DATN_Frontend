@@ -17,14 +17,24 @@ const PhoneNumberOtp = () => {
 
     const navigate = useNavigate();
 
+    const formatPhoneNumber = (phone_number) => {
+        const s = phone_number.trim();
+
+        if (s.startsWith('+84')) return '0' + s.slice(3);
+        if (s.startsWith('84')) return '0' + s.slice(2);
+        if (s.startsWith('0')) return s;
+        else return '0' + s;
+    };
+
     const onSubmit = (data) => {
         let { phone_number } = data;
-        if (phone_number.length == 10) {
-            phone_number = phone_number.slice(1);
-        }
-        console.log(phone_number);
+        let formatPhone = formatPhoneNumber(phone_number);
+        // console.log(formatPhone);
         dispatch(
-            signUpPhoneNumber({ phone_number, action: (e) => navigate(e, { replace: true }) })
+            signUpPhoneNumber({
+                phone_number: formatPhone,
+                action: (e) => navigate(e, { replace: true }),
+            })
         );
     };
 

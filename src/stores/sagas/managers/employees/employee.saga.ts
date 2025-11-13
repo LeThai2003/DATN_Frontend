@@ -3,6 +3,7 @@ import {
     createEmployee,
     deleteEmployee,
     fetchFirst,
+    getInfo,
     loadPage,
     updateEmployee,
     updatePasswordEmployee,
@@ -21,7 +22,12 @@ function* handleFetchFirst() {
             filter: select(selectFilter),
         });
 
-        const { data } = yield call(employeeApi.getEmployeeByFilter, filter);
+        const { data, error } = yield call(employeeApi.getEmployeeByFilter, filter);
+
+        if (error) {
+            yield put(common.actions.setErrorMessage(error.message));
+            return;
+        }
 
         yield put(
             employee.actions.setEmployees({
@@ -41,7 +47,11 @@ function* handleFetchFirst() {
 function* handleUpdateEmployee({ payload }: PayloadAction<any>) {
     yield put(employee.actions.setLoadingComponent(true));
     try {
-        yield call(employeeApi.updateEmployee, payload, payload?.id);
+        const { error } = yield call(employeeApi.updateEmployee, payload, payload?.id);
+        if (error) {
+            yield put(common.actions.setErrorMessage(error.message));
+            return;
+        }
         yield put(common.actions.setSuccessMessage('Cập nhật bác sĩ thành công'));
         yield put(common.actions.setHiddenModal(ModalType.EMPLOYEE));
         yield handleFetchFirst();
@@ -56,7 +66,11 @@ function* handleUpdateEmployee({ payload }: PayloadAction<any>) {
 function* handleCreateEmployee({ payload }) {
     yield put(employee.actions.setLoadingComponent(true));
     try {
-        yield call(employeeApi.addEmployee, payload);
+        const { error } = yield call(employeeApi.addEmployee, payload);
+        if (error) {
+            yield put(common.actions.setErrorMessage(error.message));
+            return;
+        }
         yield put(common.actions.setSuccessMessage('Thêm mới bác sĩ thành công'));
         yield put(common.actions.setHiddenModal(ModalType.EMPLOYEE));
         yield handleFetchFirst();
@@ -70,9 +84,13 @@ function* handleCreateEmployee({ payload }) {
 
 function* handleDeleteEmployee({ payload }) {
     yield put(employee.actions.setLoadingComponent(true));
-    const { id } = payload;
     try {
-        yield call(employeeApi.deleteEmployee, id);
+        const { id } = payload;
+        const { error } = yield call(employeeApi.deleteEmployee, id);
+        if (error) {
+            yield put(common.actions.setErrorMessage(error.message));
+            return;
+        }
         yield put(common.actions.setSuccessMessage('Xóa bác sĩ thành công'));
         yield put(common.actions.setHiddenModal(ModalType.EMPLOYEE));
         yield handleFetchFirst();
@@ -87,13 +105,36 @@ function* handleDeleteEmployee({ payload }) {
 function* handleUpdatePasswordEmployee({ payload }: PayloadAction<any>) {
     yield put(employee.actions.setLoadingComponent(true));
     try {
-        const { data, id } = payload;
-        yield call(employeeApi.updateEmployee, data, id);
+        const { data, id, reset } = payload;
+        const { error } = yield call(employeeApi.updatePassword, data, id);
+        if (error) {
+            yield put(common.actions.setErrorMessage(error.message));
+            return;
+        }
         yield put(common.actions.setSuccessMessage('Cập nhật mật khẩu thành công'));
+        yield call(reset);
         yield handleFetchFirst();
     } catch (error) {
         console.log(error);
         yield put(common.actions.setErrorMessage(error?.message || 'Cập nhật mật khẩu thất bại'));
+    } finally {
+        yield put(employee.actions.setLoadingComponent(false));
+    }
+}
+
+function* handleGetEmployeeInfo({ payload }) {
+    yield put(employee.actions.setLoadingComponent(true));
+    try {
+        const { username } = payload;
+        const { data, error } = yield call(employeeApi.getInfo, username);
+        if (error) {
+            yield put(common.actions.setErrorMessage(error.message));
+            return;
+        }
+        yield put(employee.actions.setEmployeeInfo(data?.data));
+    } catch (error) {
+        console.log(error);
+        yield put(common.actions.setErrorMessage(error?.message || 'Thêm mới bác sĩ thất bại'));
     } finally {
         yield put(employee.actions.setLoadingComponent(false));
     }
@@ -123,6 +164,10 @@ function* watchCreateEmployee() {
     yield takeLatest(createEmployee, handleCreateEmployee);
 }
 
+function* watchGetEmployeeInfo() {
+    yield takeLatest(getInfo, handleGetEmployeeInfo);
+}
+
 export function* watchEmployee() {
     yield all([
         fork(watchFetchFirst),
@@ -131,5 +176,6 @@ export function* watchEmployee() {
         fork(watchLoadPage),
         fork(watchDeleteEmployee),
         fork(watchUpdatePassowrdEmployee),
+        fork(watchGetEmployeeInfo),
     ]);
 }

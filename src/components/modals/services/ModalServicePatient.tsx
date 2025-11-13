@@ -5,7 +5,7 @@ import { Button, Image, Spin, Table } from 'antd';
 import type { CollapseProps } from 'antd';
 import { Collapse } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
-import { common, service } from '@/stores/reducers';
+import { appointment, common, service, shift } from '@/stores/reducers';
 import { useNavigate } from 'react-router';
 import {
     selectLoadingComponent,
@@ -65,6 +65,9 @@ const ModalServicePatient: React.FC<ModalState> = ({ data, type, variant }) => {
 
     const handleBookAppointment = () => {
         dispatch(common.actions.setHiddenModal(type));
+        dispatch(appointment.actions.setNewDoctorAppointment(null));
+        dispatch(appointment.actions.setShiftAppointment(null));
+        dispatch(shift.actions.setShiftEmployee([]));
         navigate(`/appointment`);
     };
 

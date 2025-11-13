@@ -3,7 +3,7 @@ import { Filter, PageObject } from '../common';
 export interface FilterUnit extends Filter {}
 
 export interface Unit {
-    unit_id: number;
+    unitId: number;
     name: string;
     descriptions?: string;
 }

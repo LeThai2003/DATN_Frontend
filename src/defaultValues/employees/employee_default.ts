@@ -16,4 +16,5 @@ export const initEmployeeSlice: EmployeeSlice = {
     filter: initFilterEmployee,
     selectedEmployee: null,
     loadingComponent: false,
+    employeeInfo: null,
 };

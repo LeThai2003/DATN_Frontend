@@ -4,15 +4,17 @@ import ModalBase from '../ModalBase';
 import { useDispatch } from 'react-redux';
 import { common } from '@/stores/reducers';
 import { useNavigate } from 'react-router';
+import { deleteAllCookies } from '@/utils/cookies/cookies';
 
 const ModalLogoutConfirm: React.FC<ModalState> = ({ data, type, variant }) => {
-    console.log(data);
-
     const dispatch = useDispatch();
 
     const navigate = useNavigate();
 
     const handleConfirm = () => {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
         navigate('/auths/login');
         dispatch(common.actions.setHiddenModal(ModalType.LOGOUT_CONFIRM));
     };

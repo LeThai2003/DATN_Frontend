@@ -20,7 +20,7 @@ export const signupSchema = yup.object().shape({
     phoneNumber: yup
         .string()
         .required('Vui lòng nhập số điện thoại đã đăng ký')
-        .matches(/(\d{11})$/, 'Số điện thoại không hợp lệ'),
+        .matches(/(\d{10})$/, 'Số điện thoại không hợp lệ'),
 
     password: yup
         .string()
@@ -64,9 +64,34 @@ export const otpSchema = yup.object({
     otp: yup.string().length(4, 'Mã OTP phải đủ 4 số').required('Vui lòng nhập OTP'),
 });
 
+export const otpSchemaForgotPassword = yup.object({
+    otp: yup.string().length(6, 'Mã OTP phải đủ 6 số').required('Vui lòng nhập OTP'),
+});
+
 export const phoneNumberSignUpSchema = yup.object({
     phone_number: yup
         .string()
         .required('Vui lòng nhập số điện thoại đã đăng ký')
         .matches(/^\d{9,10}$/, 'Số điện thoại không hợp lệ'),
+});
+
+export const forgotPasswordReset = yup.object({
+    phone_number: yup
+        .string()
+        .required('Vui lòng nhập số điện thoại đã đăng ký')
+        .matches(/^\d{9,10}$/, 'Số điện thoại không hợp lệ'),
+
+    password: yup
+        .string()
+        .required('Vui lòng nhập mật khẩu')
+        .min(8, 'Mật khẩu chứa ít nhất 8 ký tự')
+        .matches(
+            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]).+$/,
+            'Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường, 1 số và 1 ký tự đặc biệt.'
+        ),
+
+    confirmPassword: yup
+        .string()
+        .required('Vui lòng xác nhận mật khẩu')
+        .oneOf([yup.ref('password')], 'Mật khẩu xác nhận không khớp'),
 });

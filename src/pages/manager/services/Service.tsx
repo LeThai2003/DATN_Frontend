@@ -15,91 +15,12 @@ import FilterButton from '@/components/filters/FilterButton';
 import { initFilterService } from '@/defaultValues/services/service_default';
 import { useNavigate } from 'react-router';
 import type { TableProps } from 'antd';
-import { fetchFirst, loadPage } from '@/stores/actions/managers/services/service.action';
+import {
+    fetchFirst,
+    getServiceById,
+    loadPage,
+} from '@/stores/actions/managers/services/service.action';
 import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
-
-// rooms
-const rooms = [
-    { room_id: 1, name: 'Phòng 101', location: 'Tầng 1' },
-    { room_id: 2, name: 'Phòng 102', location: 'Tầng 1' },
-    { room_id: 3, name: 'Phòng 201', location: 'Tầng 2' },
-];
-
-// employees
-const employees = [
-    {
-        employee_id: 1,
-        account_id: 101,
-        fullname: 'Nguyễn Văn A',
-        email: 'a.nguyen@clinic.com',
-        avatar: 'https://i.pravatar.cc/150?img=1',
-        specialization_id: 1,
-        specialization_name: 'Nội tổng quát',
-        room_id: 1,
-        room_name: 'Phòng Khám Nội Tổng Quát',
-    },
-    {
-        employee_id: 3,
-        account_id: 103,
-        fullname: 'Phạm Văn C',
-        email: 'c.pham@clinic.com',
-        avatar: 'https://i.pravatar.cc/150?img=3',
-        specialization_id: 3,
-        specialization_name: 'Tim mạch',
-        room_id: 1,
-        room_name: 'Phòng Khám Nội Tổng Quát',
-    },
-    {
-        employee_id: 5,
-        account_id: 109,
-        fullname: 'Nguyễn Văn A',
-        email: 'a.nguyen@clinic.com',
-        avatar: 'https://i.pravatar.cc/150?img=1',
-        specialization_id: 1,
-        specialization_name: 'Nội tổng quát',
-        room_id: 1,
-        room_name: 'Phòng Khám Nội Tổng Quát',
-    },
-    {
-        employee_id: 7,
-        account_id: 106,
-        fullname: 'Phạm Văn C',
-        email: 'c.pham@clinic.com',
-        avatar: 'https://i.pravatar.cc/150?img=3',
-        specialization_id: 3,
-        specialization_name: 'Tim mạch',
-        room_id: 2,
-        room_name: 'Phòng Khám Nhi',
-    },
-];
-
-// services
-const services: ServiceType[] = [
-    {
-        serviceId: 1,
-        name: 'Khám da liễu',
-        description: 'Khám và điều trị các bệnh về da',
-        image: 'https://benhviendalieuhanoi.com/wp-content/uploads/2023/11/FBSE-Graphic.jpg.webp',
-        price: 300000,
-        employeeDtos: [employees[0], employees[1]],
-    },
-    {
-        serviceId: 2,
-        name: 'Khám nội tổng quát',
-        description: 'Khám sức khỏe tổng quát, nội khoa',
-        image: 'https://medlatec.vn/media/2403/content/20230222_kham-tong-quat-bao-nhieu-tien-1.jpg',
-        price: 500000,
-        employeeDtos: [employees[1], employees[2]],
-    },
-    {
-        serviceId: 3,
-        name: 'Khám tai mũi họng',
-        description: 'Khám và điều trị tai mũi họng',
-        image: 'https://img.ykhoadiamond.com/Uploads/Content/09092024/2c69db84-a343-49dc-8d4a-723691cf45e9.jpg',
-        price: 250000,
-        employeeDtos: [employees[2]],
-    },
-];
 
 const Service = () => {
     const dispatch = useDispatch();
@@ -148,7 +69,7 @@ const Service = () => {
     };
 
     const handleOpenViewService = (data) => {
-        dispatch(service.actions.setSelectService(data));
+        dispatch(getServiceById({ id: data.serviceId, params: {} }));
         dispatch(
             common.actions.setShowModal({
                 type: ModalType.SERVICE,
@@ -195,14 +116,14 @@ const Service = () => {
             key: 'price',
             render: (price: number) => price.toLocaleString(),
         },
-        {
-            title: 'Số lượng bác sĩ',
-            dataIndex: 'employeeDtos',
-            key: 'employeeDtos',
-            width: 150,
-            align: 'center',
-            render: (employeeDtos) => employeeDtos?.length || 0,
-        },
+        // {
+        //     title: 'Số lượng bác sĩ',
+        //     dataIndex: 'employeeDtos',
+        //     key: 'employeeDtos',
+        //     width: 150,
+        //     align: 'center',
+        //     render: (employeeDtos) => employeeDtos?.length || 0,
+        // },
         {
             title: 'Hành động',
             key: 'actions',

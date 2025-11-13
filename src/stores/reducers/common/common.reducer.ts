@@ -49,7 +49,11 @@ const commonSlice = createSlice({
             state.modal.push(payload);
         },
         setHiddenModal(state, { payload }: PayloadAction<any>) {
-            state.modal = state.modal.filter((m) => m.type != payload);
+            const index = [...state.modal].reverse().findIndex((m) => m.type === payload);
+            if (index !== -1) {
+                const realIndex = state.modal.length - 1 - index;
+                state.modal.splice(realIndex, 1);
+            }
         },
     },
 });

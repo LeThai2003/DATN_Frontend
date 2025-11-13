@@ -6,6 +6,8 @@ const commonAction = getCommonActionsTypeByName(name);
 
 export const loginAction = createAction(commonAction.loginState, (state) => ({ payload: state }));
 
+export const logoutAction = createAction(`${name}/LOGOUT`);
+
 // patient register
 export const signUpPhoneNumber = createAction(`${name}/signUpPhoneNumber`, (state) => ({
     payload: state,

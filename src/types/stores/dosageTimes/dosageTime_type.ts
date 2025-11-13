@@ -3,7 +3,7 @@ import { Filter, PageObject } from '@/types/stores/common';
 export interface FilterDosageTime extends Filter {}
 
 export interface DosageTime {
-    time_id: number;
+    timeId: number;
     name: string;
     description: string;
 }

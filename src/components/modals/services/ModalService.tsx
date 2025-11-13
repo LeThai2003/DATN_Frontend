@@ -1,5 +1,5 @@
 import { ModalState, ModalType } from '@/types/stores/common';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ModalBase from '../ModalBase';
 import { Button, GetProp, Image, Spin, Table, Upload, UploadProps } from 'antd';
 import { useForm } from 'react-hook-form';
@@ -50,6 +50,15 @@ const ModalService: React.FC<ModalState> = ({ data, type, variant }) => {
         resolver: yupResolver(serviceSchema),
     });
 
+    useEffect(() => {
+        reset({
+            name: selectedService?.name || '',
+            description: selectedService?.description || '',
+            price: selectedService?.price || 0,
+            employeeDtos: selectedService?.employeeDtos || [],
+        });
+    }, [selectedService]);
+
     const uploadButton = (
         <button style={{ border: 0, background: 'none' }} type="button">
             {loading ? <LoadingOutlined /> : <PlusOutlined />}
@@ -83,17 +92,12 @@ const ModalService: React.FC<ModalState> = ({ data, type, variant }) => {
     };
 
     const employeesColumns = [
-        { title: 'Họ tên', dataIndex: 'fullname', key: 'fullname' },
+        { title: 'Họ tên', dataIndex: 'fullName', key: 'fullName' },
         {
             title: 'Ảnh',
             dataIndex: 'avatar',
             key: 'avatar',
-            render: (avatar) => (
-                <Image
-                    width={70}
-                    src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                />
-            ),
+            render: (avatar) => <Image width={70} src={avatar} />,
         },
         {
             title: 'Email',
@@ -102,12 +106,12 @@ const ModalService: React.FC<ModalState> = ({ data, type, variant }) => {
         },
         {
             title: 'Chuyên khoa',
-            dataIndex: 'specialization_name',
+            dataIndex: ['specialization', 'name'],
             key: 'specialization_name',
         },
         {
             title: 'Phòng khám',
-            dataIndex: 'room_name',
+            dataIndex: ['roomDto', 'name'],
             key: 'room_name',
         },
     ];
@@ -338,15 +342,15 @@ const ModalService: React.FC<ModalState> = ({ data, type, variant }) => {
 
                             {variant == 'view' && (
                                 <>
-                                    {data?.doctors?.length > 0 && (
+                                    {selectedService?.employeeDtos?.length > 0 && (
                                         <div className="pt-6 border-t border-dashed border-gray-300 mt-6">
-                                            <p>
+                                            <p className="mb-2 p-1 rounded-md bg-slate-50 w-fit">
                                                 Bác sĩ phụ trách dịch vụ <b>{data?.name}</b>
                                             </p>
                                             <Table
                                                 columns={employeesColumns}
-                                                dataSource={data.doctors}
-                                                rowKey="account_id"
+                                                dataSource={selectedService?.employeeDtos}
+                                                rowKey="employeeId"
                                                 pagination={false}
                                                 scroll={{ y: window.innerHeight * 0.58 - 180 }}
                                             />

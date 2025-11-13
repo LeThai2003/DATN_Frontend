@@ -1,13 +1,53 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Modal, Tabs } from 'antd';
 import SiderDoctor from '@/menus/doctors/SiderDoctor';
 import Doctor2 from '@/pages/doctor/Doctor2';
-import { useDispatch } from 'react-redux';
-import { common } from '@/stores/reducers';
+import { useDispatch, useSelector } from 'react-redux';
+import { appointment_record, common } from '@/stores/reducers';
 import { ModalType } from '@/types/stores/common';
 import TitleRouter from '@/routes/TitleRouter';
+import dayjs from 'dayjs';
+import { selectResetDoctorTabs } from '@/stores/selectors/appointmentRecords/appointmentRecord.selector';
+import { createChat } from '@n8n/chat';
+import { selectEmployeeInfo } from '@/stores/selectors/employees/employee.selector';
 
 const DoctorPageLayout = () => {
+    const infoEmployee = useSelector(selectEmployeeInfo);
+    const resetDoctorTabs = useSelector(selectResetDoctorTabs);
+
+    useEffect(() => {
+        createChat({
+            webhookUrl: import.meta.env.VITE_CHAT_URL,
+            chatInputKey: 'chatInput',
+            chatSessionKey: 'sessionId',
+            loadPreviousSession: true,
+            metadata: {
+                employeeId: infoEmployee?.employeeId,
+                fullName: infoEmployee?.fullName,
+                citizenId: infoEmployee?.citizenId,
+                dob: infoEmployee?.dob,
+                gender: infoEmployee?.gender,
+                address: infoEmployee?.address,
+                avatar: infoEmployee?.avatar,
+                hiredDate: infoEmployee?.hiredDate,
+                email: infoEmployee?.email,
+                profile: infoEmployee?.profile,
+                accountId: infoEmployee?.accountId,
+                phoneNumber: infoEmployee?.phoneNumber,
+                status: infoEmployee?.status,
+                nameRole: infoEmployee?.nameRole,
+                description: infoEmployee?.description,
+            },
+        });
+
+        return () => {
+            const chatEl = document.querySelector('#n8n-chat, .n8n-chat, iframe[src*="n8n"]');
+            if (chatEl && chatEl.parentNode) {
+                chatEl.parentNode.removeChild(chatEl);
+            }
+        };
+    }, [infoEmployee]);
+
     const [tabs, setTabs] = useState([
         {
             key: 'new-exam',
@@ -25,6 +65,34 @@ const DoctorPageLayout = () => {
             closable: false,
         },
     ]);
+
+    useEffect(() => {
+        if (resetDoctorTabs) {
+            // Reset về mặc định
+            setTabs([
+                {
+                    key: 'new-exam',
+                    label: 'Khám mới',
+                    content: (
+                        <TitleRouter title="Khám bệnh">
+                            <Doctor2
+                                isNewExam={true}
+                                patient={undefined}
+                                record={undefined}
+                                isHistory={undefined}
+                            />
+                        </TitleRouter>
+                    ),
+                    closable: false,
+                },
+            ]);
+            setActiveKey('new-exam');
+            setCurrentPatient(null);
+
+            dispatch(appointment_record.actions.setResetDoctorTabs(false));
+        }
+    }, [resetDoctorTabs]);
+
     const [activeKey, setActiveKey] = useState('new-exam');
     const [currentPatient, setCurrentPatient] = useState(null);
 
@@ -65,7 +133,10 @@ const DoctorPageLayout = () => {
             setCurrentPatient(patient);
         }
         // Nếu chọn bệnh nhân khác
-        else if (currentPatient.patient_id !== patient.patient_id) {
+        else if (
+            `${currentPatient?.patientId?.patientId}-${currentPatient?.serviceId?.serviceId}-${currentPatient?.shiftId?.id}` !==
+            `${patient?.patientId?.patientId}-${patient?.serviceId?.serviceId}-${patient?.shiftId?.id}`
+        ) {
             handleConfirmChangePatient({
                 title: 'Chuyển bệnh nhân?',
                 content:
@@ -112,13 +183,15 @@ const DoctorPageLayout = () => {
             setActiveKey('new-exam');
         } else {
             // Lịch sử khám
-            const newKey = `history-${patient.patient_id}-${record?.date}`;
+            const newKey = `${record?.fullname || record?.patientId?.fullName} - ${dayjs(
+                record?.shiftId?.date
+            ).format('DD/MM/YYYY')} - ${record?.serviceId?.name}`;
             if (tabs?.find((tab) => tab.key == newKey)) return;
             setTabs((prev) => [
                 ...prev,
                 {
                     key: newKey,
-                    label: `KQ khám - ${record?.date}`,
+                    label: `KQ - ${dayjs(record?.shiftId?.date).format('DD/MM/YYYY')}`,
                     content: (
                         <Doctor2
                             key={newKey}

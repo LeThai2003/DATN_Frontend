@@ -19,3 +19,16 @@ export const changePage = createAction(`${name}/CHANGE_PAGE`, (state) => ({
 }));
 
 export const loadPage = createAction(`${name}/LOAD_PAGE`);
+
+// ------------- forgot password -----------
+export const forgotPasswordPhone = createAction(`${name}/FORGOT_PASSWORD_PHONE`, (state) => ({
+    payload: state,
+}));
+
+export const forgotPasswordOTP = createAction(`${name}/FORGOT_PASSWORD_OTP`, (state) => ({
+    payload: state,
+}));
+
+export const forgotPassworReset = createAction(`${name}/FORGOT_PASSWORD_RESET`, (state) => ({
+    payload: state,
+}));

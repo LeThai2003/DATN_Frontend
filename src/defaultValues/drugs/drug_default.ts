@@ -4,7 +4,7 @@ import { initFilterValue } from '../common/common';
 export const initFilterDrug: FilterDrug = {
     ...initFilterValue,
     chooseTheDrugs: [],
-    sort: 'drugId'
+    sort: 'drugId',
 };
 
 export const initDrugSlice: DrugSlice = {
@@ -16,4 +16,10 @@ export const initDrugSlice: DrugSlice = {
     filter: initFilterDrug,
     selectedDrug: null,
     loadingComponent: false,
+    hasMore: false,
+    drugsSelect: {
+        data: [],
+        totalPage: 0,
+        loadingPage: false,
+    },
 };

@@ -1,26 +1,31 @@
 import ButtonTurnBack from '@/components/buttons/ButtonTurnBack';
+import { createAppointment } from '@/stores/actions/appointments/appointment.action';
 import {
     selectDoctorAppointment,
+    selectLoadingComponent,
     selectNewAppointment,
+    selectShiftAppointment,
 } from '@/stores/selectors/appointments/appointment.selector';
 import { selectSelectedService } from '@/stores/selectors/services/service.selector';
 import { Card, Image } from 'antd';
-import React from 'react';
-import { useSelector } from 'react-redux';
+import dayjs from 'dayjs';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Checkout = () => {
+    const dispatch = useDispatch();
+
     const selectedService = useSelector(selectSelectedService);
     const selectedDoctorAppointment = useSelector(selectDoctorAppointment);
-    const selectedNewAppointment = useSelector(selectNewAppointment);
-
-    console.log(selectedService);
+    const shiftAppointment = useSelector(selectShiftAppointment);
+    const newAppointment = useSelector(selectNewAppointment);
+    const loadingComponent = useSelector(selectLoadingComponent);
 
     return (
         <div className="relative">
             <div className="container">
                 <div className="absolute top-[80px] left-0 px-[15px]">
                     <div className="flex items-center justify-start gap-3">
-                        <ButtonTurnBack link="/appointment?edit" />
+                        <ButtonTurnBack link="/appointment" />
                     </div>
                 </div>
                 <section className="py-10 ">
@@ -148,10 +153,16 @@ const Checkout = () => {
                             </Card>
 
                             <Card title="Thời gian khám mong muốn">
+                                <p className="mb-2">
+                                    <strong>Ngày khám:</strong>{' '}
+                                    <span className="bg-slate-200 inline-block px-2 py-1 rounded-md">
+                                        {`${dayjs(shiftAppointment?.date).format('DD/MM/YYYY')}`}
+                                    </span>
+                                </p>
                                 <p>
                                     <strong>Thời gian:</strong>{' '}
                                     <span className="bg-slate-200 inline-block px-2 py-1 rounded-md">
-                                        {selectedNewAppointment?.appointment_hour as string}
+                                        {`${shiftAppointment?.startTime} - ${shiftAppointment?.endTime}`}
                                     </span>
                                 </p>
                             </Card>
@@ -166,31 +177,17 @@ const Checkout = () => {
                                     </p>
 
                                     <button
+                                        disabled={loadingComponent}
                                         onClick={async () => {
                                             if (!selectedService?.price)
                                                 return alert('Chưa có giá dịch vụ!');
                                             try {
-                                                const response = await fetch(
-                                                    'http://localhost:3000/payment/create/vnpay',
-                                                    {
-                                                        method: 'POST',
-                                                        headers: {
-                                                            'Content-Type': 'application/json',
-                                                        },
-                                                        body: JSON.stringify({
-                                                            amount: selectedService.price,
-                                                            orderId: `ORDER_${Date.now()}`,
-                                                            orderInfo: `Thanh toán dịch vụ khám: ${selectedService.name}`,
-                                                        }),
-                                                    }
+                                                dispatch(
+                                                    createAppointment({
+                                                        dataCreate: newAppointment,
+                                                        dataService: selectedService,
+                                                    })
                                                 );
-
-                                                const data = await response.json();
-                                                if (data.paymentUrl) {
-                                                    window.location.href = data.paymentUrl; // Chuyển sang trang VNPay
-                                                } else {
-                                                    alert('Không tạo được link thanh toán!');
-                                                }
                                             } catch (error) {
                                                 console.error(error);
                                                 alert('Lỗi khi gọi API thanh toán!');
@@ -203,7 +200,7 @@ const Checkout = () => {
                                             alt="VNPay"
                                             className="w-6 h-6"
                                         />
-                                        Thanh toán qua VNPay
+                                        {loadingComponent ? 'Loading...' : 'Thanh toán qua VNPay'}
                                     </button>
                                 </div>
                             </Card>

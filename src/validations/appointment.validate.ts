@@ -1,6 +1,8 @@
 import * as yup from 'yup';
 
 export const patientAppointmentSchema = yup.object().shape({
+    patientId: yup.string().required('ID'),
+
     phoneNumber: yup
         .string()
         .required('Vui lòng nhập số điện thoại đã đăng ký')

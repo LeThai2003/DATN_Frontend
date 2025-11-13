@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectDrugs, selectFilter, selectLoadingPage } from '@/stores/selectors/drugs/drug.selector';
+import {
+    selectDrugs,
+    selectFilter,
+    selectLoadingPage,
+} from '@/stores/selectors/drugs/drug.selector';
 import { Drug as DrugType } from '@/types/stores/drugs/drug_type';
 import { common, drug } from '@/stores/reducers';
 import { initFilterDrug } from '@/defaultValues/drugs/drug_default';
@@ -11,41 +15,15 @@ import FilterForm from '@/components/filters/FilterForm';
 import FilterButton from '@/components/filters/FilterButton';
 import { changePageAction, fetchFirst } from '@/stores/actions/managers/drug/drug.action';
 
-export const drugs: DrugType[] = [
-    {
-        drug_id: 1,
-        name: 'Paracetamol',
-        generic_name: 'Acetaminophen',
-        description: 'Thuốc giảm đau, hạ sốt thông dụng',
-        packaging: 'Hộp 10 vỉ x 10 viên',
-        side_effects: 'Buồn nôn, dị ứng',
-        contraindications: 'Người suy gan nặng',
-        allergy_info: 'Dị ứng paracetamol',
-        created_at: '2025-09-01',
-        updated_at: '2025-09-20',
-    },
-    {
-        drug_id: 2,
-        name: 'Amoxicillin',
-        generic_name: 'Amoxicillin trihydrate',
-        description: 'Kháng sinh nhóm beta-lactam',
-        packaging: 'Hộp 1 vỉ x 10 viên',
-        side_effects: 'Tiêu chảy, phát ban',
-        contraindications: 'Dị ứng penicillin',
-        allergy_info: 'Dị ứng penicillin',
-        created_at: '2025-08-15',
-        updated_at: '2025-09-22',
-    },
-];
-
 const TabDrug = () => {
-
     //hooks
     const dispatch = useDispatch();
     const filter = useSelector(selectFilter);
     const [isOpenDrugFilter, setIsOpenDrugFilter] = useState(false);
-    const loadingPage = useSelector(selectLoadingPage)
+    const loadingPage = useSelector(selectLoadingPage);
     const drugsTable = useSelector(selectDrugs);
+
+    console.log(drugsTable);
 
     const handlDeleteDrug = (data) => {
         dispatch(drug.actions.setSelectDrug(data));
@@ -149,7 +127,7 @@ const TabDrug = () => {
 
     const handleFilterChange = (key, value) => {
         dispatch(drug.actions.setFilterDrug({ ...filter, [key]: value }));
-         dispatch(fetchFirst());
+        dispatch(fetchFirst());
     };
 
     const handleResetFilter = () => dispatch(drug.actions.setFilterDrug({ initFilterDrug }));
@@ -159,16 +137,13 @@ const TabDrug = () => {
     };
 
     const handleChangePage = (e: number) => {
-        dispatch(
-            changePageAction(e - 1)
-        );
+        dispatch(changePageAction(e - 1));
     };
 
-    //useEffect 
+    //useEffect
     useEffect(() => {
         dispatch(fetchFirst());
-    },[])
-
+    }, []);
 
     return (
         <div className="p-2 bg-white rounded-lg flex flex-col gap-3">

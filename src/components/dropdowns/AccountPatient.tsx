@@ -22,11 +22,8 @@ const AccountPatient = ({ scrolled }) => {
         }
     }, []);
 
-    console.log(infoPatient);
-
     // event handling
     const handleLogout = () => {
-        console.log('logout');
         deleteAllCookies();
         navigate('/auths/login');
     };
@@ -36,7 +33,7 @@ const AccountPatient = ({ scrolled }) => {
         {
             label: (
                 <Link to="/account" className="menu-item-link">
-                    {infoPatient?.fullName}
+                    <span className="font-medium">{infoPatient?.fullName}</span>
                 </Link>
             ),
             key: '0',
@@ -52,6 +49,17 @@ const AccountPatient = ({ scrolled }) => {
         {
             type: 'divider',
         },
+        // {
+        //     label: (
+        //         <Link to="/relatives-information" className="menu-item-link">
+        //             Thông tin người thân
+        //         </Link>
+        //     ),
+        //     key: '2',
+        // },
+        // {
+        //     type: 'divider',
+        // },
         {
             label: (
                 <Button

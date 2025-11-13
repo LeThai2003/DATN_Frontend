@@ -1,10 +1,23 @@
 import AccountPatient from '@/components/dropdowns/AccountPatient';
+import { fetchInfoPatient } from '@/stores/actions/patients/patient.action';
+import { getCookies } from '@/utils/cookies/cookies';
 import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { Link, useLocation } from 'react-router';
 
 const Navbar = () => {
+    const dispatch = useDispatch();
+
     const [scrolled, setScrolled] = useState(false);
     const location = useLocation();
+
+    const user = JSON.parse(getCookies('user') || null);
+
+    useEffect(() => {
+        if (user && user?.authorities[0]?.authority == 'ROLE_PATIENT') {
+            dispatch(fetchInfoPatient({ phone_number: user?.username }));
+        }
+    }, []);
 
     useEffect(() => {
         const handleScroll = () => {

@@ -8,4 +8,8 @@ export const getAppointmentRecord = createAction(`${name}/GET_APPOINTMENT_RECORD
     payload: state,
 }));
 
+export const createAppointmentRecord = createAction(appointmentRecordAction.create, (state) => ({
+    payload: state,
+}));
+
 export const loadingPage = createAction(`${name}/LOAD_PAGE`);

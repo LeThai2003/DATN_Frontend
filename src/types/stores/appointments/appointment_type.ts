@@ -7,13 +7,12 @@ import { Service } from '../services/service_type';
 export interface FilterAppointment extends Filter {
     patientId?: string[] | null;
     employeeId?: string[] | null;
+    statuses?: string[] | null;
 }
 
 export interface Appointment {
-    appointmentId?: number;
+    appointmentId?: string;
     patientId: Patient;
-    appointmentDate: string;
-    appointmentTime: string;
     employeeId: Employee;
     serviceId: Service;
     roomDto?: Room;
@@ -21,22 +20,50 @@ export interface Appointment {
     price: number;
     transactionCode?: number;
     status?: string;
+    fullname: string;
+    dob: string;
+    gender: boolean;
+    address: string;
+    insuranceCode: string;
+    emergencyContact: string;
+    citizenId: string;
+    job: string;
+    phoneNumber: string;
+    shiftId?: any;
+}
+
+export interface NewAppointment {
+    fullName: string;
+    dob: string;
+    gender: boolean;
+    address: string;
+    insuranceCode: string;
+    emergencyContact: string;
+    citizenId: string;
+    job: string;
+    phoneNumber: string;
+    appointmentDate: string;
+    appointmentTime: string;
+    employeeId: string;
+    serviceId: string;
+    price: number;
 }
 
 export interface PatientAppointment {
-    fullname: string;
-    phone_number: string;
-    citizen_id: string;
-    insurance_code?: string;
+    patientId: string;
+    fullName: string;
+    phoneNumber: string;
+    citizenId: string;
+    insuranceCode?: string;
     job?: string;
     dob: string;
     gender: string;
     address: string;
-    emergency_contact: string;
+    emergencyContact: string;
 }
 
 export interface DoctorAppointment {
-    employee_id: number;
+    employeeId: number;
     fullname: string;
     avatar?: string;
     specialization_name?: string;
@@ -47,16 +74,44 @@ export interface DoctorAppointment {
 }
 
 export interface TimeBooking {
-    appointment_hour: string | Date;
+    appointmentHour: string | Date;
+    appointmentDate: string;
+}
+
+interface Shift {
+    shiftId?: string;
+    shiftTimeId?: string;
+    startTime?: string;
+    endTime?: string;
+    date?: string;
+    indexDate?: number;
+}
+
+interface CountAppointment {
+    date: string;
+    count: number;
+}
+interface CountService {
+    name: string;
+    value: number;
+}
+interface FollowUpVisits {
+    completedFollowUpVisits: number;
+    totalFollowUpVisits: number;
 }
 
 export interface AppointmentSlice {
-    appointments: PageObject<Appointment>;
+    appointments_doctor: PageObject<Appointment>;
+    appointments_patient: PageObject<Appointment>;
     filter: FilterAppointment;
     selectedAppointment: Appointment;
-    newAppointment: Appointment;
+    newAppointment: NewAppointment;
     patientAppointment?: PatientAppointment;
     doctorAppointment?: DoctorAppointment;
     timeBookingAppointment?: TimeBooking;
+    shift: Shift;
     loadingComponent: boolean;
+    countAppointmentByDate?: CountAppointment[];
+    countServiceByDate?: CountService[];
+    countFollowUpVisitsByDate?: FollowUpVisits;
 }

@@ -19,4 +19,9 @@ export const selectSelectedPrescription = createSelector(
 
 export const selectNewPrescription = createSelector(selectState, (state) => state.newPrescription);
 
+export const selectPrescriptionsIcd10 = createSelector(
+    selectState,
+    (state) => state.prescriptionFromIcd10
+);
+
 export const selectLoading = createSelector(selectState, (state) => state.loadingComponent);

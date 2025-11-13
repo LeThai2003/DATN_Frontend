@@ -25,3 +25,5 @@ export const changePage = createAction(`${name}/CHANGE_PAGE`, (state) => ({
 }));
 
 export const loadPage = createAction(`${name}/LOAD_PAGE`);
+
+export const getTotalRoom = createAction(`${name}/GET_TOTAL_ROOM`);

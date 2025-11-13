@@ -1,17 +1,18 @@
 import WelcomeCard from '@/components/cards/WelcomeCard';
 import FormField from '@/components/forms/FormField';
 import LoadingSpinAntD from '@/components/Loading/LoadingSpinAntD';
-import { updatePatient } from '@/stores/actions/patients/patient.action';
+import { fetchInfoPatient, updatePatient } from '@/stores/actions/patients/patient.action';
 import {
     selectInfoPatient,
     selectLoadingComponent,
 } from '@/stores/selectors/patients/patient.selector';
+import { getCookies } from '@/utils/cookies/cookies';
 
 import { patientAppointmentSchema } from '@/validations/appointment.validate';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button, Card, Form, Input, Spin, Tabs, Tooltip } from 'antd';
 import TabPane from 'antd/es/tabs/TabPane';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { data } from 'react-router';
@@ -22,7 +23,7 @@ const Account = () => {
     const infoPatient = useSelector(selectInfoPatient);
     const loadingComponent = useSelector(selectLoadingComponent);
 
-    console.log(infoPatient);
+    // console.log(infoPatient);
 
     const [form] = Form.useForm();
 

@@ -16,6 +16,10 @@ class RoomApi extends HttpService {
     deleteRoom = (id) => {
         return this.delete(id, 'delete');
     };
+
+    getTotalRoom = () => {
+        return this.get('total');
+    };
 }
 
 export const roomApi = new RoomApi('room');

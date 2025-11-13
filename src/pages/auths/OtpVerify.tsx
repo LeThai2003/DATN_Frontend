@@ -102,7 +102,7 @@ const OtpVerify = () => {
                     <h2 className="text-2xl font-bold text-gray-800">Xác thực số điện thoại</h2>
                     <p className="text-gray-600 text-sm mt-2">
                         Nhập mã OTP đã được gửi đến số điện thoại{' '}
-                        <b className="text-gray-900">0{params?.phone_number}</b>.
+                        <b className="text-gray-900">{params?.phone_number}</b>.
                     </p>
                 </div>
 

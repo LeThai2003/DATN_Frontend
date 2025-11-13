@@ -12,8 +12,7 @@ function App() {
 
     // useEffect(() => {
     //     createChat({
-    //         webhookUrl:
-    //             '',
+    //         webhookUrl: '',
     //     });
     // }, []);
 

@@ -26,6 +26,9 @@ const RoomSlice = createSlice({
         setSelectRoom(state, { payload }: PayloadAction<any>) {
             state.selectedRoom = payload;
         },
+        setTotalRooms(state, { payload }: PayloadAction<any>) {
+            state.totalRooms = payload;
+        },
     },
 });
 

@@ -4,7 +4,10 @@ import { Button, Card, Descriptions, Form, Image, Input, Spin, Tabs, Tooltip } f
 import TabPane from 'antd/es/tabs/TabPane';
 import WelcomeCard from '@/components/cards/WelcomeCard';
 import { updatePasswordEmployee } from '@/stores/actions/managers/employees/employee.action';
-import { selectLoadingComponent } from '@/stores/selectors/employees/employee.selector';
+import {
+    selectEmployeeInfo,
+    selectLoadingComponent,
+} from '@/stores/selectors/employees/employee.selector';
 
 const doctor = {
     employee_id: 1,
@@ -26,6 +29,7 @@ const AccountEmployee = () => {
     const dispatch = useDispatch();
 
     const loadingComponent = useSelector(selectLoadingComponent);
+    const infoEmployee = useSelector(selectEmployeeInfo);
 
     const [form] = Form.useForm();
 
@@ -36,7 +40,11 @@ const AccountEmployee = () => {
             oldPass: values.oldPassword,
         };
         dispatch(
-            updatePasswordEmployee({ data: dataUpload, id: 'da2c93fb-0cac-4920-804e-405942bb4adb' })
+            updatePasswordEmployee({
+                data: dataUpload,
+                id: infoEmployee?.employeeId,
+                reset: form.resetFields,
+            })
         );
     };
 
@@ -48,16 +56,16 @@ const AccountEmployee = () => {
         <div className="relative">
             <div className="container min-h-screen">
                 <div className="pt-2">
-                    <WelcomeCard name="BS. Nguyễn Văn A" />
+                    <WelcomeCard name={`QL. ${infoEmployee?.fullName}`} />
                     <section className="py-2">
                         <Card title="Tài khoản cá nhân">
                             <Tabs defaultActiveKey="1">
                                 <TabPane tab="Thông tin tài khoản" key="1">
-                                    {doctor?.avatar && (
+                                    {infoEmployee?.avatar && (
                                         <div className="my-2 w-[80px] h-[80px] rounded-md overflow-hidden">
                                             <Image
-                                                src={doctor.avatar}
-                                                alt={doctor.fullname}
+                                                src={infoEmployee?.avatar}
+                                                alt={infoEmployee?.fullName}
                                                 className="object-cover w-full h-full"
                                             />
                                         </div>
@@ -68,30 +76,30 @@ const AccountEmployee = () => {
                                         labelStyle={{ fontWeight: 600 }}
                                     >
                                         <Descriptions.Item label="Họ tên">
-                                            {doctor.fullname}
+                                            {infoEmployee?.fullName}
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Giới tính">
-                                            {doctor.gender === 'male' ? 'Nam' : 'Nữ'}
+                                            {infoEmployee?.gender === true ? 'Nam' : 'Nữ'}
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Chuyên khoa">
-                                            {doctor.specialization?.name}
+                                            {infoEmployee?.specialization?.name}
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Email">
-                                            {doctor.email}
+                                            {infoEmployee?.email}
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Số CCCD">
-                                            {doctor.citizen_id}
+                                            {infoEmployee?.citizenId}
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Phòng làm việc">
-                                            {doctor.room?.name}
-                                        </Descriptions.Item>
-                                        <Descriptions.Item label="Địa chỉ">
-                                            {doctor.address}
+                                            {infoEmployee?.roomDto?.name}
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Ngày vào làm">
-                                            {new Date(doctor.hired_date).toLocaleDateString(
+                                            {new Date(infoEmployee?.hiredDate).toLocaleDateString(
                                                 'vi-VN'
                                             )}
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label="Địa chỉ">
+                                            {infoEmployee?.address}
                                         </Descriptions.Item>
                                     </Descriptions>
                                 </TabPane>

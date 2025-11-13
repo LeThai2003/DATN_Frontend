@@ -1,7 +1,10 @@
 import { Unit } from '@/types/stores/units/unit_type';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectFilter as selectFilterUnit, selectUnits } from '@/stores/selectors/units/unit.selector';
+import {
+    selectFilter as selectFilterUnit,
+    selectUnits,
+} from '@/stores/selectors/units/unit.selector';
 import { common, drug, unit } from '@/stores/reducers';
 import { initFilterUnit } from '@/defaultValues/units/unit_default';
 import { Button, Pagination, Space, Table } from 'antd';
@@ -11,21 +14,7 @@ import FilterForm from '@/components/filters/FilterForm';
 import FilterButton from '@/components/filters/FilterButton';
 import { fetchFirst } from '@/stores/actions/managers/drug/unit.action';
 
-export const units: Unit[] = [
-    {
-        unit_id: 1,
-        name: 'Viên',
-        descriptions:
-            'Dạng viên nén hoặc nang, Dạng viên nén hoặc nang, Dạng viên nén hoặc nang,Dạng viên nén hoặc nang, Dạng viên nén hoặc nang, Dạng viên nén hoặc nang, Dạng viên nén hoặc nang',
-    },
-    { unit_id: 2, name: 'Vỉ', descriptions: 'Vỉ thuốc chứa nhiều viên' },
-    { unit_id: 3, name: 'Hộp', descriptions: 'Hộp chứa nhiều vỉ' },
-    { unit_id: 4, name: 'Chai', descriptions: 'Chai dung dịch, siro' },
-    { unit_id: 5, name: 'ml', descriptions: 'Mililit dung dịch' },
-];
-
 const TabUnit = () => {
-
     // hooks
     const dispatch = useDispatch();
     const unitTable = useSelector(selectUnits);
@@ -136,13 +125,12 @@ const TabUnit = () => {
 
     const handleFilterUnitChange = (key, value) => {
         dispatch(unit.actions.setFilterUnit({ ...filterUnit, [key]: value }));
-         dispatch(fetchFirst());
+        dispatch(fetchFirst());
     };
 
     const handleResetUnitFilter = () => dispatch(unit.actions.setFilterUnit({ initFilterUnit }));
 
-    const handleApplyUnitFilter = () => {
-    };
+    const handleApplyUnitFilter = () => {};
 
     const handleChangeUnitPage = (e) => {
         console.log(e);
@@ -154,10 +142,10 @@ const TabUnit = () => {
         );
     };
 
-    // useEffect 
+    // useEffect
     useEffect(() => {
         dispatch(fetchFirst());
-    },[])
+    }, []);
 
     return (
         <div className="p-2 bg-white rounded-lg flex flex-col gap-3">
@@ -193,7 +181,7 @@ const TabUnit = () => {
             />
             <div className="flex justify-end">
                 <Pagination
-                    current={filterUnit?.pageNo + 1 }
+                    current={filterUnit?.pageNo + 1}
                     pageSize={filterUnit?.pageSize || 10}
                     onChange={(e) => {
                         handleChangeUnitPage(e);

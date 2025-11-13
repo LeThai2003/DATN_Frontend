@@ -31,6 +31,9 @@ const PrescriptionSlice = createSlice({
         setUpdateNewPrescription(state, { payload }: PayloadAction<any>) {
             state.newPrescription = payload;
         },
+        setPrescriptionsIcd10(state, { payload }: PayloadAction<any>) {
+            state.prescriptionFromIcd10 = payload;
+        },
     },
 });
 

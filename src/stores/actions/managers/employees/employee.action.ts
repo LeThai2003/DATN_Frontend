@@ -28,4 +28,8 @@ export const changePage = createAction(`${name}/CHANGE_PAGE`, (state) => ({
     payload: state,
 }));
 
+export const getInfo = createAction(`${name}/GET_INFO`, (state) => ({
+    payload: state,
+}));
+
 export const loadPage = createAction(`${name}/LOAD_PAGE`);

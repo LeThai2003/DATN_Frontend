@@ -4,9 +4,7 @@ import { useRoutes } from 'react-router';
 import TitleRouter from './TitleRouter';
 import Error404 from '@/pages/errors/Error404';
 import ClinicLayout from '@/layouts/ClinicLayout';
-import DoctorClinicLayout from '@/layouts/DoctorClinicLayout';
 
-import Doctor from '@/pages/doctor/Doctor';
 import Doctor2 from '@/pages/doctor/Doctor2';
 import PatientLayout from '@/layouts/PatientLayout';
 import ScrollToTop from './ScrollToTop';
@@ -19,18 +17,25 @@ const Login = lazy(() => import('../pages/auths/Login'));
 const SignUp = lazy(() => import('../pages/auths/SignUp'));
 const PhoneNumberOtp = lazy(() => import('../pages/auths/PhoneNumberOtp'));
 const OtpVerify = lazy(() => import('../pages/auths/OtpVerify'));
+const ForgotPasswordPhone = lazy(
+    () => import('../pages/auths/forgotPasswords/ForgotPassword_Phone')
+);
+const ForgotPasswordOTP = lazy(() => import('../pages/auths/forgotPasswords/ForgotPassword_OTP'));
+const ForgotPasswordReset = lazy(
+    () => import('../pages/auths/forgotPasswords/ForgotPassword_Reset')
+);
 
 const Drug = lazy(() => import('../pages/manager/drugs/Drug'));
 const Employee = lazy(() => import('../pages/manager/employees/Employee'));
 const Room = lazy(() => import('../pages/manager/rooms/Room'));
 const Specialization = lazy(() => import('../pages/manager/specializations/Specialization'));
 const Service = lazy(() => import('../pages/manager/services/Service'));
-const ServiceEdit = lazy(() => import('../pages/manager/services/ServiceEdit'));
 const Patient = lazy(() => import('../pages/manager/patients/Patient'));
 const PatientDetail = lazy(() => import('../pages/manager/patients/PatientDetail'));
 const AccountEmployee = lazy(() => import('../pages/manager/accounts/AccountEmployee'));
 const Dashboard = lazy(() => import('../pages/manager/dashboards/Dashboard'));
 const Schedule = lazy(() => import('../pages/manager/schedules/Schedule'));
+const Shift = lazy(() => import('../pages/manager/shifts/Shift'));
 
 const Home = lazy(() => import('../pages/patients/Home'));
 const ServicePatient = lazy(() => import('../pages/patients/Service'));
@@ -40,6 +45,7 @@ const AccountPatient = lazy(() => import('../pages/patients/Account'));
 const AppointmentHistory = lazy(() => import('../pages/patients/AppointmentHistory'));
 const AboutPage = lazy(() => import('../pages/patients/About'));
 const PaymentResult = lazy(() => import('../pages/patients/PaymentResult'));
+const RelativeInformation = lazy(() => import('../pages/patients/RelativeInformation'));
 
 const Unauthorized = lazy(() => import('../pages/errors/Unauthenticated403'));
 
@@ -104,14 +110,6 @@ function AppRoutes() {
                     ),
                 },
                 {
-                    path: 'services/edit',
-                    element: (
-                        <TitleRouter title="Cập nhật dịch vụ">
-                            <ServiceEdit />
-                        </TitleRouter>
-                    ),
-                },
-                {
                     path: 'patients',
                     element: (
                         <TitleRouter title="Quản lý bệnh nhân">
@@ -144,26 +142,20 @@ function AppRoutes() {
                     ),
                 },
                 {
+                    path: 'shifts',
+                    element: (
+                        <TitleRouter title="Lịch làm việc">
+                            <Shift />
+                        </TitleRouter>
+                    ),
+                },
+                {
                     path: '*',
                     element: <Error404 />,
                 },
             ],
         },
         // Doctor
-        {
-            path: '/doctors',
-            element: <DoctorClinicLayout />,
-            children: [
-                {
-                    path: '',
-                    element: (
-                        <TitleRouter title="Khám bệnh">
-                            <Doctor />
-                        </TitleRouter>
-                    ),
-                },
-            ],
-        },
         {
             path: '/doctors2',
             element: (
@@ -187,6 +179,30 @@ function AppRoutes() {
         {
             path: 'auths/',
             children: [
+                {
+                    path: 'forgot-password',
+                    element: (
+                        <TitleRouter title="Quên mật khẩu">
+                            <ForgotPasswordPhone />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    path: 'forgot-password/:phone_number',
+                    element: (
+                        <TitleRouter title="Nhập mã OTP">
+                            <ForgotPasswordOTP />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    path: 'forgot-password/reset/:verify_code/:phone_number',
+                    element: (
+                        <TitleRouter title="Nhập mới mật khẩu">
+                            <ForgotPasswordReset />
+                        </TitleRouter>
+                    ),
+                },
                 {
                     path: 'login',
                     element: (
@@ -290,6 +306,17 @@ function AppRoutes() {
                 },
                 {
                     index: true,
+                    path: '/relatives-information',
+                    element: (
+                        <PrivateRoute roles={['ROLE_PATIENT']}>
+                            <TitleRouter title="Thông tin người thân">
+                                <RelativeInformation />
+                            </TitleRouter>
+                        </PrivateRoute>
+                    ),
+                },
+                {
+                    index: true,
                     path: '/about',
                     element: (
                         <TitleRouter title="Giới thiệu">
@@ -299,7 +326,7 @@ function AppRoutes() {
                 },
                 {
                     index: true,
-                    path: '/payment-result',
+                    path: '/payment/result',
                     element: (
                         <PrivateRoute roles={['ROLE_PATIENT']}>
                             <TitleRouter title="Kết quả thanh toán">

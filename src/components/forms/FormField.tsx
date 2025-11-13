@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
 import { Controller } from 'react-hook-form';
 import LableField from './LableField';
-import { Button, DatePicker, GetProp, Image, Input, Select, Upload, UploadProps } from 'antd';
+import {
+    Button,
+    Checkbox,
+    DatePicker,
+    GetProp,
+    Image,
+    Input,
+    Select,
+    TimePicker,
+    Upload,
+    UploadProps,
+} from 'antd';
 import { FormFieldProps } from '@/types/components/forms';
 import dayjs from 'dayjs';
 import TextArea from 'antd/es/input/TextArea';
-import { LoadingOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons';
-import { useDispatch } from 'react-redux';
-import { common } from '@/stores/reducers';
-import { UploadFileStatus } from 'antd/es/upload/interface';
-type FileType = Parameters<GetProp<UploadProps, 'beforeUpload'>>[0];
+import LazyICD10Select from './LazyICD10Select';
 
 const FormField = ({
     name,
@@ -30,6 +37,8 @@ const FormField = ({
     uploadProps,
     imageProps,
     lengthNumberOtp = 6,
+    disablePast = false,
+    setValue,
 }: FormFieldProps) => {
     return (
         <Controller
@@ -103,9 +112,30 @@ const FormField = ({
                             placeholder={placeholder}
                             disabled={disabled}
                             value={field.value ? dayjs(field.value, 'YYYY-MM-DD') : null}
-                            onChange={(date) =>
-                                field.onChange(date ? date.format('YYYY-MM-DD') : undefined)
+                            onChange={(date) => {
+                                if (!date) return; // KHÔNG thay đổi giá trị nếu user đóng datepicker
+                                field.onChange(date.format('YYYY-MM-DD'));
+                            }}
+                            disabledDate={
+                                disablePast
+                                    ? (current) => current && current <= dayjs().endOf('day')
+                                    : undefined
                             }
+                        />
+                    )}
+
+                    {type === 'timepicker' && (
+                        <TimePicker
+                            {...field}
+                            format="HH:mm"
+                            placeholder={placeholder}
+                            disabled={disabled}
+                            value={
+                                field.value && typeof field.value === 'string'
+                                    ? dayjs(field.value, 'HH:mm')
+                                    : field.value || null
+                            }
+                            onChange={(time) => field.onChange(time ? time.format('HH:mm') : '')}
                         />
                     )}
 
@@ -131,6 +161,28 @@ const FormField = ({
                         <div>
                             <Image src={imageProps?.src} width={imageProps?.width || 80} />
                         </div>
+                    )}
+
+                    {type === 'checkbox' && (
+                        <Checkbox
+                            checked={!!field.value}
+                            onChange={(e) => field.onChange(e.target.checked)}
+                            disabled={disabled}
+                        >
+                            {label}
+                        </Checkbox>
+                    )}
+
+                    {type === 'icd10' && (
+                        <LazyICD10Select
+                            value={field.value}
+                            onChange={(val) => field.onChange(val)}
+                            onChangeLabel={(label) => {
+                                setValue('icd10_label', label);
+                            }}
+                            placeholder={placeholder}
+                            disabled={disabled}
+                        />
                     )}
 
                     {error && <p className="text-error">{helperText as string}</p>}

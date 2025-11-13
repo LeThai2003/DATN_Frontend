@@ -1,0 +1,1 @@
+import{j as t,R as s,B as n}from"./index-LvNQFVEu.js";const e=()=>t.jsx(s,{status:"403",title:"403",subTitle:"Xin lỗi, bạn không có quyền truy cập vào trang này.",extra:t.jsx(n,{})});export{e as default};

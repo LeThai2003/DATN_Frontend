@@ -3,10 +3,38 @@ import { createSelector } from '@reduxjs/toolkit';
 
 const selectState = (state: RootReducerType) => state.appointment;
 
-export const selectAppointments = createSelector(selectState, (state) => state.appointments);
+export const selectAppointmentsPatient = createSelector(
+    selectState,
+    (state) => state.appointments_patient
+);
 
-export const selectTotalPage = createSelector(selectState, (state) => state.appointments.totalPage);
+export const selectTotalPagePatient = createSelector(
+    selectState,
+    (state) => state.appointments_patient.totalPage
+);
 
+export const selectLoadingPagePatient = createSelector(
+    selectState,
+    (state) => state.appointments_patient.loadingPage
+);
+
+// ------------------------------
+export const selectAppointmentsDoctor = createSelector(
+    selectState,
+    (state) => state.appointments_doctor
+);
+
+export const selectTotalPageDoctor = createSelector(
+    selectState,
+    (state) => state.appointments_doctor.totalPage
+);
+
+export const selectLoadingPageDoctor = createSelector(
+    selectState,
+    (state) => state.appointments_doctor.loadingPage
+);
+
+// ------------------------------
 export const selectFilter = createSelector(selectState, (state) => state.filter);
 
 export const selectSelectedAppointment = createSelector(
@@ -36,7 +64,19 @@ export const selectLoadingComponent = createSelector(
     (state) => state.loadingComponent
 );
 
-export const selectLoadingPage = createSelector(
+export const selectCountAppointmentByDate = createSelector(
     selectState,
-    (state) => state.appointments.loadingPage
+    (state) => state.countAppointmentByDate
 );
+
+export const selectCountServiceByDate = createSelector(
+    selectState,
+    (state) => state.countServiceByDate
+);
+
+export const selectCountFollowUpVisitsByDate = createSelector(
+    selectState,
+    (state) => state.countFollowUpVisitsByDate
+);
+
+export const selectShiftAppointment = createSelector(selectState, (state) => state.shift);

@@ -115,16 +115,16 @@ const PatientDetail = () => {
     const dispatch = useDispatch();
 
     const defaultAppointmentRecordValues = {
-        record_id: selectedAppointmentRecord?.record_id || 0,
-        appointment_id: selectedAppointmentRecord?.appointment_id || 0,
+        record_id: selectedAppointmentRecord?.recordId || 0,
+        appointment_id: selectedAppointmentRecord?.appointment || 0,
         height: selectedAppointmentRecord?.height || 0,
         weight: selectedAppointmentRecord?.weight || 0,
-        blood_pressure: selectedAppointmentRecord?.blood_pressure || '',
+        blood_pressure: selectedAppointmentRecord?.bloodPressure || '',
         temperature: selectedAppointmentRecord?.temperature || 0,
-        heart_rate: selectedAppointmentRecord?.heart_rate || 0,
+        heart_rate: selectedAppointmentRecord?.heartRate || 0,
         symptoms: selectedAppointmentRecord?.symptoms || '',
         icd10: selectedAppointmentRecord?.icd10 || '',
-        icd10_value: selectedAppointmentRecord?.icd10_value || '',
+        icd10_value: selectedAppointmentRecord?.icd10 || '',
         notes: selectedAppointmentRecord?.notes || '',
         date: selectedAppointmentRecord?.date || '',
     };
@@ -132,18 +132,18 @@ const PatientDetail = () => {
     useEffect(() => {
         if (selectedAppointmentRecord) {
             reset({
-                record_id: selectedAppointmentRecord.record_id || 0,
-                appointment_id: selectedAppointmentRecord.appointment_id || 0,
-                height: selectedAppointmentRecord.height || 0,
-                weight: selectedAppointmentRecord.weight || 0,
-                blood_pressure: selectedAppointmentRecord.blood_pressure || '',
-                temperature: selectedAppointmentRecord.temperature || 0,
-                heart_rate: selectedAppointmentRecord.heart_rate || 0,
-                symptoms: selectedAppointmentRecord.symptoms || '',
-                icd10: selectedAppointmentRecord.icd10 || '',
-                icd10_value: selectedAppointmentRecord.icd10_value || '',
-                notes: selectedAppointmentRecord.notes || '',
-                date: selectedAppointmentRecord.date || '',
+                record_id: selectedAppointmentRecord?.recordId || 0,
+                appointment_id: selectedAppointmentRecord?.appointment || 0,
+                height: selectedAppointmentRecord?.height || 0,
+                weight: selectedAppointmentRecord?.weight || 0,
+                blood_pressure: selectedAppointmentRecord?.bloodPressure || '',
+                temperature: selectedAppointmentRecord?.temperature || 0,
+                heart_rate: selectedAppointmentRecord?.heartRate || 0,
+                symptoms: selectedAppointmentRecord?.symptoms || '',
+                icd10: selectedAppointmentRecord?.icd10 || '',
+                icd10_value: selectedAppointmentRecord?.icd10 || '',
+                notes: selectedAppointmentRecord?.notes || '',
+                date: selectedAppointmentRecord?.date || '',
             });
         }
     }, [selectedAppointmentRecord]);
@@ -154,7 +154,6 @@ const PatientDetail = () => {
         formState: { errors },
     } = useForm({
         defaultValues: defaultAppointmentRecordValues,
-        resolver: yupResolver(appointmentRecordSchema),
     });
 
     const options =
@@ -227,7 +226,7 @@ const PatientDetail = () => {
                     <Card title="Thông tin bệnh nhân">
                         <Descriptions bordered column={3}>
                             <Descriptions.Item label="Họ tên">
-                                {selectedPatient.fullname}
+                                {selectedPatient.fullName}
                             </Descriptions.Item>
                             <Descriptions.Item label="Ngày sinh">
                                 {selectedPatient.dob as string}
@@ -236,13 +235,13 @@ const PatientDetail = () => {
                                 {selectedPatient.gender}
                             </Descriptions.Item>
                             <Descriptions.Item label="Mã BHYT">
-                                {selectedPatient.insurance_code}
+                                {selectedPatient.insuranceCode}
                             </Descriptions.Item>
                             <Descriptions.Item label="Số điện thoại">
-                                {selectedPatient.phone_number}
+                                {selectedPatient.phoneNumber}
                             </Descriptions.Item>
                             <Descriptions.Item label="Người liên hệ">
-                                {selectedPatient.emergency_contact}
+                                {selectedPatient.emergencyContact}
                             </Descriptions.Item>
                             <Descriptions.Item label="Nghề nghiệp">
                                 {selectedPatient.job}
