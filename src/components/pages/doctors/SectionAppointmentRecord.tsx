@@ -264,7 +264,9 @@ const SectionAppointmentRecord = forwardRef<
                                 onChange={(value) => setFollowUpVisitId(value)}
                                 options={listFollowUpVisits.data?.map((follow) => ({
                                     value: follow?.followUpId,
-                                    label: formatDateVi(follow?.followUpDate),
+                                    label: `${formatDateVi(follow?.followUpDate)} ${
+                                        follow?.instruction ? '- ' + follow?.instruction : ''
+                                    }`,
                                 }))}
                                 style={{ minWidth: 180, maxWidth: 230 }}
                                 allowClear

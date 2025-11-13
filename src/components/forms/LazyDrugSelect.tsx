@@ -11,6 +11,11 @@ import {
 } from '@/stores/selectors/drugs/drug.selector';
 import { getDrugsSelect } from '@/stores/actions/managers/drug/drug.action';
 
+interface Drug {
+    drug_id: number;
+    name: string;
+}
+
 const LazyDrugSelect = ({ value, onChange }) => {
     const dispatch = useDispatch();
     const drugs = useSelector(selectDrugsSelect);

@@ -1,6 +1,12 @@
 import { common, dosageTime, mealRelation } from '@/stores/reducers';
-import { selectDosageTimes, selectFilter as selectFilterDosageTime } from '@/stores/selectors/dosageTimes/dosageTime.selector';
-import { selectFilter as selectFilterMealRealtion, selectMealRealtions } from '@/stores/selectors/mealRelations/mealRelation.selector';
+import {
+    selectDosageTimes,
+    selectFilter as selectFilterDosageTime,
+} from '@/stores/selectors/dosageTimes/dosageTime.selector';
+import {
+    selectFilter as selectFilterMealRealtion,
+    selectMealRealtions,
+} from '@/stores/selectors/mealRelations/mealRelation.selector';
 import { ModalType } from '@/types/stores/common';
 import { DosageTime } from '@/types/stores/dosageTimes/dosageTime_type';
 import { MealRelation } from '@/types/stores/mealRelations/mealRelation_type';
@@ -13,23 +19,12 @@ import FilterForm from '@/components/filters/FilterForm';
 import { initFilterDosageTime } from '@/defaultValues/dosageTimes/dosageTime_default';
 import { initFilterMealRelation } from '@/defaultValues/mealRelations/mealRelation_default';
 import { changePageAction, fetchFirst } from '@/stores/actions/managers/drug/dosage_time.action';
-import { changePageMealAction, fetchFirstMealRelation } from '@/stores/actions/managers/drug/meal_relation.action';
-
-export const dosageTimes: DosageTime[] = [
-    { time_id: 1, name: 'Sáng', description: 'Uống thuốc vào buổi sáng' },
-    { time_id: 2, name: 'Trưa', description: 'Uống thuốc vào buổi trưa' },
-    { time_id: 3, name: 'Chiều', description: 'Uống thuốc vào buổi chiều' },
-    { time_id: 4, name: 'Tối', description: 'Uống thuốc vào buổi tối' },
-];
-
-export const mealRelations: MealRelation[] = [
-    { relation_id: 1, name: 'Trước ăn', description: 'Uống thuốc trước khi ăn' },
-    { relation_id: 2, name: 'Sau ăn', description: 'Uống thuốc sau khi ăn' },
-    { relation_id: 3, name: 'Trong lúc ăn', description: 'Uống thuốc trong lúc ăn' },
-];
+import {
+    changePageMealAction,
+    fetchFirstMealRelation,
+} from '@/stores/actions/managers/drug/meal_relation.action';
 
 const TabTime = () => {
-
     // hooks
     const dispatch = useDispatch();
     const filterDosageTime = useSelector(selectFilterDosageTime);
@@ -141,16 +136,16 @@ const TabTime = () => {
     };
 
     const handleResetDosageTimeFilter = () => {
-        dispatch(dosageTime.actions.setFilterDosageTimes(initFilterDosageTime ));
+        dispatch(dosageTime.actions.setFilterDosageTimes(initFilterDosageTime));
         dispatch(fetchFirst());
-    }
+    };
 
     const handleApplyDosageTimeFilter = () => {
         console.log(filterDosageTime);
     };
 
     const handleChangeDosageTimePage = (e) => {
-        dispatch(changePageAction(e-1));
+        dispatch(changePageAction(e - 1));
     };
 
     // ------------ Uống so với bữa ăn ----------------
@@ -255,10 +250,10 @@ const TabTime = () => {
         dispatch(fetchFirstMealRelation());
     };
 
-    const handleResetMealRelationFilter = () =>{
-        dispatch(mealRelation.actions.setFilterMealRealtions(initFilterMealRelation ));
+    const handleResetMealRelationFilter = () => {
+        dispatch(mealRelation.actions.setFilterMealRealtions(initFilterMealRelation));
         dispatch(fetchFirstMealRelation());
-    }    
+    };
 
     const handleApplyMealRelationFilter = () => {
         console.log(filterMealRelation);
@@ -266,16 +261,14 @@ const TabTime = () => {
 
     const handleChangeMealRelationPage = (e) => {
         console.log(e);
-        dispatch(
-            changePageMealAction(e-1)
-        );
+        dispatch(changePageMealAction(e - 1));
     };
 
-    // useEffect 
+    // useEffect
     useEffect(() => {
         dispatch(fetchFirst());
         dispatch(fetchFirstMealRelation());
-    },[])
+    }, []);
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

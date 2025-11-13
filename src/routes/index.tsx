@@ -4,9 +4,7 @@ import { useRoutes } from 'react-router';
 import TitleRouter from './TitleRouter';
 import Error404 from '@/pages/errors/Error404';
 import ClinicLayout from '@/layouts/ClinicLayout';
-import DoctorClinicLayout from '@/layouts/DoctorClinicLayout';
 
-import Doctor from '@/pages/doctor/Doctor';
 import Doctor2 from '@/pages/doctor/Doctor2';
 import PatientLayout from '@/layouts/PatientLayout';
 import ScrollToTop from './ScrollToTop';
@@ -22,7 +20,7 @@ const OtpVerify = lazy(() => import('../pages/auths/OtpVerify'));
 const ForgotPasswordPhone = lazy(
     () => import('../pages/auths/forgotPasswords/ForgotPassword_Phone')
 );
-const ForgotPasswordOTP = lazy(() => import('../pages/auths/forgotPasswords/forgotPassword_OTP'));
+const ForgotPasswordOTP = lazy(() => import('../pages/auths/forgotPasswords/ForgotPassword_OTP'));
 const ForgotPasswordReset = lazy(
     () => import('../pages/auths/forgotPasswords/ForgotPassword_Reset')
 );
@@ -32,7 +30,6 @@ const Employee = lazy(() => import('../pages/manager/employees/Employee'));
 const Room = lazy(() => import('../pages/manager/rooms/Room'));
 const Specialization = lazy(() => import('../pages/manager/specializations/Specialization'));
 const Service = lazy(() => import('../pages/manager/services/Service'));
-const ServiceEdit = lazy(() => import('../pages/manager/services/ServiceEdit'));
 const Patient = lazy(() => import('../pages/manager/patients/Patient'));
 const PatientDetail = lazy(() => import('../pages/manager/patients/PatientDetail'));
 const AccountEmployee = lazy(() => import('../pages/manager/accounts/AccountEmployee'));
@@ -113,14 +110,6 @@ function AppRoutes() {
                     ),
                 },
                 {
-                    path: 'services/edit',
-                    element: (
-                        <TitleRouter title="Cập nhật dịch vụ">
-                            <ServiceEdit />
-                        </TitleRouter>
-                    ),
-                },
-                {
                     path: 'patients',
                     element: (
                         <TitleRouter title="Quản lý bệnh nhân">
@@ -167,20 +156,6 @@ function AppRoutes() {
             ],
         },
         // Doctor
-        {
-            path: '/doctors',
-            element: <DoctorClinicLayout />,
-            children: [
-                {
-                    path: '',
-                    element: (
-                        <TitleRouter title="Khám bệnh">
-                            <Doctor />
-                        </TitleRouter>
-                    ),
-                },
-            ],
-        },
         {
             path: '/doctors2',
             element: (
