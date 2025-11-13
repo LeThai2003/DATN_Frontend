@@ -1,0 +1,1 @@
+import{u as i,g as n,j as a,N as r}from"./index-aTwABVSH.js";const l=({children:s,roles:e=[]})=>{var o;const u=i(),t=JSON.parse(n("user")||null);return t?e.length>0&&!e.includes((o=t==null?void 0:t.authorities[0])==null?void 0:o.authority)?a.jsx(r,{to:"/unauthorized",replace:!0}):s:a.jsx(r,{to:"/auths/login",state:{from:u},replace:!0})};export{l as default};

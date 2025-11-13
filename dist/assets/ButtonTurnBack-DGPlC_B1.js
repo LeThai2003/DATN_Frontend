@@ -1,0 +1,2 @@
+import{b as t,j as a,cD as e}from"./index-aTwABVSH.js";const n=({link:r})=>{const s=t();return a.jsxs("button",{onClick:()=>s(`${r}`),className:`flex items-center gap-2 px-4 py-[6px] rounded-md border border-gray-200 bg-white shadow-sm \r
+                        text-gray-700 hover:bg-gray-100 hover:shadow-md transition-all duration-200`,children:[a.jsx(e,{className:"text-lg mt-[2px]"}),a.jsx("span",{className:"font-medium",children:"Quay lại"})]})};export{n as B};
