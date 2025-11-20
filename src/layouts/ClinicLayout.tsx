@@ -32,39 +32,6 @@ const ClinicLayout = () => {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    useEffect(() => {
-        createChat({
-            webhookUrl: import.meta.env.VITE_CHAT_URL,
-            chatInputKey: 'chatInput',
-            chatSessionKey: 'sessionId',
-            loadPreviousSession: true,
-            metadata: {
-                employeeId: infoEmployee?.employeeId,
-                fullName: infoEmployee?.fullName,
-                citizenId: infoEmployee?.citizenId,
-                dob: infoEmployee?.dob,
-                gender: infoEmployee?.gender,
-                address: infoEmployee?.address,
-                avatar: infoEmployee?.avatar,
-                hiredDate: infoEmployee?.hiredDate,
-                email: infoEmployee?.email,
-                profile: infoEmployee?.profile,
-                accountId: infoEmployee?.accountId,
-                phoneNumber: infoEmployee?.phoneNumber,
-                status: infoEmployee?.status,
-                nameRole: infoEmployee?.nameRole,
-                description: infoEmployee?.description,
-            },
-        });
-
-        return () => {
-            const chatEl = document.querySelector('#n8n-chat, .n8n-chat, iframe[src*="n8n"]');
-            if (chatEl && chatEl.parentNode) {
-                chatEl.parentNode.removeChild(chatEl);
-            }
-        };
-    }, [infoEmployee]);
-
     return (
         <div>
             <Layout className="min-h-screen flex flex-col">

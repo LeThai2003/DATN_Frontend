@@ -346,7 +346,7 @@ const SiderDoctor = ({ onOpenTab }) => {
             )}
 
             <div className="absolute bottom-0 left-0 w-full border-t border-blue-200 bg-blue-50 cursor-pointer hover:bg-blue-100 transition-all duration-200">
-                <AccountDoctor fullname={infoEmployee?.fullName} />
+                <AccountDoctor data={infoEmployee} />
             </div>
         </div>
     );

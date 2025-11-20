@@ -1,8 +1,9 @@
 import AccountPatient from '@/components/dropdowns/AccountPatient';
 import { fetchInfoPatient } from '@/stores/actions/patients/patient.action';
+import { selectInfoPatient } from '@/stores/selectors/patients/patient.selector';
 import { getCookies } from '@/utils/cookies/cookies';
 import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link, useLocation } from 'react-router';
 
 const Navbar = () => {
@@ -13,11 +14,13 @@ const Navbar = () => {
 
     const user = JSON.parse(getCookies('user') || null);
 
+    const infoPatient = useSelector(selectInfoPatient);
+
     useEffect(() => {
-        if (user && user?.authorities[0]?.authority == 'ROLE_PATIENT') {
-            dispatch(fetchInfoPatient({ phone_number: user?.username }));
+        if (!infoPatient && user?.authorities?.[0]?.authority === 'ROLE_PATIENT') {
+            dispatch(fetchInfoPatient({ phone_number: user.username }));
         }
-    }, []);
+    }, [infoPatient]);
 
     useEffect(() => {
         const handleScroll = () => {

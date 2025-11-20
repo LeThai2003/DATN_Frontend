@@ -104,9 +104,16 @@ class HttpService {
                         const accessToken = response.data.access_token;
                         const refreshToken = response.data.refresh_token;
 
-                        // Lưu token mới
-                        setCookies('access_token', accessToken, 7);
-                        setCookies('refresh_token', refreshToken, 30);
+                        const roleName = response.data.data.authorities[0].authority;
+
+                        if (roleName == 'ROLE_DOCTOR') {
+                            localStorage.setItem('access_token', accessToken);
+                            localStorage.setItem('refresh_token', refreshToken);
+                        } else {
+                            // Lưu token mới
+                            setCookies('access_token', accessToken, 7);
+                            setCookies('refresh_token', refreshToken, 30);
+                        }
 
                         // Thử lại request ban đầu với token mới
                         const newRequest = {

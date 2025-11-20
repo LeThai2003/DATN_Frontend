@@ -6,6 +6,8 @@ class ShiftApi extends HttpService {
     getShiftByEmployee = (filter) => this.post(filter, 'get/employee');
 
     updateShiftEmployee = (filter) => this.post(filter, 'create/employee');
+
+    deleteShiftEmployee = (shiftId) => this.delete(shiftId, 'delete');
 }
 
 export const shiftApi = new ShiftApi('shift');

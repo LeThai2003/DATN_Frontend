@@ -4,7 +4,7 @@ import { FilterWeekDay, WeekDaySlice } from '@/types/stores/weekDays/weekDay_typ
 export const initFilterWeekDay: FilterWeekDay = {
     ...initFilterValue,
     sort: 'Id',
-    order: 'asc',
+    order: 'desc',
     pageSize: 10,
     employeeIds: [],
 };

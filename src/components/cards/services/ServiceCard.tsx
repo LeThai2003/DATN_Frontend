@@ -34,13 +34,13 @@ const ServiceCard = ({ service }) => {
         navigate(`/appointment`);
     };
 
-    const user = JSON.parse(getCookies('user') || null);
+    // const user = JSON.parse(getCookies('user') || null);
 
-    useEffect(() => {
-        if (user && user?.authorities[0]?.authority == 'ROLE_PATIENT') {
-            dispatch(fetchInfoPatient({ phone_number: user?.username }));
-        }
-    }, []);
+    // useEffect(() => {
+    //     if (user && user?.authorities[0]?.authority == 'ROLE_PATIENT') {
+    //         dispatch(fetchInfoPatient({ phone_number: user?.username }));
+    //     }
+    // }, []);
 
     return (
         <div className="bg-white shadow-md rounded-2xl p-6 hover:shadow-xl transition">

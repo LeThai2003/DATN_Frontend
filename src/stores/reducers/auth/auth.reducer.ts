@@ -22,6 +22,11 @@ const authSlice = createSlice({
         setError(state, { payload }: PayloadAction<any>) {
             state.error = payload;
         },
+
+        // Thêm action để reset toàn bộ store
+        resetStore: () => {
+            return initAuthDefault;
+        },
     },
 });
 

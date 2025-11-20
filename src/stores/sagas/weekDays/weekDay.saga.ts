@@ -7,7 +7,6 @@ import {
 } from '@/stores/actions/weekDays/weekDay.action';
 import { common, week_day } from '@/stores/reducers';
 import { selectFilter } from '@/stores/selectors/weekDays/weekDay.selector';
-import { PayloadAction } from '@reduxjs/toolkit';
 import { all, call, fork, put, select, takeLatest } from 'typed-redux-saga';
 
 function* handleCreateWeekDay({ payload }) {
@@ -43,21 +42,7 @@ function* handleGetWeekDaysEmployee() {
             return;
         }
 
-        // console.log(data?.data?.data);
-
-        // if (data?.data?.data?.length) {
-        //     const arrResponse = data.data.data;
-        //     const groupMax = Math.max(...arrResponse.map((item) => item.group));
-        //     const dataNewest = arrResponse.filter((item) => item.group === groupMax);
-
-        //     yield put(
-        //         week_day.actions.setWeekDays({
-        //             ...data.data,
-        //             data: dataNewest,
-        //         })
-        //     );
-        //     return;
-        // }
+        console.log(data?.data?.data);
 
         yield put(week_day.actions.setWeekDays(data?.data || {}));
 
@@ -91,7 +76,7 @@ function* handleGetWeekDayEmployeeDetail({ payload }) {
             return;
         }
 
-        yield put(week_day.actions.setSelectWeekDay(data?.data || []));
+        yield put(week_day.actions.setSelectWeekDay(data?.data || {}));
     } catch (error) {
         console.error(error);
         yield put(common.actions.setErrorMessage(error?.message));

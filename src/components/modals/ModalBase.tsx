@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 interface ModalBaseProps {
     children: React.ReactNode;
     type: ModalType;
-    size?: 'sm' | 'md' | 'lg' | 'xl';
+    size?: 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
     bgTransparent?: boolean;
 }
 
@@ -16,6 +16,7 @@ const sizeClasses = {
     md: 'w-full sm:max-w-lg',
     lg: 'w-full sm:max-w-3xl',
     xl: 'w-full sm:max-w-5xl',
+    xxl: 'w-full sm:max-w-7xl',
 };
 
 const ModalBase = ({ children, type, size = 'md', bgTransparent = false }: ModalBaseProps) => {

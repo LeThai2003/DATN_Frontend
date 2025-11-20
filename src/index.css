@@ -16,8 +16,36 @@ ol {
     padding: 0;
 }
 
+.chat-window-wrapper {
+    z-index: 10 !important;
+}
+
 .chat-window-wrapper .chat-window-toggle {
-    background: #0275ff !important
+    background: #0275ff !important;
+    z-index: 10 !important;
+}
+
+.chat-inputs-controls .chat-input-send-button[data-v-040531b3],
+.chat-inputs-controls .chat-input-file-button[data-v-040531b3] {
+    color: #008CFF;
+}
+
+chat-input-send-button[disabled] {
+    cursor: no-drop;
+    color: #d2d4d9;
+}
+
+.chat-layout .chat-header p {
+    color: rgb(144 152 166);
+}
+
+.chat-message.chat-message-from-user:not(.chat-message-transparent) {
+    background: #4ea3ff !important;
+    color: #ffffff !important;
+}
+
+.chat-message.chat-message-from-user p {
+    color: #fff;
 }
 
 .chat-window-wrapper .chat-header {}

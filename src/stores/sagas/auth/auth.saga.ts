@@ -1,6 +1,7 @@
 import { authApi } from '@/api/auth/auth.api';
 import { patientApi } from '@/api/patients/patient.api';
 import { smsApi } from '@/api/sms/sms.api';
+import { ChatManager } from '@/components/chat/chatManager';
 import {
     loginAction,
     logoutAction,
@@ -40,8 +41,6 @@ function* handleLogin({ payload }) {
             })
         );
 
-        yield put(common.actions.setSuccessMessage('Đăng nhập thành công'));
-
         if (user?.authorities[0]?.authority == 'ROLE_DOCTOR') {
             localStorage.setItem('access_token', data?.access_token);
             localStorage.setItem('refresh_token', data?.refresh_token);
@@ -63,6 +62,8 @@ function* handleLogin({ payload }) {
         } else {
             payload.action('/403');
         }
+
+        yield put(common.actions.setSuccessMessage('Đăng nhập thành công'));
         // console.log(data);
     } catch (error) {
         console.log(error);
@@ -135,7 +136,7 @@ function* handleregister({ payload }) {
     }
 }
 
-function* handleLogout() {
+function* handleLogout({ payload }) {
     try {
         yield put(auth.actions.setLoading(true));
         const { error } = yield call(authApi.logout);
@@ -146,6 +147,18 @@ function* handleLogout() {
         deleteCookies('access_token');
         deleteCookies('refresh_token');
         deleteCookies('user');
+
+        // Reset Redux store
+        yield put(auth.actions.resetStore());
+
+        // Clear chat
+        ChatManager.destroy();
+
+        // Clear storage (redux-persist, session data)
+        localStorage.clear();
+
+        // Redirect
+        payload.action('/auths/login');
     } catch (error) {
         console.log(error);
         yield put(common.actions.setErrorMessage(error?.message));

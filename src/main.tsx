@@ -4,15 +4,17 @@ import './sentry/sentry.config';
 import App from './App';
 import { BrowserRouter } from 'react-router';
 import { Provider } from 'react-redux';
-import { store } from './stores/configs';
+import { persistor, store } from './stores/configs';
 import MessagePopup from './components/popups/MessagePopup';
-import ModalBase from '@/components/modals/ModalBase';
+import { PersistGate } from 'redux-persist/integration/react';
 
 createRoot(document.getElementById('root')!).render(
     <Provider store={store}>
-        <BrowserRouter>
-            <MessagePopup />
-            <App />
-        </BrowserRouter>
+        <PersistGate loading={null} persistor={persistor}>
+            <BrowserRouter>
+                <MessagePopup />
+                <App />
+            </BrowserRouter>
+        </PersistGate>
     </Provider>
 );
