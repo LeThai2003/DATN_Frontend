@@ -36,7 +36,7 @@ const ModalShiftEmployeeNew: React.FC<ModalState> = ({ data, type, variant }) =>
     const dataWeekDayEmployeeDetail = useSelector(selectSelectedWeekDay);
 
     const [selectedGroup, setSelectedGroup] = useState<any>(null);
-    const [activeTab, setActiveTab] = useState(2);
+    const [activeTab, setActiveTab] = useState(1);
     const [activeWeek, setActiveWeek] = useState(1);
     const [localVariant, setLocalVariant] = useState(variant);
     const [localWeekDays, setLocalWeekDays] = useState([]);
@@ -74,20 +74,20 @@ const ModalShiftEmployeeNew: React.FC<ModalState> = ({ data, type, variant }) =>
     }, [filter.employeeIds]);
 
     const dayNames = [
-        { value: 2, label: 'Thứ 2' },
-        { value: 3, label: 'Thứ 3' },
-        { value: 4, label: 'Thứ 4' },
-        { value: 5, label: 'Thứ 5' },
-        { value: 6, label: 'Thứ 6' },
-        { value: 7, label: 'Thứ 7' },
-        { value: 8, label: 'Chủ Nhật' },
-        { value: 9, label: 'Thứ 2' },
-        { value: 10, label: 'Thứ 3' },
-        { value: 11, label: 'Thứ 4' },
-        { value: 12, label: 'Thứ 5' },
-        { value: 13, label: 'Thứ 6' },
-        { value: 14, label: 'Thứ 7' },
-        { value: 15, label: 'Chủ Nhật' },
+        { value: 1, label: 'Thứ 2' },
+        { value: 2, label: 'Thứ 3' },
+        { value: 3, label: 'Thứ 4' },
+        { value: 4, label: 'Thứ 5' },
+        { value: 5, label: 'Thứ 6' },
+        { value: 6, label: 'Thứ 7' },
+        { value: 7, label: 'Chủ Nhật' },
+        { value: 8, label: 'Thứ 2' },
+        { value: 9, label: 'Thứ 3' },
+        { value: 10, label: 'Thứ 4' },
+        { value: 11, label: 'Thứ 5' },
+        { value: 12, label: 'Thứ 6' },
+        { value: 13, label: 'Thứ 7' },
+        { value: 14, label: 'Chủ Nhật' },
     ];
 
     const weekDaysTemplate = dayNames.map((d) => ({
@@ -111,7 +111,7 @@ const ModalShiftEmployeeNew: React.FC<ModalState> = ({ data, type, variant }) =>
     };
 
     const filterByWeek = (week: number) => {
-        const start = 2 + (week - 1) * 7; // Tuần 1:2, Tuần 2:9
+        const start = 1 + (week - 1) * 7; // Tuần 1:1, Tuần 2:8
         const end = start + 6;
 
         return dataWeekDayEmployeeDetail?.weekDayDtos?.filter(
@@ -132,7 +132,7 @@ const ModalShiftEmployeeNew: React.FC<ModalState> = ({ data, type, variant }) =>
             }
         } else {
             // Mặc định cho trường hợp khác
-            const newActiveDay = 2 + (week - 1) * 7;
+            const newActiveDay = 1 + (week - 1) * 7;
             setActiveTab(newActiveDay);
         }
     };
@@ -259,7 +259,7 @@ const ModalShiftEmployeeNew: React.FC<ModalState> = ({ data, type, variant }) =>
                                 setLocalVariant('edit');
                                 setLocalWeekDays(weekDaysTemplate);
                                 setSelectedGroup({});
-                                setActiveTab(2);
+                                setActiveTab(1);
                             }}
                         >
                             Tạo lịch mới
@@ -445,8 +445,8 @@ const ModalShiftEmployeeNew: React.FC<ModalState> = ({ data, type, variant }) =>
                     {dayNames
                         .filter(
                             (day) =>
-                                day.value >= 2 + (activeWeek - 1) * 7 &&
-                                day.value <= 2 + (activeWeek - 1) * 7 + 6
+                                day.value >= 1 + (activeWeek - 1) * 7 &&
+                                day.value <= 1 + (activeWeek - 1) * 7 + 6
                         )
                         .map((day) => {
                             return (

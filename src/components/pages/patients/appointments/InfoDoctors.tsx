@@ -88,9 +88,9 @@ const InfoDoctors = () => {
             const shiftStart = dayjs(`${filterShift?.time} ${shift.startTime}`);
 
             // Nếu giờ bắt đầu ca < giờ hiện tại
-            if (shiftStart.isBefore(now)) {
-                isTimeValid = false;
-            }
+            // if (shiftStart.isBefore(now)) {
+            //     isTimeValid = false;
+            // }
         }
 
         return {
@@ -224,31 +224,39 @@ const InfoDoctors = () => {
 
     // ------------------------------
     const today = dayjs();
-    const dayIndex = today.weekday(); // Thứ 2 = 0, Chủ nhật = 6
+    // const dayIndex = today.weekday(); // Thứ 2 = 0, Chủ nhật = 6
     let dayNames = [];
-    if (dayIndex == 6) {
-        // Chủ nhật
-        const start = today; // Chủ nhật hiện tại
-        dayNames = Array.from({ length: 8 }, (_, i) => {
-            const date = start.add(i, 'day');
-            return {
-                value: i + 2,
-                label: formatDayDateVi(date),
-                date: date,
-            };
-        });
-    } else {
-        //  Thứ 2 -> Thứ 7
-        const start = today.weekday(0); // Thu 2 cua tuan hien tai
-        dayNames = Array.from({ length: 7 }, (_, i) => {
-            const date = start.add(i, 'day');
-            return {
-                value: i + 2,
-                label: formatDayDateVi(date),
-                date: date,
-            };
-        });
-    }
+    dayNames = Array.from({ length: 14 }, (_, i) => {
+        const date = today.add(i, 'day');
+        return {
+            value: i + 2,
+            label: formatDayDateVi(date),
+            date: date,
+        };
+    });
+    // if (dayIndex == 6) {
+    //     // Chủ nhật
+    //     const start = today; // Chủ nhật hiện tại
+    //     dayNames = Array.from({ length: 8 }, (_, i) => {
+    //         const date = start.add(i, 'day');
+    //         return {
+    //             value: i + 2,
+    //             label: formatDayDateVi(date),
+    //             date: date,
+    //         };
+    //     });
+    // } else {
+    //     //  Thứ 2 -> Thứ 7
+    //     const start = today.weekday(0); // Thu 2 cua tuan hien tai
+    //     dayNames = Array.from({ length: 7 }, (_, i) => {
+    //         const date = start.add(i, 'day');
+    //         return {
+    //             value: i + 2,
+    //             label: formatDayDateVi(date),
+    //             date: date,
+    //         };
+    //     });
+    // }
 
     const handleClickShift = (shift) => {
         // console.log(shift);
