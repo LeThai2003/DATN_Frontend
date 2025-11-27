@@ -65,7 +65,7 @@ function* handleFetchAppointmentsDoctor() {
                 return timeA.localeCompare(timeB);
             }) || [];
 
-        console.log(appointmentList);
+        // console.log(appointmentList);
 
         yield put(appointment.actions.setAppointmentsDoctor(data?.data));
     } catch (error) {
@@ -198,7 +198,7 @@ function* handleCreateAppointment({ payload }) {
 
         const response = yield call(
             fetch,
-            `${import.meta.env.VITE_BACKEND_URL}/api/payment/create`,
+            `${window.__ENV__?.BACKEND_URL ?? import.meta.env.VITE_BACKEND_URL}/api/payment/create`,
             {
                 method: 'POST',
                 headers: {
@@ -213,7 +213,7 @@ function* handleCreateAppointment({ payload }) {
 
         const dataCreatePayment = yield call([response, 'json']);
 
-        console.log(dataCreatePayment);
+        // console.log(dataCreatePayment);
 
         if (dataCreatePayment?.paymentUrl) {
             // Chuyển hướng sang trang thanh toán
@@ -276,6 +276,7 @@ function* handleGetOldAppointment({ payload }) {
         if (dataPrecisions) {
             const mapped = dataPrecisions.map((p) => ({
                 drugId: p.drugId?.drugId,
+                drugName: p.drugId?.name,
                 customDrugName: p.customDrugName,
                 dosage: p.dosage,
                 duration: p.duration,

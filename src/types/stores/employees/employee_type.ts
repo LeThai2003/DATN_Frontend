@@ -30,10 +30,18 @@ export type Employee = {
     serviceDto: Service[];
 };
 
+export interface RankData {
+    shiftCount: number;
+    employee: Employee;
+}
+
+export type DataRecord = Record<string, RankData>;
+
 export interface EmployeeSlice {
     employees: PageObject<Employee>;
     filter: FilterEmployee;
     selectedEmployee: Employee;
     loadingComponent: boolean;
     employeeInfo: Employee;
+    shiftEmployee: DataRecord;
 }

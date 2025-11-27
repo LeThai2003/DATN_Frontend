@@ -1,8 +1,10 @@
+import TableRankShift from '@/components/pages/dashboard/TableRankShift';
 import {
     getCountAppointmentByDate,
     getCountServiceByDate,
     getFollowUpVisitsByDate,
 } from '@/stores/actions/appointments/appointment.action';
+import { getCountShifts } from '@/stores/actions/managers/employees/employee.action';
 import { getTotalRoom } from '@/stores/actions/managers/rooms/room.action';
 import {
     selectCountAppointmentByDate,
@@ -10,6 +12,7 @@ import {
     selectCountServiceByDate,
     selectLoadingComponent,
 } from '@/stores/selectors/appointments/appointment.selector';
+import { selectRankShiftEmployee } from '@/stores/selectors/employees/employee.selector';
 import { selectTotalRooms } from '@/stores/selectors/rooms/room.selector';
 import { UserOutlined, RedoOutlined, TeamOutlined } from '@ant-design/icons';
 import { Row, Col, Card, Statistic, DatePicker, Spin, Empty } from 'antd';
@@ -39,9 +42,12 @@ const Dashboard = () => {
     const countAppointmentsByDate = useSelector(selectCountAppointmentByDate);
     const countServicesByDate = useSelector(selectCountServiceByDate);
     const countFollowUpVisitsByDate = useSelector(selectCountFollowUpVisitsByDate);
+    const rankShiftEmployee = useSelector(selectRankShiftEmployee);
     const loadingComponent = useSelector(selectLoadingComponent);
 
     const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs] | null>(null);
+
+    // console.log(rankShiftEmployee);
 
     // mặc định từ đầu tháng đến hôm nay
     useEffect(() => {
@@ -82,6 +88,8 @@ const Dashboard = () => {
                 },
             })
         );
+
+        dispatch(getCountShifts());
     }, [dateRange]);
 
     const TotalAppointment = countAppointmentsByDate.reduce((sum, item) => sum + item.count, 0);
@@ -250,6 +258,8 @@ const Dashboard = () => {
                     </Col>
                 </Row>
             </Spin>
+
+            <TableRankShift data={rankShiftEmployee} />
         </div>
     );
 };

@@ -229,7 +229,7 @@ const InfoDoctors = () => {
     dayNames = Array.from({ length: 14 }, (_, i) => {
         const date = today.add(i, 'day');
         return {
-            value: i + 2,
+            value: i + 1,
             label: formatDayDateVi(date),
             date: date,
         };

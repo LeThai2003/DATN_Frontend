@@ -35,4 +35,10 @@ export const patientAppointmentSchema = yup.object().shape({
         .string()
         .required('Vui lòng nhập số điện thoại liên hệ khẩn cấp')
         .matches(/^(0|\+84)(\d{9})$/, 'Số điện thoại không hợp lệ'),
+
+    email: yup
+        .string()
+        .trim()
+        .optional()
+        .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Email không hợp lệ'),
 });

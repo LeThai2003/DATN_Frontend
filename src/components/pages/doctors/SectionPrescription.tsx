@@ -89,10 +89,13 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
         // if (editingKey) return;
         // if (dataAdd.length > 0) return;
 
+        console.log('---------------------------------------------------');
+        console.log(list);
+
         const mapped = list.map((item, index) => ({
             key: `sug-${index}`,
             drug_id: item.drugId,
-            drug_name: item.customDrugName || '',
+            drug_name: item.drugName || item.customDrugName || '',
             dosage: item.dosage ?? null,
             duration: item.duration ?? null,
             unit_dosage_id: item.unitDosageId ?? null,
@@ -499,9 +502,15 @@ const SectionPrescription = ({ record, isHistory, appointmentRecordData }) => {
         },
     };
 
+    // console.log(dataAdd);
+
     // ========== CỘT DÙNG KHI HIỂN THỊ LỊCH SỬ ==========
     const historyColumns: ColumnsType<any> = [
-        { title: 'Thuốc', dataIndex: 'customDrugName' },
+        {
+            title: 'Thuốc',
+            render: (_, record) =>
+                record?.customDrugName ? record?.customDrugName : record?.drugId?.name,
+        },
         { title: 'Liều dùng', dataIndex: 'dosage' },
         {
             title: 'Đơn vị',

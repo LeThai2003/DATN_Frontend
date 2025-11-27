@@ -44,11 +44,11 @@ export const clinicMenu = {
             label: 'Quản lý bác sĩ',
             icon: <FaUserNurse />,
         },
-        {
-            key: 'patients',
-            label: 'Quản lý bệnh nhân',
-            icon: <FaUserInjured />,
-        },
+        // {
+        //     key: 'patients',
+        //     label: 'Quản lý bệnh nhân',
+        //     icon: <FaUserInjured />,
+        // },
         // {
         //     key: 'schedules',
         //     label: 'Quản lý lịch làm',

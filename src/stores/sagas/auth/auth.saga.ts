@@ -80,7 +80,11 @@ function* handelSignUpPhoneNumber({
     console.log(phone_number);
     try {
         yield put(auth.actions.setLoading(true));
-        const data = yield call(smsApi.signUpPhoneNumber, `${phone_number}`);
+        const { data, error } = yield call(smsApi.signUpPhoneNumber, `${phone_number}`);
+        if (error) {
+            yield put(common.actions.setErrorMessage(error?.message || 'Có lỗi xảy ra'));
+            return;
+        }
         yield put(common.actions.setSuccessMessage('Gửi mã OTP thành công'));
         setTimeout(() => {
             payload.action(`/auths/otp-verify/${phone_number}`);
@@ -99,9 +103,16 @@ function* handleVerifyOTP({ payload }) {
     console.log(payload);
     try {
         yield put(auth.actions.setLoading(true));
-        const data = yield call(smsApi.verifyOTP, { otp_code, phone_number: `${phone_number}` });
+        const { data, error } = yield call(smsApi.verifyOTP, {
+            otp_code,
+            phone_number: `${phone_number}`,
+        });
         // console.log(data);
-        setCookies('code', data?.data?.data, 7);
+        if (error) {
+            yield put(common.actions.setErrorMessage(error?.message || 'Có lỗi xảy ra'));
+            return;
+        }
+        setCookies('code', data?.data, 7);
         setTimeout(() => {
             payload.action(`/auths/signUp/${phone_number}`);
         }, 1000);
@@ -121,7 +132,7 @@ function* handleregister({ payload }) {
         const code = getCookies('code');
         const { error } = yield call(patientApi.register, { data, code });
         if (error) {
-            yield put(common.actions.setErrorMessage('Có lỗi xảy ra'));
+            yield put(common.actions.setErrorMessage(error?.message || 'Có lỗi xảy ra'));
             return;
         }
         // console.log(data);

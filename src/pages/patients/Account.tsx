@@ -66,6 +66,7 @@ const Account = () => {
             gender: infoPatient?.gender || true,
             address: infoPatient?.address || '',
             emergencyContact: infoPatient?.emergencyContact || '',
+            email: infoPatient?.email || '',
         },
     });
 
@@ -187,6 +188,17 @@ const Account = () => {
                                                     type={isEdit ? 'input' : 'text'}
                                                     error={!!errors.address}
                                                     helperText={errors.address?.message}
+                                                    required
+                                                />
+                                                <FormField
+                                                    name="email"
+                                                    control={control}
+                                                    label="Email"
+                                                    placeholder="Nhập email"
+                                                    inputType="email"
+                                                    type={isEdit ? 'input' : 'text'}
+                                                    error={!!errors.email}
+                                                    helperText={errors.email?.message}
                                                     required
                                                 />
                                             </div>

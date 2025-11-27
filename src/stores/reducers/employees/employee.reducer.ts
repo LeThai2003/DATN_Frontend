@@ -29,6 +29,9 @@ const EmployeeSlice = createSlice({
         setEmployeeInfo(state, { payload }: PayloadAction<any>) {
             state.employeeInfo = payload;
         },
+        setRankShiftEmployee(state, { payload }: PayloadAction<any>) {
+            state.shiftEmployee = payload;
+        },
     },
 });
 

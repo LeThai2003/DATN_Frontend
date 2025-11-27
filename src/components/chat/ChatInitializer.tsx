@@ -92,10 +92,13 @@ const ChatInitializer = () => {
     };
 
     const getWebhook = () => {
-        if (role === 'ROLE_PATIENT') return import.meta.env.VITE_CHAT_URL_PATIENT;
-        if (role === 'ROLE_DOCTOR') return import.meta.env.VITE_CHAT_URL;
+        if (role === 'ROLE_PATIENT')
+            return window.__ENV__?.CHAT_URL_PATIENT ?? import.meta.env.VITE_CHAT_URL_PATIENT;
+        if (role === 'ROLE_DOCTOR')
+            return window.__ENV__?.CHAT_URL ?? import.meta.env.VITE_CHAT_URL;
         if (role === 'ROLE_ADMIN') return '';
-        if (role == 'ROLE_GUEST') return import.meta.env.VITE_CHAT_URL_PATIENT;
+        if (role == 'ROLE_GUEST')
+            return window.__ENV__?.CHAT_URL_PATIENT ?? import.meta.env.VITE_CHAT_URL_PATIENT;
     };
 
     useEffect(() => {

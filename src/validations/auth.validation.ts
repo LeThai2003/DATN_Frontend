@@ -48,7 +48,11 @@ export const signupSchema = yup.object().shape({
 
     job: yup.string().required('Vui lòng nhập nghề nghiệp'),
 
-    dob: yup.date().nullable().required('Vui lòng chọn ngày sinh'),
+    dob: yup
+        .date()
+        .nullable()
+        .required('Vui lòng chọn ngày sinh')
+        .max(new Date(), 'Ngày sinh không thể lớn hơn ngày hiện tại'),
 
     gender: yup.boolean().required('Vui lòng chọn giới tính'),
 
@@ -58,6 +62,12 @@ export const signupSchema = yup.object().shape({
         .string()
         .required('Vui lòng nhập số điện thoại liên hệ khẩn cấp')
         .matches(/^(0|\+84)(\d{9})$/, 'Số điện thoại không hợp lệ'),
+
+    email: yup
+        .string()
+        .trim()
+        .required('Vui lòng nhập email')
+        .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Email không hợp lệ'),
 });
 
 export const otpSchema = yup.object({

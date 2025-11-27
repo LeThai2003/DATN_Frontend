@@ -29,7 +29,7 @@ class HttpService {
         this.entity = entity;
 
         this.instance = axios.create({
-            baseURL: import.meta.env.VITE_BACKEND_URL,
+            baseURL: window.__ENV__?.BACKEND_URL ?? import.meta.env.VITE_BACKEND_URL,
         });
 
         this.instance.interceptors.request.use((config) => {
@@ -97,7 +97,7 @@ class HttpService {
                         // Refresh token
                         const response = await axios.post(
                             `${
-                                import.meta.env.VITE_BACKEND_URL
+                                window.__ENV__?.BACKEND_URL ?? import.meta.env.VITE_BACKEND_URL
                             }/auth/refresh?refreshToken=${refresh_token}`
                         );
 

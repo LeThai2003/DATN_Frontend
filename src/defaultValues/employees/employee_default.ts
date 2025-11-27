@@ -17,4 +17,5 @@ export const initEmployeeSlice: EmployeeSlice = {
     selectedEmployee: null,
     loadingComponent: false,
     employeeInfo: null,
+    shiftEmployee: {},
 };

@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  frontend:
+    image: doctorhoai/datn_frontend_react:v5
+    build:
+      context: .
+    ports:
+      - "5175:80" # map port 80 trong container ra 8080 local
+    environment:
+      VITE_SENTRY_DSN: "https://21d2165acf613c6be33fff39783bb742@o4509593553141760.ingest.de.sentry.io/4509879480614992"
+      VITE_BACKEND_URL: "http://34.95.32.44:8080"
+      VITE_CHAT_URL: "http://35.226.253.188:5678/webhook/1872c391-bd77-40f8-a01f-98b803f6993a/chat"
+      VITE_CHAT_URL_PATIENT: "http://medicalhoai.id.vn:5678/webhook/05ed3c1e-fc79-4320-bcf6-1fd20342481e/chat"
