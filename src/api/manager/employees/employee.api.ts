@@ -25,8 +25,8 @@ class EmployeeApi extends HttpService {
         return this.get(`get/username/${username}`);
     };
 
-    countShifts = () => {
-        return this.get('count-shifts');
+    countShifts = (params) => {
+        return this.get(`count-shifts`, params);
     };
 }
 

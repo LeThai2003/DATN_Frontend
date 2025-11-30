@@ -11,12 +11,6 @@ import ChatInitializer from './components/chat/ChatInitializer';
 function App() {
     const location = useLocation();
 
-    // useEffect(() => {
-    //     createChat({
-    //         webhookUrl: '',
-    //     });
-    // }, []);
-
     return (
         <>
             <ChatInitializer />

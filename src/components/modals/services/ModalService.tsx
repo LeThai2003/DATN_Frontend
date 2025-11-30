@@ -213,6 +213,7 @@ const ModalService: React.FC<ModalState> = ({ data, type, variant }) => {
                                 placeholder="Khám tổng quát"
                                 type="textarea"
                                 rows={3}
+                                maxLength={700}
                                 error={!!errors.description}
                                 helperText={errors.description?.message as string}
                             />

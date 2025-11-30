@@ -20,7 +20,14 @@ function* handleFetchFirst() {
             filter: select(selectFilter),
         });
 
-        const { data } = yield call(serviceApi.getServiceByFilter, filter);
+        const { data, error } = yield call(serviceApi.getServiceByFilter, filter);
+
+        if (error) {
+            yield put(
+                common.actions.setErrorMessage(error?.message || 'Lỗi lấy danh sách dịch vụ')
+            );
+            return;
+        }
 
         yield put(
             service.actions.setServices({
@@ -40,7 +47,11 @@ function* handleFetchFirst() {
 function* handleUpdateService({ payload }: PayloadAction<any>) {
     yield put(service.actions.setLoadingComponent(true));
     try {
-        yield call(serviceApi.updateService, payload, payload?.id);
+        const { error } = yield call(serviceApi.updateService, payload, payload?.id);
+        if (error) {
+            yield put(common.actions.setErrorMessage(error?.message || 'Lỗi cập nhật dịch vụ'));
+            return;
+        }
         yield put(common.actions.setSuccessMessage('Cập nhật dịch vụ thành công'));
         yield put(common.actions.setHiddenModal(ModalType.SERVICE));
         yield handleFetchFirst();
@@ -55,7 +66,11 @@ function* handleUpdateService({ payload }: PayloadAction<any>) {
 function* handleCreateService({ payload }) {
     yield put(service.actions.setLoadingComponent(true));
     try {
-        yield call(serviceApi.addService, payload);
+        const { error } = yield call(serviceApi.addService, payload);
+        if (error) {
+            yield put(common.actions.setErrorMessage(error?.message));
+            return;
+        }
         yield put(common.actions.setSuccessMessage('Thêm mới dịch vụ thành công'));
         yield put(common.actions.setHiddenModal(ModalType.SERVICE));
         yield handleFetchFirst();
@@ -71,7 +86,11 @@ function* handleDeleteService({ payload }) {
     yield put(service.actions.setLoadingComponent(true));
     const { id } = payload;
     try {
-        yield call(serviceApi.deleteService, id);
+        const { error } = yield call(serviceApi.deleteService, id);
+        if (error) {
+            yield put(common.actions.setErrorMessage(error?.message || 'Lỗi xóa dịch vụ'));
+            return;
+        }
         yield put(common.actions.setSuccessMessage('Xóa dịch vụ thành công'));
         yield put(common.actions.setHiddenModal(ModalType.SERVICE));
         yield handleFetchFirst();

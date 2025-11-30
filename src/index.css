@@ -16,6 +16,7 @@ ol {
     padding: 0;
 }
 
+/* --------------- chat --------------- */
 .chat-window-wrapper {
     z-index: 10 !important;
 }
@@ -48,7 +49,42 @@ chat-input-send-button[disabled] {
     color: #fff;
 }
 
-.chat-window-wrapper .chat-header {}
+/* Ẩn chat khi cần */
+#n8n-chat.hidden,
+.n8n-chat.hidden {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Đảm bảo chat luôn ở góc phải dưới */
+#n8n-chat,
+.n8n-chat {
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    z-index: 9999 !important;
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Tùy chỉnh chat button */
+#n8n-chat button[aria-label="Toggle chat"],
+.n8n-chat button[aria-label="Toggle chat"] {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive: Thu nhỏ trên mobile */
+@media (max-width: 768px) {
+
+    #n8n-chat,
+    .n8n-chat {
+        bottom: 10px !important;
+        right: 10px !important;
+    }
+}
+
+/* --------------- end chat -------------- */
 
 @layer base {
     body {

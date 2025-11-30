@@ -24,7 +24,9 @@ export const deleteEmployee = createAction(employeeAction.delete, (state) => ({
 
 export const loadingPage = createAction(`${name}/LOAD_PAGE`);
 
-export const getCountShifts = createAction(`${name}/COUNT_SHIFT`);
+export const getCountShifts = createAction(`${name}/COUNT_SHIFT`, (state) => ({
+    payload: state,
+}));
 
 export const changePage = createAction(`${name}/CHANGE_PAGE`, (state) => ({
     payload: state,

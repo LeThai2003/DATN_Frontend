@@ -89,7 +89,14 @@ const Dashboard = () => {
             })
         );
 
-        dispatch(getCountShifts());
+        dispatch(
+            getCountShifts({
+                params: {
+                    startDate: dayjs(dateRange[0]).format('YYYY-MM-DD'),
+                    endDate: dayjs(dateRange[1]).format('YYYY-MM-DD'),
+                },
+            })
+        );
     }, [dateRange]);
 
     const TotalAppointment = countAppointmentsByDate.reduce((sum, item) => sum + item.count, 0);

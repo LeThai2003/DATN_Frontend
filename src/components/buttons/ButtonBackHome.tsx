@@ -1,11 +1,12 @@
 import { getCookies } from '@/utils/cookies/cookies';
+import { getUser } from '@/utils/info/getUser';
 import { Button } from 'antd';
 import React from 'react';
 import { useNavigate } from 'react-router';
 
 const ButtonBackHome = () => {
     const navigate = useNavigate();
-    const user = JSON.parse(getCookies('user'));
+    const user = getUser();
     let path = '/';
 
     if (user?.authorities[0]?.authority == 'ROLE_ADMIN') {

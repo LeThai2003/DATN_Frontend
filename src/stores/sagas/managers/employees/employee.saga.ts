@@ -141,10 +141,11 @@ function* handleGetEmployeeInfo({ payload }) {
     }
 }
 
-function* handleGetCountShift() {
+function* handleGetCountShift({ payload }) {
     yield put(employee.actions.setLoadingComponent(true));
     try {
-        const { data, error } = yield call(employeeApi.countShifts);
+        const { params } = payload;
+        const { data, error } = yield call(employeeApi.countShifts, params);
         if (error) {
             yield put(common.actions.setErrorMessage(error?.message));
             return;

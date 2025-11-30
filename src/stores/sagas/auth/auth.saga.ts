@@ -163,6 +163,7 @@ function* handleLogout({ payload }) {
         yield put(auth.actions.resetStore());
 
         // Clear chat
+        ChatManager.resetSession();
         ChatManager.destroy();
 
         // Clear storage (redux-persist, session data)
