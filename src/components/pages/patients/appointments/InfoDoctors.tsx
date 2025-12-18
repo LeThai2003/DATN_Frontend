@@ -88,9 +88,9 @@ const InfoDoctors = () => {
             const shiftStart = dayjs(`${filterShift?.time} ${shift.startTime}`);
 
             // Nếu giờ bắt đầu ca < giờ hiện tại
-            // if (shiftStart.isBefore(now)) {
-            //     isTimeValid = false;
-            // }
+            if (shiftStart.isBefore(now)) {
+                isTimeValid = false;
+            }
         }
 
         return {

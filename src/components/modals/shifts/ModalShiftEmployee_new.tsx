@@ -276,12 +276,14 @@ const ModalShiftEmployeeNew: React.FC<ModalState> = ({ data, type, variant }) =>
     if (localVariant === 'view') {
         // console.log(activeTab);
 
-        const currentDetail =
+        let currentDetail =
             dataWeekDayEmployeeDetail?.weekDayDtos?.find((i) => i.dayOfWeek === activeTab)
                 ?.shiftDtos || [];
 
         // console.log(dataWeekDayEmployeeDetail?.weekDayDtos);
         // console.log(currentDetail);
+
+        currentDetail = [...currentDetail].sort((a, b) => a.startTime.localeCompare(b.startTime));
 
         return (
             <ModalBase type={type} size="lg">

@@ -100,6 +100,11 @@ interface FollowUpVisits {
     totalFollowUpVisits: number;
 }
 
+interface PaymentResult {
+    RspCode: string; // "00"
+    Message: string;
+}
+
 export interface AppointmentSlice {
     appointments_doctor: PageObject<Appointment>;
     appointments_patient: PageObject<Appointment>;
@@ -114,4 +119,5 @@ export interface AppointmentSlice {
     countAppointmentByDate?: CountAppointment[];
     countServiceByDate?: CountService[];
     countFollowUpVisitsByDate?: FollowUpVisits;
+    paymentResult?: PaymentResult;
 }

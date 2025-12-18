@@ -213,7 +213,7 @@ function* handleCreateAppointment({ payload }) {
 
         const dataCreatePayment = yield call([response, 'json']);
 
-        // console.log(dataCreatePayment);
+        console.log(dataCreatePayment);
 
         if (dataCreatePayment?.paymentUrl) {
             // Chuyển hướng sang trang thanh toán
@@ -241,9 +241,20 @@ function* handleVerifyPaymentAppointment({ payload }) {
         const { data, error } = yield call(paymentApi.verifyPayment, { apointment_id, params });
 
         if (error) {
-            yield put(common.actions.setErrorMessage(error?.message));
+            yield put(common.actions.setErrorMessage('Không tìm thấy id cuộc hẹn'));
+            yield put(
+                appointment.actions.setPaymentResult({
+                    RspCode: '111', // "00"
+                    Message: 'underfind appointment_id',
+                })
+            );
             return;
         }
+
+        // console.log('-----------------------------------');
+        // console.log(data);
+
+        yield put(appointment.actions.setPaymentResult(data));
 
         deleteCookies('apointment_id');
     } catch (error) {
