@@ -213,6 +213,7 @@ const ModalService: React.FC<ModalState> = ({ data, type, variant }) => {
                                 placeholder="Khám tổng quát"
                                 type="textarea"
                                 rows={3}
+                                maxLength={700}
                                 error={!!errors.description}
                                 helperText={errors.description?.message as string}
                             />
@@ -224,7 +225,10 @@ const ModalService: React.FC<ModalState> = ({ data, type, variant }) => {
                                     listType="picture-card"
                                     className="avatar-uploader overflow-hidden"
                                     showUploadList={false}
-                                    action={`${import.meta.env.VITE_BACKEND_URL}/upload/image`}
+                                    action={`${
+                                        window.__ENV__?.BACKEND_URL ??
+                                        import.meta.env.VITE_BACKEND_URL
+                                    }/upload/image`}
                                     beforeUpload={beforeUpload}
                                     onChange={handleChangeImage}
                                 >
@@ -312,7 +316,10 @@ const ModalService: React.FC<ModalState> = ({ data, type, variant }) => {
                                         listType="picture-card"
                                         className="avatar-uploader overflow-hidden"
                                         showUploadList={false}
-                                        action={`${import.meta.env.VITE_BACKEND_URL}/upload/image`}
+                                        action={`${
+                                            window.__ENV__?.BACKEND_URL ??
+                                            import.meta.env.VITE_BACKEND_URL
+                                        }/upload/image`}
                                         beforeUpload={beforeUpload}
                                         onChange={handleChangeImage}
                                     >

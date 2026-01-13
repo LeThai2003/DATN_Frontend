@@ -3,11 +3,12 @@ import createSagaMiddleware from 'redux-saga';
 import { persistStore } from 'redux-persist';
 import rootReducers from './reducers/rootReducer';
 import rootSaga from './sagas/rootSaga';
+import persistedReducer from './reducers/persistConfig';
 
 const sagaMiddleware = createSagaMiddleware();
 
 export const store = configureStore({
-    reducer: rootReducers,
+    reducer: persistedReducer,
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware({
             thunk: false,
@@ -17,6 +18,7 @@ export const store = configureStore({
 });
 
 sagaMiddleware.run(rootSaga);
+
 export const persistor = persistStore(store);
 
 export type RootState = ReturnType<typeof store.getState>;

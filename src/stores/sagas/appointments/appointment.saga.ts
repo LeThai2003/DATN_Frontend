@@ -65,7 +65,7 @@ function* handleFetchAppointmentsDoctor() {
                 return timeA.localeCompare(timeB);
             }) || [];
 
-        console.log(appointmentList);
+        // console.log(appointmentList);
 
         yield put(appointment.actions.setAppointmentsDoctor(data?.data));
     } catch (error) {
@@ -198,7 +198,7 @@ function* handleCreateAppointment({ payload }) {
 
         const response = yield call(
             fetch,
-            `${import.meta.env.VITE_BACKEND_URL}/api/payment/create`,
+            `${window.__ENV__?.BACKEND_URL ?? import.meta.env.VITE_BACKEND_URL}/api/payment/create`,
             {
                 method: 'POST',
                 headers: {
@@ -241,9 +241,20 @@ function* handleVerifyPaymentAppointment({ payload }) {
         const { data, error } = yield call(paymentApi.verifyPayment, { apointment_id, params });
 
         if (error) {
-            yield put(common.actions.setErrorMessage(error?.message));
+            yield put(common.actions.setErrorMessage('Không tìm thấy id cuộc hẹn'));
+            yield put(
+                appointment.actions.setPaymentResult({
+                    RspCode: '111', // "00"
+                    Message: 'underfind appointment_id',
+                })
+            );
             return;
         }
+
+        // console.log('-----------------------------------');
+        // console.log(data);
+
+        yield put(appointment.actions.setPaymentResult(data));
 
         deleteCookies('apointment_id');
     } catch (error) {
@@ -276,6 +287,7 @@ function* handleGetOldAppointment({ payload }) {
         if (dataPrecisions) {
             const mapped = dataPrecisions.map((p) => ({
                 drugId: p.drugId?.drugId,
+                drugName: p.drugId?.name,
                 customDrugName: p.customDrugName,
                 dosage: p.dosage,
                 duration: p.duration,

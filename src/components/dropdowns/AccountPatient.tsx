@@ -7,6 +7,7 @@ import { deleteAllCookies, getCookies } from '@/utils/cookies/cookies';
 import { fetchInfoPatient } from '@/stores/actions/patients/patient.action';
 import { selectInfoPatient } from '@/stores/selectors/patients/patient.selector';
 import { useEffect } from 'react';
+import { logoutAction } from '@/stores/actions/auth/auth.action';
 
 const AccountPatient = ({ scrolled }) => {
     // dispatch
@@ -16,16 +17,9 @@ const AccountPatient = ({ scrolled }) => {
 
     const user = JSON.parse(getCookies('user') || null);
 
-    useEffect(() => {
-        if (user && user?.authorities[0]?.authority == 'ROLE_PATIENT') {
-            dispatch(fetchInfoPatient({ phone_number: user?.username }));
-        }
-    }, []);
-
     // event handling
     const handleLogout = () => {
-        deleteAllCookies();
-        navigate('/auths/login');
+        dispatch(logoutAction({ action: (e) => navigate(e) }));
     };
 
     // items

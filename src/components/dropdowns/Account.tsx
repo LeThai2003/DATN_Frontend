@@ -26,8 +26,7 @@ const Account = () => {
 
     // event handling
     const handleLogout = () => {
-        dispatch(logoutAction());
-        navigate('/auths/login');
+        dispatch(logoutAction({ action: (e) => navigate(e) }));
     };
 
     // items

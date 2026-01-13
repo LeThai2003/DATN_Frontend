@@ -1,11 +1,12 @@
 import { getCookies } from '@/utils/cookies/cookies';
+import { getUser } from '@/utils/info/getUser';
 import { useLocation, useNavigate } from 'react-router';
 
 const FallbackError = ({ resetError }: { resetError: () => void }) => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const user = getCookies('user');
+    const user = getUser();
 
     const goHome = () => {
         resetError(); // Xóa trạng thái lỗi của ErrorBoundary

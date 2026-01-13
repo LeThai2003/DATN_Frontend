@@ -1,6 +1,7 @@
 import { authApi } from '@/api/auth/auth.api';
 import { patientApi } from '@/api/patients/patient.api';
 import { smsApi } from '@/api/sms/sms.api';
+import { ChatManager } from '@/components/chat/chatManager';
 import {
     loginAction,
     logoutAction,
@@ -40,8 +41,6 @@ function* handleLogin({ payload }) {
             })
         );
 
-        yield put(common.actions.setSuccessMessage('Đăng nhập thành công'));
-
         if (user?.authorities[0]?.authority == 'ROLE_DOCTOR') {
             localStorage.setItem('access_token', data?.access_token);
             localStorage.setItem('refresh_token', data?.refresh_token);
@@ -63,6 +62,8 @@ function* handleLogin({ payload }) {
         } else {
             payload.action('/403');
         }
+
+        yield put(common.actions.setSuccessMessage('Đăng nhập thành công'));
         // console.log(data);
     } catch (error) {
         console.log(error);
@@ -79,7 +80,11 @@ function* handelSignUpPhoneNumber({
     console.log(phone_number);
     try {
         yield put(auth.actions.setLoading(true));
-        const data = yield call(smsApi.signUpPhoneNumber, `${phone_number}`);
+        const { data, error } = yield call(smsApi.signUpPhoneNumber, `${phone_number}`);
+        if (error) {
+            yield put(common.actions.setErrorMessage(error?.message || 'Có lỗi xảy ra'));
+            return;
+        }
         yield put(common.actions.setSuccessMessage('Gửi mã OTP thành công'));
         setTimeout(() => {
             payload.action(`/auths/otp-verify/${phone_number}`);
@@ -98,9 +103,16 @@ function* handleVerifyOTP({ payload }) {
     console.log(payload);
     try {
         yield put(auth.actions.setLoading(true));
-        const data = yield call(smsApi.verifyOTP, { otp_code, phone_number: `${phone_number}` });
+        const { data, error } = yield call(smsApi.verifyOTP, {
+            otp_code,
+            phone_number: `${phone_number}`,
+        });
         // console.log(data);
-        setCookies('code', data?.data?.data, 7);
+        if (error) {
+            yield put(common.actions.setErrorMessage(error?.message || 'Có lỗi xảy ra'));
+            return;
+        }
+        setCookies('code', data?.data, 7);
         setTimeout(() => {
             payload.action(`/auths/signUp/${phone_number}`);
         }, 1000);
@@ -120,7 +132,7 @@ function* handleregister({ payload }) {
         const code = getCookies('code');
         const { error } = yield call(patientApi.register, { data, code });
         if (error) {
-            yield put(common.actions.setErrorMessage('Có lỗi xảy ra'));
+            yield put(common.actions.setErrorMessage(error?.message || 'Có lỗi xảy ra'));
             return;
         }
         // console.log(data);
@@ -135,7 +147,7 @@ function* handleregister({ payload }) {
     }
 }
 
-function* handleLogout() {
+function* handleLogout({ payload }) {
     try {
         yield put(auth.actions.setLoading(true));
         const { error } = yield call(authApi.logout);
@@ -146,6 +158,19 @@ function* handleLogout() {
         deleteCookies('access_token');
         deleteCookies('refresh_token');
         deleteCookies('user');
+
+        // Reset Redux store
+        yield put(auth.actions.resetStore());
+
+        // Clear chat
+        ChatManager.resetSession();
+        ChatManager.destroy();
+
+        // Clear storage (redux-persist, session data)
+        localStorage.clear();
+
+        // Redirect
+        payload.action('/auths/login');
     } catch (error) {
         console.log(error);
         yield put(common.actions.setErrorMessage(error?.message));

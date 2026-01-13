@@ -21,10 +21,10 @@ const SignUp = () => {
     const navigate = useNavigate();
 
     const onSubmit = (data) => {
-        console.log(data);
         data.phoneNumber = params?.phone_number;
         data.status = 'ACTIVE';
         data.roleId = '51db1034-54ee-4a35-83a5-f479f430bec8';
+        console.log(data);
         dispatch(registerAction({ data, action: (e) => navigate(e) }));
     };
 
@@ -45,6 +45,7 @@ const SignUp = () => {
             gender: true,
             address: '',
             emergencyContact: '',
+            email: '',
         },
     });
 
@@ -188,6 +189,19 @@ const SignUp = () => {
                         <div className="flex gap-4">
                             <div className="flex-[1]">
                                 <FormField
+                                    name="email"
+                                    control={control}
+                                    label="Email"
+                                    placeholder="Nhập email"
+                                    inputType="email"
+                                    type="input"
+                                    error={!!errors.email}
+                                    helperText={errors.email?.message}
+                                    required
+                                />
+                            </div>
+                            <div className="flex-[1]">
+                                <FormField
                                     name="emergencyContact"
                                     control={control}
                                     label="SĐT liên hệ khẩn cấp"
@@ -199,7 +213,7 @@ const SignUp = () => {
                                     required
                                 />
                             </div>
-                            <div className="flex-[2]">
+                            <div className="flex-[1]">
                                 <FormField
                                     name="address"
                                     control={control}

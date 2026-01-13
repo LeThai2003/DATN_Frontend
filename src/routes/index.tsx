@@ -49,6 +49,8 @@ const RelativeInformation = lazy(() => import('../pages/patients/RelativeInforma
 
 const Unauthorized = lazy(() => import('../pages/errors/Unauthenticated403'));
 
+const TestChat = lazy(() => import('../pages/TestChat'));
+
 function AppRoutes() {
     const routes = useRoutes([
         // Manager
@@ -248,6 +250,15 @@ function AppRoutes() {
                     element: (
                         <TitleRouter title="Phòng khám">
                             <Home />
+                        </TitleRouter>
+                    ),
+                },
+                {
+                    index: true,
+                    path: '/test-chat',
+                    element: (
+                        <TitleRouter title="Test Chat">
+                            <TestChat />
                         </TitleRouter>
                     ),
                 },

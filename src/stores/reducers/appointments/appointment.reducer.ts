@@ -62,6 +62,9 @@ const AppointmentSlice = createSlice({
         setCountFollowUpVisitsByDate(state, { payload }: PayloadAction<any>) {
             state.countFollowUpVisitsByDate = payload;
         },
+        setPaymentResult(state, { payload }: PayloadAction<any>) {
+            state.paymentResult = payload;
+        },
     },
 });
 

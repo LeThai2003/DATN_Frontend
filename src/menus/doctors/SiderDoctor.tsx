@@ -142,11 +142,25 @@ const SiderDoctor = ({ onOpenTab }) => {
         setSelectedHistoryIdx(null);
     }, [resetDoctorTabs]);
 
-    // console.log(appointmentsListDoctor?.data);
+    console.log('-----------------------------------------');
+    console.log(appointmentsListDoctor?.data);
+    console.log('-----------------------------------------');
+
     // console.log(appointmentsListPatient?.data);
 
+    // useEffect(() => {
+    //     if (user && user?.authorities[0]?.authority == 'ROLE_DOCTOR') {
+    //         dispatch(getInfo({ username: user?.username }));
+    //     }
+    // }, [user?.username]);
+
     useEffect(() => {
-        if (user && user?.authorities[0]?.authority == 'ROLE_DOCTOR') {
+        setSelectedPatientId(null);
+        setSelectedHistoryIdx(null);
+    }, [resetDoctorTabs]);
+
+    useEffect(() => {
+        if (!infoEmployee && user?.authorities?.[0]?.authority === 'ROLE_DOCTOR') {
             dispatch(getInfo({ username: user?.username }));
         }
     }, [user?.username]);
@@ -179,7 +193,7 @@ const SiderDoctor = ({ onOpenTab }) => {
                     appointment.actions.setFilterAppointment({
                         ...initFilterAppointment,
                         employeeId: [infoEmployee.employeeId],
-                        statuses: ['CREATE'],
+                        statuses: ['PAYMENT'],
                         search: searchToday,
                     })
                 );
@@ -346,7 +360,7 @@ const SiderDoctor = ({ onOpenTab }) => {
             )}
 
             <div className="absolute bottom-0 left-0 w-full border-t border-blue-200 bg-blue-50 cursor-pointer hover:bg-blue-100 transition-all duration-200">
-                <AccountDoctor fullname={infoEmployee?.fullName} />
+                <AccountDoctor data={infoEmployee} />
             </div>
         </div>
     );

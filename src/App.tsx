@@ -6,18 +6,15 @@ import '@n8n/chat/style.css';
 import { createChat } from '@n8n/chat';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router';
+import ChatInitializer from './components/chat/ChatInitializer';
 
 function App() {
     const location = useLocation();
 
-    // useEffect(() => {
-    //     createChat({
-    //         webhookUrl: '',
-    //     });
-    // }, []);
-
     return (
         <>
+            <ChatInitializer />
+
             <ErrorBoundary
                 key={location.pathname}
                 fallback={({ resetError }) => <FallbackError resetError={resetError} />}

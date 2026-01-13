@@ -74,16 +74,21 @@ const ModalAppointmentPatient: React.FC<ModalState> = ({ data, type, variant }) 
         try {
             setCookies('apointment_id', appointmentId, 1);
             setLoadingPayment(true);
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/payment/create`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    amount: price,
-                    orderInfo: `DICH_VU_${serviceId}`,
-                }),
-            });
+            const response = await fetch(
+                `${
+                    window.__ENV__?.BACKEND_URL ?? import.meta.env.VITE_BACKEND_URL
+                }/api/payment/create`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        amount: price,
+                        orderInfo: `DICH_VU_${serviceId}`,
+                    }),
+                }
+            );
 
             const data = await response.json();
 

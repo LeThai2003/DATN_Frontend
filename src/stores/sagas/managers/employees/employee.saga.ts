@@ -3,6 +3,7 @@ import {
     createEmployee,
     deleteEmployee,
     fetchFirst,
+    getCountShifts,
     getInfo,
     loadPage,
     updateEmployee,
@@ -140,6 +141,29 @@ function* handleGetEmployeeInfo({ payload }) {
     }
 }
 
+function* handleGetCountShift({ payload }) {
+    yield put(employee.actions.setLoadingComponent(true));
+    try {
+        const { params } = payload;
+        const { data, error } = yield call(employeeApi.countShifts, params);
+        if (error) {
+            yield put(common.actions.setErrorMessage(error?.message));
+            return;
+        }
+        console.log(data);
+        yield put(employee.actions.setRankShiftEmployee(data?.data));
+    } catch (error) {
+        console.log(error);
+        yield put(
+            common.actions.setErrorMessage(
+                error?.message || 'Lỗi lấy danh sách số lượng ca khám bác sĩ'
+            )
+        );
+    } finally {
+        yield put(employee.actions.setLoadingComponent(false));
+    }
+}
+
 function* watchFetchFirst() {
     yield takeLatest(fetchFirst, handleFetchFirst);
 }
@@ -168,6 +192,10 @@ function* watchGetEmployeeInfo() {
     yield takeLatest(getInfo, handleGetEmployeeInfo);
 }
 
+function* watchGetCountShift() {
+    yield takeLatest(getCountShifts, handleGetCountShift);
+}
+
 export function* watchEmployee() {
     yield all([
         fork(watchFetchFirst),
@@ -177,5 +205,6 @@ export function* watchEmployee() {
         fork(watchDeleteEmployee),
         fork(watchUpdatePassowrdEmployee),
         fork(watchGetEmployeeInfo),
+        fork(watchGetCountShift),
     ]);
 }

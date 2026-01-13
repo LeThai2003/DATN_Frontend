@@ -5,7 +5,7 @@ import {
     getAppointmentRecord,
 } from '@/stores/actions/appointmentRecord.s/appointmentRecord.action';
 import { fetchAppointmentListDoctor } from '@/stores/actions/appointments/appointment.action';
-import { appointment, appointment_record, common } from '@/stores/reducers';
+import { appointment, appointment_record, common, prescription } from '@/stores/reducers';
 import { ModalType } from '@/types/stores/common';
 import { all, call, fork, put, takeLatest } from 'typed-redux-saga';
 
@@ -68,6 +68,9 @@ function* handleCreateAppointmentRecord({ payload }) {
                 data: [],
             })
         );
+        yield put(prescription.actions.setPrescriptionsIcd10({}));
+        yield put(prescription.actions.setAddNewPrescription({}));
+
         yield put(common.actions.setHiddenModal(ModalType.CONFIRM_SAVE_RECORD));
         yield put(appointment_record.actions.setResetDoctorTabs(true));
     } catch (error) {

@@ -13,3 +13,7 @@ export const getShiftByEmployee = createAction(`${name}/SHIFT_BY_EMPLOYEE`, (sta
 export const updateShiftEmployee = createAction(`${name}/UPDATE_SHIFT_EMPLOYEE`, (state) => ({
     payload: state,
 }));
+
+export const deleteShiftEmployee = createAction(`${name}/DELETE_SHIFT_EMPLOYEE`, (state) => ({
+    payload: state,
+}));

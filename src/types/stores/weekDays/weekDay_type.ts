@@ -6,18 +6,30 @@ export interface FilterWeekDay extends Filter {
     employeeIds?: string[] | null;
 }
 
-export interface WeekDay {
+export interface WeekDayDtos {
     dayOfWeek: number;
-    id: string;
-    employeeDto: Employee;
-    group: number;
+    id: number; // id week day
     shiftDtos: Shift[];
 }
+export interface WeekDay {
+    id: string;
+    employeeDto: Employee;
+    count?: number;
+    weekDayDtos: WeekDayDtos[];
+}
+
+// export interface WeekDay {
+//     dayOfWeek: number;
+//     id: string;
+//     employeeDto: Employee;
+//     group: number;
+//     shiftDtos: Shift[];
+// }
 
 export interface WeekDaySlice {
     weekDays: PageObject<WeekDay>;
     filter: FilterWeekDay;
-    selectedWeekDay: WeekDay[];
+    selectedWeekDay: WeekDay;
     loadingComponent: boolean;
     newWeekDays: any;
 }

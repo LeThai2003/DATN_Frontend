@@ -25,3 +25,5 @@ export const selectLoadingPage = createSelector(
 );
 
 export const selectEmployeeInfo = createSelector(selectState, (state) => state.employeeInfo);
+
+export const selectRankShiftEmployee = createSelector(selectState, (state) => state.shiftEmployee);

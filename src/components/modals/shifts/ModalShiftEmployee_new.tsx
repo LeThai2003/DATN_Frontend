@@ -26,7 +26,7 @@ import { common, week_day } from '@/stores/reducers';
 
 dayjs.locale('vi');
 
-const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
+const ModalShiftEmployeeNew: React.FC<ModalState> = ({ data, type, variant }) => {
     const dispatch = useDispatch();
 
     const loadingComponent = useSelector(selectLoadingComponent);
@@ -36,16 +36,22 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
     const dataWeekDayEmployeeDetail = useSelector(selectSelectedWeekDay);
 
     const [selectedGroup, setSelectedGroup] = useState<any>(null);
-    const [activeTab, setActiveTab] = useState(2);
+    const [activeTab, setActiveTab] = useState(1);
+    const [activeWeek, setActiveWeek] = useState(1);
     const [localVariant, setLocalVariant] = useState(variant);
     const [localWeekDays, setLocalWeekDays] = useState([]);
 
+    // console.log(dataWeekDaysEmployee?.data);
+    // console.log(dataWeekDayEmployeeDetail);
+
     // Khi nhận dữ liệu từ API --> set vào localWeekDays
     useEffect(() => {
-        if (!dataWeekDayEmployeeDetail?.length) return;
+        if (!dataWeekDayEmployeeDetail?.weekDayDtos?.length) return;
 
         const formatted = dayNames.map((d) => {
-            const found = dataWeekDayEmployeeDetail.find((i) => i.dayOfWeek === d.value);
+            const found = dataWeekDayEmployeeDetail?.weekDayDtos.find(
+                (i) => i.dayOfWeek === d.value
+            );
             return {
                 dayOfWeek: d.value,
                 shiftIds: found ? found.shiftDtos.map((s) => s.id) : [],
@@ -68,13 +74,20 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
     }, [filter.employeeIds]);
 
     const dayNames = [
-        { value: 2, label: 'Thứ 2' },
-        { value: 3, label: 'Thứ 3' },
-        { value: 4, label: 'Thứ 4' },
-        { value: 5, label: 'Thứ 5' },
-        { value: 6, label: 'Thứ 6' },
-        { value: 7, label: 'Thứ 7' },
-        { value: 8, label: 'Chủ Nhật' },
+        { value: 1, label: 'Thứ 2' },
+        { value: 2, label: 'Thứ 3' },
+        { value: 3, label: 'Thứ 4' },
+        { value: 4, label: 'Thứ 5' },
+        { value: 5, label: 'Thứ 6' },
+        { value: 6, label: 'Thứ 7' },
+        { value: 7, label: 'Chủ Nhật' },
+        { value: 8, label: 'Thứ 2' },
+        { value: 9, label: 'Thứ 3' },
+        { value: 10, label: 'Thứ 4' },
+        { value: 11, label: 'Thứ 5' },
+        { value: 12, label: 'Thứ 6' },
+        { value: 13, label: 'Thứ 7' },
+        { value: 14, label: 'Chủ Nhật' },
     ];
 
     const weekDaysTemplate = dayNames.map((d) => ({
@@ -84,9 +97,7 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
 
     const handleClickDetail = (record) => {
         setSelectedGroup(record);
-        dispatch(
-            getWeekDayEmployeeDetail({ group: record.groupShift, employeeId: data.employeeId })
-        );
+        dispatch(getWeekDayEmployeeDetail({ group: record.id, employeeId: data.employeeId }));
     };
 
     const handleRemoveDetail = () => {
@@ -99,6 +110,50 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
         dispatch(changePage({ page: page - 1 }));
     };
 
+    const filterByWeek = (week: number) => {
+        const start = 1 + (week - 1) * 7; // Tuần 1:1, Tuần 2:8
+        const end = start + 6;
+
+        return dataWeekDayEmployeeDetail?.weekDayDtos?.filter(
+            (i) => i.dayOfWeek >= start && i.dayOfWeek <= end
+        );
+    };
+
+    const handleSelectWeek = (week: number) => {
+        setActiveWeek(week);
+
+        if (localVariant === 'view') {
+            const filteredWeekDays = filterByWeek(week)?.filter((i) => i.shiftDtos.length) || [];
+
+            if (filteredWeekDays.length > 0) {
+                setActiveTab(filteredWeekDays[0].dayOfWeek); // active ngày đầu tiên có dữ liệu
+            } else {
+                setActiveTab(null);
+            }
+        } else {
+            // Mặc định cho trường hợp khác
+            const newActiveDay = 1 + (week - 1) * 7;
+            setActiveTab(newActiveDay);
+        }
+    };
+
+    const generateWeek = (amount: number): React.ReactNode => {
+        return Array.from({ length: amount }, (_, i) => (
+            <Button
+                key={i}
+                size="middle"
+                className="px-2 mr-2"
+                variant={activeWeek === i + 1 ? 'filled' : 'text'}
+                color={activeWeek === i + 1 ? 'danger' : 'primary'}
+                onClick={() => handleSelectWeek(i + 1)}
+            >
+                <span className={activeWeek === i + 1 ? 'font-bold' : ''}>Tuần {i + 1}</span>
+            </Button>
+        ));
+    };
+
+    const weekDays = filterByWeek(activeWeek)?.filter((i) => i.shiftDtos.length) || [];
+
     // =======================================================================
     // LIST VIEW MODE
     // =======================================================================
@@ -108,7 +163,9 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
                 {loadingComponent && <LoadingSpinAntD />}
 
                 <div className="text-center font-semibold mb-3">
-                    <h2 className="text-center font-semibold">Danh sách các lần cập nhật</h2>
+                    <h2 className="text-center font-semibold">
+                        Danh sách các lần cập nhật mẫu lịch
+                    </h2>
                     <p>BS. {data?.fullName}</p>
                 </div>
 
@@ -120,27 +177,62 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
                             pagination={false}
                             columns={[
                                 {
-                                    title: 'Ngày cập nhật',
-                                    dataIndex: 'createdAt',
-                                    render: formatDayDateTimeVi,
+                                    title: 'ID cập nhật',
+                                    dataIndex: 'id',
+                                    width: 150,
+                                    align: 'center',
                                 },
                                 {
                                     title: 'Số ngày làm việc',
-                                    dataIndex: 'countDays',
+                                    dataIndex: 'weekDayDtos',
                                     width: 200,
                                     align: 'center',
+                                    render: (weekDayDtos) => weekDayDtos?.length || 0,
                                 },
                                 {
                                     title: 'Hành động',
                                     align: 'center',
-                                    render: (_, record) => (
-                                        <Button
-                                            type="primary"
-                                            onClick={() => handleClickDetail(record)}
-                                        >
-                                            Xem chi tiết
-                                        </Button>
-                                    ),
+                                    render: (_, record) =>
+                                        data?.isModalFromDoctor ? (
+                                            <Space>
+                                                <Button
+                                                    type="primary"
+                                                    onClick={() => handleClickDetail(record)}
+                                                >
+                                                    Xem chi tiết
+                                                </Button>
+
+                                                <Button
+                                                    color="danger"
+                                                    variant="solid"
+                                                    onClick={() => {
+                                                        handleClickDetail(record);
+                                                        setLocalVariant('edit');
+                                                    }}
+                                                >
+                                                    Cập nhật
+                                                </Button>
+                                            </Space>
+                                        ) : localVariant == 'view' ? (
+                                            <Space>
+                                                <Button
+                                                    type="primary"
+                                                    onClick={() => handleClickDetail(record)}
+                                                >
+                                                    Xem chi tiết
+                                                </Button>
+                                            </Space>
+                                        ) : (
+                                            <Space>
+                                                <Button
+                                                    color="danger"
+                                                    variant="solid"
+                                                    onClick={() => handleClickDetail(record)}
+                                                >
+                                                    Cập nhật
+                                                </Button>
+                                            </Space>
+                                        ),
                                 },
                             ]}
                             scroll={{ x: 'max-content', y: window.innerHeight * 0.62 }}
@@ -167,7 +259,7 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
                                 setLocalVariant('edit');
                                 setLocalWeekDays(weekDaysTemplate);
                                 setSelectedGroup({});
-                                setActiveTab(2);
+                                setActiveTab(1);
                             }}
                         >
                             Tạo lịch mới
@@ -182,41 +274,55 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
     // VIEW MODE
     // =======================================================================
     if (localVariant === 'view') {
-        const currentDetail =
-            dataWeekDayEmployeeDetail?.find((i) => i.dayOfWeek === activeTab)?.shiftDtos || [];
+        // console.log(activeTab);
+
+        let currentDetail =
+            dataWeekDayEmployeeDetail?.weekDayDtos?.find((i) => i.dayOfWeek === activeTab)
+                ?.shiftDtos || [];
+
+        // console.log(dataWeekDayEmployeeDetail?.weekDayDtos);
+        // console.log(currentDetail);
+
+        currentDetail = [...currentDetail].sort((a, b) => a.startTime.localeCompare(b.startTime));
 
         return (
             <ModalBase type={type} size="lg">
                 {loadingComponent && <LoadingSpinAntD />}
 
-                <div className="text-center font-semibold mb-3">
-                    <h2>Mẫu lịch khám bệnh</h2>
-                    <p>
-                        BS. {data?.fullName} - {formatDayDateTimeVi(selectedGroup.createdAt)}
-                    </p>
+                <div className="mb-2 text-center font-semibold relative">
+                    <div className="flex gap-3 items-center justify-center">
+                        <h2>Mẫu lịch khám bệnh</h2>
+                    </div>
+                    <p>BS. {data?.fullName}</p>
+
+                    <div className="flex absolute top-0 left-0">
+                        <Button
+                            variant="link"
+                            color="default"
+                            onClick={handleRemoveDetail}
+                            className="mb-3 px-0"
+                        >
+                            <FaArrowLeftLong /> Quay lại danh sách
+                        </Button>
+                    </div>
                 </div>
 
-                <Button onClick={handleRemoveDetail} className="mb-3">
-                    <FaArrowLeftLong /> Quay lại danh sách
-                </Button>
+                <div className="my-2">{generateWeek(2)}</div>
 
-                {/* Tabs 7 ngày */}
                 <div className="flex gap-2 mb-3 bg-slate-100 p-1 rounded-md w-fit">
-                    {dayNames.map((d) => {
-                        const hasData = dataWeekDayEmployeeDetail?.some(
-                            (i) => i.dayOfWeek === d.value && i.shiftDtos.length
-                        );
-                        return (
-                            hasData && (
-                                <Button
-                                    key={d.value}
-                                    type={activeTab === d.value ? 'primary' : 'default'}
-                                    onClick={() => setActiveTab(d.value)}
-                                >
-                                    {d.label}
-                                </Button>
-                            )
-                        );
+                    {dayNames.slice(0, 7).map((d) => {
+                        const mappedValue = d.value + (activeWeek - 1) * 7;
+                        const hasData = weekDays.some((i) => i.dayOfWeek === mappedValue);
+
+                        return hasData ? (
+                            <Button
+                                key={mappedValue}
+                                type={activeTab === mappedValue ? 'primary' : 'default'}
+                                onClick={() => setActiveTab(mappedValue)}
+                            >
+                                {d.label}
+                            </Button>
+                        ) : null;
                     })}
                 </div>
 
@@ -288,10 +394,12 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
         };
 
         const handleUndo = () => {
-            if (!dataWeekDayEmployeeDetail?.length) return;
+            if (!dataWeekDayEmployeeDetail?.weekDayDtos?.length) return;
 
             const reverted = dayNames.map((d) => {
-                const found = dataWeekDayEmployeeDetail.find((i) => i.dayOfWeek === d.value);
+                const found = dataWeekDayEmployeeDetail?.weekDayDtos.find(
+                    (i) => i.dayOfWeek === d.value
+                );
                 return {
                     dayOfWeek: d.value,
                     shiftIds: found ? found.shiftDtos.map((s) => s.id) : [],
@@ -314,26 +422,45 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
             <ModalBase type={type} size="lg">
                 {loadingComponent && <LoadingSpinAntD />}
 
-                <div className="mb-2 text-center font-semibold">
-                    <h2>Cập nhật mẫu lịch khám bệnh</h2>
+                <div className="mb-2 text-center font-semibold relative">
+                    <div className="flex gap-3 items-center justify-center">
+                        <h2>Cập nhật mẫu lịch khám bệnh</h2>
+                    </div>
                     <p>BS. {data?.fullName}</p>
+
+                    <div className="flex absolute top-0 left-0">
+                        <Button
+                            variant="link"
+                            color="default"
+                            onClick={handleRemoveDetail}
+                            className="mb-3 pl-0"
+                        >
+                            <FaArrowLeftLong /> Quay lại danh sách
+                        </Button>
+                    </div>
                 </div>
 
-                <Button onClick={handleRemoveDetail} className="mb-3">
-                    <FaArrowLeftLong /> Quay lại danh sách
-                </Button>
+                <div className="my-2">{generateWeek(2)}</div>
 
                 {/* Tabs */}
                 <div className="flex gap-2 mb-3 bg-slate-100 p-1 rounded-md w-fit">
-                    {dayNames.map((day) => (
-                        <Button
-                            key={day.value}
-                            type={activeTab === day.value ? 'primary' : 'default'}
-                            onClick={() => setActiveTab(day.value)}
-                        >
-                            {day.label}
-                        </Button>
-                    ))}
+                    {dayNames
+                        .filter(
+                            (day) =>
+                                day.value >= 1 + (activeWeek - 1) * 7 &&
+                                day.value <= 1 + (activeWeek - 1) * 7 + 6
+                        )
+                        .map((day) => {
+                            return (
+                                <Button
+                                    key={day.value}
+                                    type={activeTab === day.value ? 'primary' : 'default'}
+                                    onClick={() => setActiveTab(day.value)}
+                                >
+                                    {day.label}
+                                </Button>
+                            );
+                        })}
                 </div>
 
                 {/* Select all / unselect all */}
@@ -394,4 +521,4 @@ const ModalShiftEmployee: React.FC<ModalState> = ({ data, type, variant }) => {
     return <div />;
 };
 
-export default ModalShiftEmployee;
+export default ModalShiftEmployeeNew;

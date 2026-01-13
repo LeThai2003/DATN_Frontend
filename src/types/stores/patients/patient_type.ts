@@ -17,6 +17,7 @@ export type Patient = {
     nameRole?: string;
     description?: string;
     password?: string;
+    email?: string;
 };
 
 export interface PatientSlice {

@@ -18,10 +18,11 @@ import ModalLogoutConfirm from './confirms/ModalLogoutConfirm';
 import ModalDoctorByThem from './employees/ModalDoctorByThem';
 import ModalRelativePatient from './relativePatients/ModalRelativePatient';
 import ModalShiftTime from './shifts/ModalShiftTime';
-
 import ModalConfirmSaveRecord from './appointmentRecords/ModalConfirmSaveRecord';
-import ModalShiftEmployee from './shifts/ModalShiftEmployee';
+import ModalShiftEmployee from './shifts/ModalShiftEmployee_2';
 import ModalAcceptPrescriptionSugesstion from './appointmentRecords/ModalAcceptPrescriptionsSuggest';
+import ModalShiftEmployeeNew from './shifts/ModalShiftEmployee_new';
+import ModalWorkShiftEmployee from './shifts/ModalWorkShiftEmployee';
 
 const ModalRender = () => {
     const modals = useSelector(selectModal);
@@ -62,8 +63,12 @@ const ModalRender = () => {
                 return <ModalRelativePatient key={modal.type} {...modal} />;
             case ModalType.SHIFT_TIME:
                 return <ModalShiftTime key={modal.type} {...modal} />;
+            // case ModalType.SHIFT_EMPLOYEE:
+            //     return <ModalShiftEmployee key={modal.type} {...modal} />;
+            case ModalType.WORK_SHIFT_DOCTOR:
+                return <ModalWorkShiftEmployee key={modal.type} {...modal} />;
             case ModalType.SHIFT_EMPLOYEE:
-                return <ModalShiftEmployee key={modal.type} {...modal} />;
+                return <ModalShiftEmployeeNew key={modal.type} {...modal} />;
             case ModalType.CONFIRM_SAVE_RECORD:
                 return <ModalConfirmSaveRecord key={modal.type} {...modal} />;
             case ModalType.ACCEPT_PRESCRIPTION_SUGGEST:

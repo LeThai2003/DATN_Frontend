@@ -79,4 +79,6 @@ export const selectCountFollowUpVisitsByDate = createSelector(
     (state) => state.countFollowUpVisitsByDate
 );
 
+export const selectPaymentResult = createSelector(selectState, (state) => state.paymentResult);
+
 export const selectShiftAppointment = createSelector(selectState, (state) => state.shift);

@@ -29,7 +29,7 @@ class HttpService {
         this.entity = entity;
 
         this.instance = axios.create({
-            baseURL: import.meta.env.VITE_BACKEND_URL,
+            baseURL: window.__ENV__?.BACKEND_URL ?? import.meta.env.VITE_BACKEND_URL,
         });
 
         this.instance.interceptors.request.use((config) => {
@@ -97,16 +97,23 @@ class HttpService {
                         // Refresh token
                         const response = await axios.post(
                             `${
-                                import.meta.env.VITE_BACKEND_URL
+                                window.__ENV__?.BACKEND_URL ?? import.meta.env.VITE_BACKEND_URL
                             }/auth/refresh?refreshToken=${refresh_token}`
                         );
 
                         const accessToken = response.data.access_token;
                         const refreshToken = response.data.refresh_token;
 
-                        // Lưu token mới
-                        setCookies('access_token', accessToken, 7);
-                        setCookies('refresh_token', refreshToken, 30);
+                        const roleName = response.data.data.authorities[0].authority;
+
+                        if (roleName == 'ROLE_DOCTOR') {
+                            localStorage.setItem('access_token', accessToken);
+                            localStorage.setItem('refresh_token', refreshToken);
+                        } else {
+                            // Lưu token mới
+                            setCookies('access_token', accessToken, 7);
+                            setCookies('refresh_token', refreshToken, 30);
+                        }
 
                         // Thử lại request ban đầu với token mới
                         const newRequest = {

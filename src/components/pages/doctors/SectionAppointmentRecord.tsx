@@ -7,6 +7,7 @@ import { selectLoadingComponent } from '@/stores/selectors/appointmentRecords/ap
 import { selectLoadingComponent as selectLoadingComponentAppointment } from '@/stores/selectors/appointments/appointment.selector';
 import { selectFollowUpVisits } from '@/stores/selectors/followUpVisits/followUpVisit.selector';
 import { selectPrescriptionsIcd10 } from '@/stores/selectors/prescriptions/prescription.selector';
+import { selectModal } from '@/stores/selectors/common/common.selector';
 import { ModalType } from '@/types/stores/common';
 import { formatDateVi } from '@/utils/times/times';
 import { appointmentRecordSchema } from '@/validations/appointmentRecord.validate';
@@ -38,6 +39,7 @@ const SectionAppointmentRecord = forwardRef<
     const listFollowUpVisits = useSelector(selectFollowUpVisits);
     const prescriptionsIcd10 = useSelector(selectPrescriptionsIcd10);
     const loadingComponentApointment = useSelector(selectLoadingComponentAppointment);
+    const modals = useSelector(selectModal);
 
     const [followUpVisitId, setFollowUpVisitId] = useState<string | null>(null);
     const [confirmVisible, setConfirmVisible] = useState(false);
@@ -124,8 +126,8 @@ const SectionAppointmentRecord = forwardRef<
     }, [appointmentRecordData]);
 
     useEffect(() => {
-        const icd = watch('icd10');
         if (!isHistory) {
+            const icd = watch('icd10');
             if (icd) {
                 dispatch(
                     getOldAppointment({
@@ -184,7 +186,7 @@ const SectionAppointmentRecord = forwardRef<
                             icd10: data?.icd10 || '',
                             followUpVisit: {
                                 followUpDate: data?.followUpVisit?.followUpDate || '',
-                                notes: data?.followUpVisit?.notes || '',
+                                instruction: data?.followUpVisit?.notes || '',
                             },
                             notes: data?.notes || '',
                             follow: followUpVisitId || '',
@@ -233,16 +235,22 @@ const SectionAppointmentRecord = forwardRef<
             (prescriptionsIcd10 as any)?.perscriptionCreates?.length > 0 &&
             !loadingComponentApointment
         ) {
-            dispatch(
-                common.actions.setShowModal({
-                    type: ModalType.ACCEPT_PRESCRIPTION_SUGGEST,
-                    data: {
-                        icd10: watch('icd10'),
-                        icd10_label: watch('icd10_label'),
-                    },
-                    variant: 'accept',
-                })
+            const modalExists = modals.some(
+                (modal) => modal.type === ModalType.ACCEPT_PRESCRIPTION_SUGGEST
             );
+
+            if (!modalExists && !isHistory) {
+                dispatch(
+                    common.actions.setShowModal({
+                        type: ModalType.ACCEPT_PRESCRIPTION_SUGGEST,
+                        data: {
+                            icd10: watch('icd10'),
+                            icd10_label: watch('icd10_label'),
+                        },
+                        variant: 'accept',
+                    })
+                );
+            }
         }
     }, [prescriptionsIcd10, loadingComponentApointment]);
 

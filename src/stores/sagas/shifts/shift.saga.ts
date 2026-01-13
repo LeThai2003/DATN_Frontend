@@ -1,5 +1,6 @@
 import { shiftApi } from '@/api/shifts/shift.api';
 import {
+    deleteShiftEmployee,
     getShiftByEmployee,
     getShifts,
     updateShiftEmployee,
@@ -57,7 +58,16 @@ function* handleFetchShiftEmployee() {
             return;
         }
 
-        yield put(shift.actions.setShiftEmployee(data?.data?.data));
+        let list = data?.data?.data || [];
+
+        list = list.sort((a, b) => {
+            return a.shift.startTime.localeCompare(b.shift.startTime);
+        });
+
+        yield put(shift.actions.setShiftEmployee(list));
+
+        console.log(list);
+
         yield put(appointment.actions.setShiftAppointment(null));
     } catch (error: any) {
         console.error(error);
@@ -94,6 +104,29 @@ function* handleUpdateShiftEmployee({ payload }) {
     }
 }
 
+function* handleDeleteShiftEmployee({ payload }) {
+    yield* put(shift.actions.setLoadingComponent(true));
+
+    try {
+        const { shiftId } = payload;
+
+        const { data, error } = yield call(shiftApi.deleteShiftEmployee, shiftId);
+
+        if (error) {
+            yield put(common.actions.setErrorMessage(error.message));
+            return;
+        }
+
+        yield call(handleFetchShiftEmployee);
+        yield put(common.actions.setSuccessMessage('Xóa ca khám thành công'));
+    } catch (error: any) {
+        console.error(error);
+        yield put(common.actions.setErrorMessage(error?.message));
+    } finally {
+        yield put(shift.actions.setLoadingComponent(false));
+    }
+}
+
 function* watchFetchListShifts() {
     yield takeLatest(getShifts, handleFetchListShifts);
 }
@@ -106,10 +139,15 @@ function* watchUpdateShiftEmployee() {
     yield takeLatest(updateShiftEmployee, handleUpdateShiftEmployee);
 }
 
+function* watchDeleteShiftEmployee() {
+    yield takeLatest(deleteShiftEmployee, handleDeleteShiftEmployee);
+}
+
 export function* watchShift() {
     yield all([
         fork(watchFetchListShifts),
         fork(watchFetchShiftEmployee),
         fork(watchUpdateShiftEmployee),
+        fork(watchDeleteShiftEmployee),
     ]);
 }
